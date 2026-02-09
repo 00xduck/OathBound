@@ -9,3 +9,12 @@ Oathbound is a Pixel-Art Side-Scroller game.
 ## Get Started
 1. build the .js with: `npm run build`
 2. start server: `npm run start`
+
+## Credits
+### Assets
+- **luizmelo**
+- **creativeKind**
+- **clockworkraven**
+- **bdragon1727**
+- **craftpix**
+- **karsiori**
