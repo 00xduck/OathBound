@@ -1,9 +1,10 @@
 {
-  "name": "weltderriesen",
+  "name": "Oathbound",
   "version": "1.0.0",
   "description": "",
   "main": "main.js",
   "scripts": {
+    "build": "cd public; tsc",
     "start": "node --watch main.js"
   },
   "keywords": [],
