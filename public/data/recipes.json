@@ -1,0 +1,188 @@
+[
+    {
+        "recipe": [
+            " A ",
+            " A ",
+            " B "
+        ],
+        "output": "iron_sword",
+        "A": "iron_ingot",
+        "B": "stick"
+    },
+    {
+        "recipe": [
+            " A ",
+            " A ",
+            " B "
+        ],
+        "output": "gold_sword",
+        "A": "gold_ingot",
+        "B": "stick"
+    },
+    {
+        "recipe": [
+            " A ",
+            " A ",
+            " B "
+        ],
+        "output": "copper_sword",
+        "A": "copper_ingot",
+        "B": "stick"
+    },
+    {
+        "recipe": [
+            "AAA",
+            "A A",
+            "   "
+        ],
+        "output": "iron_helmet",
+        "A": "iron_ingot"
+    },
+    {
+        "recipe": [
+            "",
+            "A A",
+            "A A"
+        ],
+        "output": "iron_boots",
+        "A": "iron_ingot"
+    },
+    {
+        "recipe": [
+            "   ",
+            "A A",
+            "B B"
+        ],
+        "output": "hardened_boots",
+        "A": "iron_ingot",
+        "B": "leather"
+    },
+    {
+        "recipe": [
+            "   ",
+            "A A",
+            "A A"
+        ],
+        "output": "leather_boots",
+        "A": "leather"
+    },
+    {
+        "recipe": [
+            "A A",
+            "BAB",
+            "AAA"
+        ],
+        "output": "peasants_robe",
+        "A": "leather",
+        "B": "string"
+    },
+    {
+        "recipe": [
+            "A A",
+            "BAB",
+            "AAA"
+        ],
+        "output": "peasants_robe",
+        "A": "leather",
+        "B": "string"
+    },
+    {
+        "recipe": [
+            "BAB",
+            "A A",
+            "   "
+        ],
+        "output": "leather_hood",
+        "A": "leather",
+        "B": "string"
+    },
+    {
+        "recipe": [
+            "A A",
+            "AAA",
+            "AAA"
+        ],
+        "output": "iron_chestplate_tier_1",
+        "A": "iron_ingot"
+    },
+    {
+        "recipe": [
+            " A ",
+            " AC",
+            " B "
+        ],
+        "output": "stone_sword",
+        "A": "stone",
+        "B": "stick",
+        "C": "string"
+    },
+    {
+        "recipe": [
+            " A ",
+            "BAB",
+            " A "
+        ],
+        "output": "wood_sword",
+        "A": "stick",
+        "B": "string"
+    },
+    {
+        "recipe": [
+            "A A",
+            "BAB",
+            "AAA"
+        ],
+        "output": "iron_chestplate_tier_2",
+        "A": "iron_ingot",
+        "B": "silver_ingot"
+    },
+    {
+        "recipe": [
+            "A A",
+            "BAB",
+            "BBB"
+        ],
+        "output": "iron_chestplate_tier_3",
+        "A": "iron_ingot",
+        "B": "silver_ingot"
+    },
+    {
+        "recipe": [
+            "A A",
+            "BAB",
+            "BBB"
+        ],
+        "output": "steel_robe",
+        "A": "silver_ingot",
+        "B": "cloth"
+    },
+    {
+        "recipe": [
+            "A A",
+            "AAA",
+            "   "
+        ],
+        "output": "gold_crown",
+        "A": "gold_ingot"
+    },
+    {
+        "recipe": [
+            "B B",
+            "AAA",
+            "   "
+        ],
+        "output": "berserker_helmet",
+        "A": "iron_ingot",
+        "B": "horn"
+    },
+    {
+        "recipe": [
+            "AAA",
+            "ABA",
+            "   "
+        ],
+        "output": "knights_helm",
+        "A": "silver_ingot",
+        "B": "iron_ingot"
+    }
+]

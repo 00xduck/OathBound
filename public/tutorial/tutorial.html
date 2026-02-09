@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/standardV1.3.css">
+    <title>Welt Der Riesen</title>
+</head>
+<body>
+    <div id="game">
+        <canvas id="canvas"></canvas>
+        <div class="bar">
+            <div class="slot-div">
+                <div class="slot selected" id="hotbar1"></div>
+                <div class="slot" id="hotbar2"></div>
+                <div class="slot" id="hotbar3"></div>
+                <div class="slot" id="hotbar4"></div>
+                <div class="slot" id="hotbar5"></div>
+            </div>
+            <div class="speaking-div">
+                <div id="speakWrapper" class="display-none">
+                    <h1 class="speak"></h1>
+                    <button class="speakBtn confirm-btn display-none" id="speakBtn"></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="effect-icons-div">
+        </div>
+
+        <div class="inventory-div center display-none">
+        </div>
+        <div class="crafting-div display-none">
+
+        </div>
+
+        <div class="container display-none">
+            <div class="slots-div" id="slot-div-container"></div>
+        </div>
+
+        <div class="display-none trading-menu" id="trading-menu">
+
+        </div>
+
+        <div class="info-div">
+            <h1 id="info"></h1>
+        </div>
+
+        <div class="fps-div"></div>
+    </div>
+
+    <script src="tutorial.js"></script>
+</body>
+</html>

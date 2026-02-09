@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+        "target": "ES2017",
+        "module": "ESNext",
+        "lib": [
+            "DOM",
+            "ES2017"
+        ],
+        "moduleResolution": "Bundler",
+        "strict": true
+    }
+}

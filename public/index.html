@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="standardV1.3.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bonheur+Royale&display=swap" rel="stylesheet">
+    <title>Oathbound</title>
+</head>
+<body>
+    <div class="blur-div">
+        <header class="flex-between">
+            <div class="margin-left-32">
+                <h1 class="headline">Oathbound</h1>
+            </div>
+            <div class="margin-32">
+                <div class="logo-container">
+                    <img class="logo1" src="img/title.jpg" alt="Couldnt load image">
+                    <img class="logo" src="img/logo.png" alt="Couldnt load image">
+                </div>
+            </div>
+        </header>
+        <div class="background-div">
+
+            <div class="flex-center">
+                <div class="flex-center">
+                    <div class="shadow box">
+                        <div class="flex-center shadow border-radius title">
+                            <h1>Saves</h1>    
+                        </div>
+                        <div class="save-div shadow margin-16 padding-16" id="save1"></div>
+                        <div class="save-div shadow margin-16 padding-16" id="save2"></div>
+                        <div class="save-div shadow margin-16 padding-16" id="save3"></div>
+                    </div>
+                </div>
+                <div class="flex-center">
+                    <div class="shadow box">                
+                        <div class="flex-center shadow border-radius title">
+                            <h1>Stats</h1>    
+                        </div>
+                        <div class="padding-16">
+                            <h1>Under construction</h1>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex-center margin-right-64">
+                    <div class="shadow box">                
+                        <div class="flex-center shadow border-radius title">
+                            <h1>Gameplay</h1>    
+                        </div>
+                        <div class="padding-16">
+                            <div class="flex-center">
+                                <button onclick="startTutorial()" class="btn-big" style="color: black;">Tutorial</button>
+                            </div>
+                            <div class="flex-center">
+                                <h1>Under construction</h1>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+        <div class="center-true display-none" id="popup">
+            <div class="popup border-radius">
+                <div class="flex-center shadow border-radius">
+                    <h1 id="title"></h1>
+                </div>
+                <div id="content" class="margin-top-16">
+
+                </div>
+            </div>
+        </div>
+
+    <script>
+        const info = sessionStorage.getItem('user')
+        const isloggedIn = sessionStorage.getItem('user')
+        if(isloggedIn) {
+            /* loggedIn(info) */
+        }else {
+            loggedOut()
+        }
+
+        function loggedOut() {
+            for(let i = 1;i<4;i++) {
+                const saveDiv = document.querySelector(`#save${i}`);
+                saveDiv.addEventListener('click',() => {
+                    showPopup(i)
+                })
+                saveDiv.innerHTML = `<h1>Play without saving</h1><br><h2 style="font-style: italic;">Log in to save your progress</h2>`
+            }
+        }
+
+        function showPopup(save) {
+            const popup = document.querySelector('#popup');
+
+            popup.classList.remove('display-none')
+
+            const title = document.querySelector('#title');
+            const content = document.querySelector('#content');
+
+            if(isloggedIn) {
+                // TODO
+            }else {
+                title.innerHTML = '<h2 class="title">Not logged in!</h2>'
+                content.innerHTML = `<div class="flex-center"><h2>Playing won't save the game!<h2></div><div class="flex-center margin-top-32"><button style="color: black;" class="btn-small background-color-white" onclick="startGame(${save})">Proceed</button><button style="color: black;" class="btn-small background-color-white margin-left-16" onclick="closePopup()">Quit</button></div>`
+            }
+        }
+        
+        function startGame(save) {
+            sessionStorage.setItem('save', save)
+
+            location.href = '/game'
+        }
+
+        function closePopup() {
+
+            
+            const popup = document.querySelector('#popup');
+
+            popup.classList.add('display-none')
+        }
+    
+        function startTutorial() {
+            location.href = '/tutorial'
+        }
+    </script>
+</body>
+</html>

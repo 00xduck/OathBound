@@ -1,0 +1,436 @@
+body {
+    overflow-x: hidden;
+    overflow-y: hidden;
+    /* background-color: rgb(49, 101, 95); */
+    background-image: url(img/background/ground.png);
+    background-position: 50%;
+}
+
+* {
+    color: rgb(216, 216, 216);
+    user-select: none;
+}
+
+
+.background-div {
+    min-height: calc(100vh - 150px);
+    width: 100%;
+    background-image: url('./img/plains.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.shadow {
+    box-shadow: 3px 3px 3px black;
+    background-color: rgba(0, 0, 0, .2);
+}
+
+.popup {
+    box-shadow: 3px 3px 3px black;
+    background-color: rgb(116, 116, 116);
+    width: 400px;
+    height: 300px;
+    color: black;
+}
+
+
+.save-div {
+    border-radius: 10px;
+    user-select: none;
+}
+
+.border-radius {
+    border-radius: 10px;
+}
+
+.title {
+    padding: 16px;
+    font-size: 30px;
+}
+
+.save-div:hover {
+    animation: hover 0.5s ease-in-out forwards;
+}
+
+.box {
+    margin-top: 32px;
+    margin-left: 64px;
+    width: 500px;
+    height: 95%;
+    border-radius: 10px;
+}
+
+header {
+    width: 100%;
+    height: 150px;
+    background-color: rgb(214, 214, 214);
+}
+
+.headline {
+    margin-top: -30px;
+    font-size: 200px;
+    font-family: "Bonheur Royale", cursive;
+    font-weight: 400;
+    color: black;
+}
+
+.center {
+    position: absolute;
+    top: 50%;
+    left: 55%;
+    transform: translate(-50%, -50%);
+}
+
+.logo-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0px;
+}
+
+.logo1,
+.logo {
+    width: 200px;
+    height: 150px;
+    object-fit: contain;
+}
+
+.logo1 {
+    border-radius: 25px;
+}
+
+.center-true {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+@keyframes cardHover {
+    0% {
+        border: 0px solid greenyellow;
+    }
+
+    100% {
+        scale: 1.02;
+        border: 1px solid black;
+    }
+}
+
+@keyframes hover {
+    100% {
+        scale: 1.05;
+    }
+}
+
+
+.start-btn {
+    text-align: center;
+    border: none;
+    border-radius: 5px;
+    background-color: rgb(15, 113, 0);
+    color: rgb(0, 0, 0);
+    padding: 8px;
+    height: 64px;
+    width: 128px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 5px 5px 5px black;
+    border: 0px solid black;
+}
+
+.start-btn:hover {
+    animation: btnHover 0.75s ease-in-out forwards;
+}
+
+@keyframes btnHover {
+    100% {
+        scale: 1.02;
+        filter: brightness(2);
+        box-shadow: 15px 15px 15px black;
+        border: 2px solid black;
+    }
+}
+
+.bar {
+    height: 280px;
+    width: 100%;
+    /* background-color: rgb(49, 101, 95); */
+    background-image: url(img/background/ground.png);
+    background-position: 50%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.slot-div {
+    display: flex;
+    justify-content: space-between;
+    height: 100%;
+    width: 40%;
+    gap: 16px;
+    margin-left: 32px;
+}
+
+.slot {
+    margin-top: 70px;
+    height: 200px;
+    width: 200px;
+    max-width: 300px;
+    background-image: url(img/items/itemSlot.png);
+    background-repeat: no-repeat;
+    background-size: contain;
+    display: flex;
+    justify-content: center;
+}
+
+.slotItem {
+    margin-top: 50px;
+    background-repeat: no-repeat;
+}
+
+.inventory-div {
+    background-image: url(img/items/invBackground.png);
+    border-radius: 10px;
+    padding: 16px;
+    display: flex;
+    justify-content: left;
+}
+
+.inv-slot {
+    background-image: url("img/items/inventorySlot.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    width: 64px;
+    height: 64px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.slots-div {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    font-family: cursive;
+}
+
+.player-data {
+    width: 200px;
+    max-width: 300px;
+    box-shadow: 3px 3px 3px 3px black;
+    border-radius: 5px;
+    margin-left: 32px;
+    padding: 16px;
+}
+
+.item {
+    width: 100%;
+    height: 100%;
+    background-repeat: no-repeat;
+    background-position: 0 0;
+    background-size: auto;
+    cursor: grab;
+}
+
+#slot03,
+#slot13,
+#slot23,
+#slot33,
+#slot43 {
+    background-image: url(img/items/itemSlot.png);
+}
+
+.selected {
+    transform: scale(1.2)
+}
+
+.info-div {
+    position: absolute;
+    top: 500px;
+    left: 50%;
+    transform: translate(-50%);
+}
+
+.container {
+    position: absolute;
+    top: 2px;
+    left: 50%;
+    transform: translate(-50%);
+    background-image: url(img/items/invBackground.png);
+    border-radius: 10px;
+    padding: 16px;
+    display: flex;
+    justify-content: left;
+}
+
+.trading-menu {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-image: url(img/items/invBackground.png);
+    border-radius: 10px;
+    padding: 32px;
+}
+
+.arrow {
+    height: 75px;
+    width: 75px;
+    margin-top: 5px;
+    margin: 16px;
+    background-image: url(img/items/arrows.png);
+    background-position: 50%;
+    background-size: 90%;
+    background-repeat: no-repeat;
+}
+
+.confirm-btn {
+    height: 75px;
+    width: 75px;
+    margin-top: 5px;
+    margin: 16px;
+    background-image: url(img/items/confirm.png);
+    background-position: 50%;
+    background-size: 90%;
+    background-repeat: no-repeat;
+    border: none;
+    background-color: transparent;
+}
+
+.speakBtn {
+    margin-top: 0px;
+}
+
+.confirm-btn:hover {
+    transform: scale(1.1);
+}
+
+.innerDiv {
+    box-shadow: 2px 2px 2px 2px black;
+    margin-top: 32px;
+}
+
+.speaking-div {
+    margin: 16px;
+    background-color: rgb(165, 165, 165);
+    /* background-image: url(img/background/leaves.png); */
+    background-position: 10%;
+    border: 3px solid black;
+    border-radius: 25px;
+    width: 40%;
+    height: 80%;
+}
+
+.speak {
+    margin: 32px;
+    color: rgb(0, 0, 0);
+    padding: 8px;
+    background-color: white;
+}
+
+.armor-div {
+    margin-right: 32px;
+    padding: 16px;
+    border-radius: 5px;
+    box-shadow: 3px 3px 3px 3px black;
+}
+
+.armorSlot {
+    margin-top: 8px;
+    background-repeat: no-repeat;
+    background-size: 100%;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.helmet {
+    background-image: url("img/icons/armorSlotHelmet.png");
+}
+
+.chestplate {
+    background-image: url("img/icons/armorSlotChestplate.png");
+}
+
+.boots {
+    background-image: url("img/icons/armorSlotBoots.png");
+}
+
+.effect-icons-div {
+    position: absolute;
+    top: 5%;
+    left: 0%;
+    display: flex;
+    justify-content: right;
+    height: 100px;
+    width: 100%;
+}
+
+.effectIcon {
+    background-position: 50%;
+    background-repeat: no-repeat;
+    background-size: 100%;
+    width: 100px;
+    height: 100px;
+}
+
+.grab {
+    cursor: grabbing;
+}
+
+.crafting-div {
+    position: absolute;
+    top: 35%;
+    left: 1%;
+    background-image: url(img/background/craftingBackground.png);
+    border-radius: 10px;
+    padding: 16px;
+    display: flex;
+    justify-content: left;
+}
+
+.grid {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    font-family: cursive;
+}
+
+.crafting-slot {
+    background-image: url(img/icons/craftingSlot.png);
+    box-shadow: 3px 3px 3px 3px black;
+    width: 70px;
+    height: 70px;
+}
+
+.margin-top {
+    margin-top: 60px;
+}
+
+.arrow1:hover {
+    transform: scale(1.2);
+}
+
+.fps-div {
+    position: absolute;
+    left: 0%;
+    top: 0%;
+}
+
+.quest-div {
+    position: absolute;
+    left: 1%;
+    top: 5%;
+    padding: 8px;
+    width: 20%;
+    background-color: rgba(0, 0, 0, 0.137);
+    box-shadow: 3px 3px 3px black;
+}

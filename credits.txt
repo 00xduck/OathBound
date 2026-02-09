@@ -1,0 +1,22 @@
+- sprites: luizmelo, creativeKind, clockworkraven, bdragon1727, craftpix, karsiori
+
+Ideen:
+- worlds (desert, forest, birch, village)
+- orks
+- houses to enter
+- dash
+- stats
+
+!!! Important
+- end()/start() function for effects
+
+!!! bugs
+- interaction range fix! (half fix)
+
+<!--- Story ---!>
+0. forgot everything
+
+1. rescue humans
+2. get reward
+3. go to village; trade/gear up
+4. raid from the goblins
