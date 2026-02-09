@@ -18,3 +18,5 @@ Oathbound is a Pixel-Art Side-Scroller game.
 - **bdragon1727**
 - **craftpix**
 - **karsiori**
+
+_If I forgot you please reach out to me_
