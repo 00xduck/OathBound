@@ -3,7 +3,7 @@
 A pixel-art side-scroller story game currently in development.
 It is a semi open world game with intentional limitations.
 ## Project Status
-OathBound is still in early development and is not yet playable.
+OathBound is still in early development and is not yet playable as a finished product, but only as a testing version.
 However, many core features are already implemented, on which I want to build upon.
 Some features include:
 - Crafting System
