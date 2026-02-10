@@ -1,7 +1,7 @@
 {
   "name": "Oathbound",
-  "version": "1.0.0",
-  "description": "",
+  "version": "0.3.0",
+  "description": "pixel-art side-scroller progression-based story game",
   "main": "main.js",
   "scripts": {
     "build": "cd public; tsc",
