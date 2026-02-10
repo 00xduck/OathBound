@@ -4388,5 +4388,3 @@ entities.push(new NPC(650, StaticPositions.OnGround, 'img/passiveEntities/samura
 
 updateHotbar()
 update()
-
-export { };
