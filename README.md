@@ -1,13 +1,44 @@
 # OathBound
-A Pixel-Art Side-Scroller game in development by me.
-
-## Requirements
-- express: `npm install express@5.1.0`
-
-## Get Started
-1. build the Javascript file with: `npm run build`
-2. start server: `npm run start`
-
+## About
+A pixel-art side-scroller story game currently in development.
+It is a semi open world game with intentional limitations.
+## Project Status
+OathBound is still in early development and is not yet playable.
+However, many core features are already implemented, on which I want to build upon.
+Some features include:
+- Crafting System
+- Worlds System
+- Status Effects (e.g. strength, regeneration or burning)
+- Gathering of raw materials
+- Quest system
+- Enemies
+## Gameplay
+OatBound's gameplay is focused on learning and progression through collection of
+items, killing of enemies and completing quests
+## Movement
+- Walk forwards: `W` or `D`
+- Walk backwards: `S` or `A`
+- Jump: `Space`
+- Attack: `Left Click`
+- Jump Attack: `Space` and `Left Click`
+- Open/Close Inventory: `E`
+- Interact: `R`
+## Installation
+1. download express:
+   `npm install express@5.1.0`
+3. build the Javascript file:
+   `npm run build`
+5. start server:
+   `npm run start`
+## Tech Stack
+- HTML5
+- CSS
+- TS
+- JS
+- Node.js
+- Express
+## Contributing
+This repository is currently not open for external constributors
 ## Credits
 ### Assets
 - **[luizmelo](https://luizmelo.itch.io)**
@@ -21,4 +52,4 @@ _If I forgot you please reach out to me_
 
 ---
 
-**Developed by _LUMA STUDIOS (personal project)_**
+**Created by _LUMA STUDIOS (personal project)_**
