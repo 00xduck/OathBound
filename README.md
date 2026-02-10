@@ -27,11 +27,12 @@ The story is also a core part of the game, but its development is very early and
 - Interact: `R`
 - Use Item: `Right Click`
 ## Installation
-1. download express:
+1. download `[node.js](https://nodejs.org/en/download)`
+2. download express:
    `npm install express@5.1.0`
 3. build the Javascript file:
    `npm run build`
-5. start server:
+4. start server:
    `npm run start`
 ## Tech Stack
 - HTML5
