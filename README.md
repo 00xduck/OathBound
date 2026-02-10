@@ -10,12 +10,12 @@ A Pixel-Art Side-Scroller game in development by me.
 
 ## Credits
 ### Assets
-- **luizmelo**
-- **creativeKind**
-- **clockworkraven**
-- **bdragon1727**
-- **craftpix**
-- **karsiori**
+- **[luizmelo](https://luizmelo.itch.io)**
+- **[creativeKind](https://creativekind.itch.io)**
+- **[clockworkraven](https://clockworkraven.itch.io)**
+- **[bdragon1727](https://bdragon1727.itch.io)**
+- **[craftpix](https://free-game-assets.itch.io)**
+- **[karsiori](https://karsiori.itch.io)**
 
 _If I forgot you please reach out to me_
 
