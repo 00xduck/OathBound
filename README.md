@@ -1,13 +1,11 @@
 # OathBound
-A Game in development by me.
-
-Oathbound is a Pixel-Art Side-Scroller game.
+A Pixel-Art Side-Scroller game in development by me.
 
 ## Requirements
 - express: `npm install express@5.1.0`
 
 ## Get Started
-1. build the .js with: `npm run build`
+1. build the Javascript file with: `npm run build`
 2. start server: `npm run start`
 
 ## Credits
@@ -20,3 +18,7 @@ Oathbound is a Pixel-Art Side-Scroller game.
 - **karsiori**
 
 _If I forgot you please reach out to me_
+
+---
+
+**Developed by _LUMA STUDIOS (personal project)_**
