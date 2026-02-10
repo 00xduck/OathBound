@@ -1,4 +1,5 @@
 # OathBound
+### Version 0.3.0
 ## About
 A pixel-art side-scroller story game currently in development.
 It is a semi open world game with intentional limitations.
