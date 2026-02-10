@@ -4,7 +4,7 @@
 **OathBound** is a pixel-art side-scroller progression-based story game currently in development.
 It is a semi open world game with intentional limitations.
 ## Project Status
-OathBound is still in early development and is not yet playable as a finished product, but only as a testing version.
+**OathBound** is still in early development and is not yet playable as a finished product, but only as a testing version.
 However, many core features are already implemented, on which I want to build upon.
 Some features include:
 - Crafting System
@@ -14,7 +14,7 @@ Some features include:
 - Quest system
 - Enemies
 ## Gameplay
-OathBound's gameplay is focused on learning and progression through collection of
+**OathBound's** gameplay is focused on learning and progression through collection of
 items, killing of enemies and completing quests.
 The story is also a core part of the game, but its development is very early and I am open for suggestions!
 ## Controls
