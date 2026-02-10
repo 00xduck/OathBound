@@ -13,8 +13,9 @@ Some features include:
 - Quest system
 - Enemies
 ## Gameplay
-OatBound's gameplay is focused on learning and progression through collection of
-items, killing of enemies and completing quests
+OathBound's gameplay is focused on learning and progression through collection of
+items, killing of enemies and completing quests.
+The story is also a core part of the game, but its development is very early and I am open for suggestions!
 ## Movement
 - Walk forwards: `W` or `D`
 - Walk backwards: `S` or `A`
@@ -23,6 +24,7 @@ items, killing of enemies and completing quests
 - Jump Attack: `Space` and `Left Click`
 - Open/Close Inventory: `E`
 - Interact: `R`
+- Use Item: `Right Click`
 ## Installation
 1. download express:
    `npm install express@5.1.0`
