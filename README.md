@@ -56,3 +56,5 @@ _If I forgot you please reach out to me_
 ---
 
 **Created by _LUMA STUDIOS (personal project)_**
+
+![Logo](public/img/logo.png)
