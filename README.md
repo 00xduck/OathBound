@@ -53,6 +53,7 @@ This repository is currently not open for external contributors
 - **[craftpix](https://free-game-assets.itch.io)**
 - **[karsiori](https://karsiori.itch.io)**
 - **[xzany](https://xzany.itch.io/)**
+- **[zamcham](https://zamcham.itch.io/)**
 
 _If I forgot you please reach out to me_
 
