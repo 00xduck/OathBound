@@ -28,11 +28,12 @@ The story is also a core part of the game, but its development is very early and
 - Use Item: `Right Click`
 ## Installation
 1. download [node.js](https://nodejs.org/en/download)
-2. download express:
+2. install TypeScript `npm install -g typescript`
+3. install express:
    `npm install express@5.1.0`
-3. build the Javascript file:
+4. build the Javascript file:
    `npm run build`
-4. start server:
+5. start server:
    `npm run start`
 ## Tech Stack
 - HTML5
