@@ -58,7 +58,7 @@ This repository is currently not open for external contributors
 _If I forgot you please reach out to me_
 
 ### Screenshots
-<img src="/docs/gameplayFootage_1.png" width="300">
+<img src="/docs/gameplayFootage_1.png" width="500">
 
 ---
 **Created by _LUMA STUDIOS (personal project)_**
