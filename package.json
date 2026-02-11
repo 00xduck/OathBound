@@ -4,6 +4,7 @@
   "description": "pixel-art side-scroller progression-based story game",
   "main": "main.js",
   "scripts": {
+    "buildStart": "npm run build && npm run start",
     "build": "cd public && tsc",
     "start": "node --watch main.js"
   },
