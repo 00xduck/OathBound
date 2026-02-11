@@ -56,8 +56,7 @@ This repository is currently not open for external contributors
 _If I forgot you please reach out to me_
 
 ---
+**Created by _LUMA STUDIOS (personal project)_**
+---
 **All rights reserved.** <br>
 This project may **not** be redistributed, re-published,<br> or made publicly available without explicit permission from the author.
-
----
-**Created by _LUMA STUDIOS (personal project)_**
