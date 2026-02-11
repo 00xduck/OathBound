@@ -29,7 +29,7 @@ app.get('/recipes', (req, res) => {
 })
 
 app.get('/tutorial', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'tutorial', 'tutorial.html'))
+    res.send('Tutorial has not been developed yet.')
 })
 
 app.listen(PORT, () => {
