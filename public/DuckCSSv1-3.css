@@ -1,0 +1,280 @@
+* {
+    padding: 0px;
+    margin: 0px;
+    text-decoration: none;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+
+:root {
+    --btn-classic-button: rgb(111, 111, 111);
+    --btn-classic-shadow: rgb(182, 182, 182);
+}
+
+/* Layout Rules */
+/* margins */
+.margin-left-64 {
+    margin-left: 64px;
+}
+
+.margin-right-32 {
+    margin-right: 32px;
+}
+
+.margin-right-64 {
+    margin-right: 64px;
+}
+
+.margin-bottom-10 {
+    margin-bottom: 10px;
+}
+
+.margin-left-16 {
+    margin-left: 16px;
+}
+
+.margin-right-16 {
+    margin-right: 16px;
+}
+
+.margin-top-32 {
+    margin-top: 32px;
+}
+
+.margin-top-8 {
+    margin-top: 8px;
+}
+
+.margin-right-64 {
+    margin-right: 64px;
+}
+
+.margin-left-32 {
+    margin-left: 32px;
+}
+
+.margin-16 {
+    margin: 16px;
+}
+
+.margin-top-16 {
+    margin-top: 16px;
+}
+
+/* flex Rules */
+
+.flex-left {
+    display: flex;
+    justify-content: left;
+}
+
+.flex-center {
+    display: flex;
+    justify-content: center;
+}
+
+.flex-right {
+    display: flex;
+    justify-content: right;
+}
+
+.flex-between {
+    display: flex;
+    justify-content: space-between;
+}
+
+.flex-space-arround {
+    display: flex;
+    justify-content: space-around;
+}
+
+.flex-center-self {
+    display: flex;
+    justify-self: center;
+}
+
+/* Other Layout Rules */
+
+.align-center {
+    align-items: center;
+}
+
+.gap-16 {
+    gap: 16px;
+}
+
+.align-center-self {
+    align-self: center;
+}
+
+/* borders */
+.border-black-1 {
+    border: 1px solid black !important;
+}
+
+.border-black-2 {
+    border: 2px solid black !important;
+}
+
+.border-black-3 {
+    border: 3px solid black !important;
+}
+
+.rounded {
+    border-radius: 10px;
+}
+
+/* Color Rules */
+
+.color-red {
+    color: red;
+}
+
+.color-green {
+    color: rgb(0, 221, 0);
+}
+
+.color-yellow {
+    color: yellow;
+}
+
+.color-darkgreen {
+    color: green;
+}
+
+.background-color-red {
+    background-color: red;
+}
+
+.background-color-white {
+    background-color: white;
+}
+
+.background-color-blue {
+    background-color: blue;
+}
+
+.background-color-green {
+    background-color: green;
+}
+
+.background-color-yellow {
+    background-color: yellow;
+}
+
+/* blueprints */
+
+.btn-big {
+    border: none;
+    font-size: 35px;
+    font-weight: bold;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+    padding: 16px;
+}
+
+.btn-big:hover {
+    transform: scale(1.05);
+    filter: brightness(0.9);
+    cursor: pointer;
+}
+
+.btn-small {
+    border: none;
+    font-size: 15px;
+    font-weight: bold;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+    padding: 16px;
+}
+
+.btn-small:hover {
+    transform: scale(1.05);
+    filter: brightness(0.9);
+    cursor: pointer;
+}
+
+.btn-medium {
+    border: none;
+    font-size: 20px;
+    padding: 16px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.btn-medium:hover {
+    filter: brightness(0.9);
+    transform: scale(1.05);
+}
+
+.btn-classic {
+    border: 2px solid var(--btn-classic-shadow);
+    border-radius: 15px;
+    box-shadow: 4px 4px 0px 0px var(--btn-classic-shadow);
+    background-color: var(--btn-classic-button);
+    font-size: 15px;
+    padding: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    transition-duration: 200ms;
+}
+
+.btn-classic:hover {
+    box-shadow: 0px 0px 0px 0px var(--btn-classic-shadow);
+    transform: translate(2px, 2px);
+}
+
+.checkbox-button-true {
+    scale: 0.9;
+
+    opacity: 0.6;
+}
+
+.animation-ring {
+    animation: infiniteRing 1s linear infinite;
+}
+
+/* animations */
+
+@keyframes infiniteRing {
+    0% {
+        transform: rotate(0deg) translate(40px) rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg) translate(40px) rotate(-360deg);
+    }
+}
+
+/* cursors */
+
+.pointer {
+    cursor: pointer;
+}
+
+/* display rules */
+.display-none {
+    display: none;
+}
+
+.display-block {
+    display: block;
+}
+
+/* postion */
+
+.position-fixed {
+    position: fixed;
+}
+
+/* padding */
+.padding-16 {
+    padding: 16px;
+}
+
+/* text rules */
+.bold {
+    font-weight: bold;
+}
+
+.font-size-24 {
+    font-size: 24px;
+}

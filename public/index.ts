@@ -42,7 +42,7 @@ function playSound(sound: string) {
 
 // interfaces && types
 type item = 'key' | 'fruit' | 'horn' | 'cloth' | 'silver_ingot' | 'stone' | 'string' | 'leather' | 'hardened_boots' | 'copper_ingot' | 'gold_ingot' | 'iron_ingot' | 'stick' | 'mushroom' | 'lightning_potion' | 'healthboost_potion' | 'icing_rapier' | 'big_regeneration_potion' | 'regeneration_potion' | 'peasants_robe' | 'steel_robe' | 'null' | 'supernova' | 'poisoned_staff' | 'holy_longsword' | 'flaming_saber' | 'knights_helm' | 'berserker_helmet' | 'leather_boots' | 'leather_hood' | 'gold_crown' | 'iron_boots' | 'iron_chestplate_tier_3' | 'iron_chestplate_tier_2' | 'iron_chestplate_tier_1' | 'iron_helmet' | 'pappbanditem' | 'wood_sword' | 'brocken_sword' | 'stone_sword' | 'beer' | 'coin' | 'iron_sword' | 'gold_sword' | 'copper_sword' | 'heal_potion' | 'big_heal_potion' | 'wood_rapier' | 'stone_rapier' | 'iron_rapier' | 'gold_rapier' | 'copper_rapier' | 'wood_sickle' | 'stone_sickle' | 'iron_sickle' | 'gold_sickle' | 'copper_sickle'
-type effect = 'burning' | 'regeneration' | 'ice' | 'strength' | 'electrocute' | 'thunder_shock' | 'healthboost' | 'deaths_curse' | 'poison'
+type effect = 'stun' | 'burning' | 'regeneration' | 'ice' | 'strength' | 'electrocute' | 'healthboost' | 'deaths_curse' | 'poison'
 
 type ItemData = {
     spriteX: number
@@ -66,12 +66,14 @@ type ItemData = {
 
 type effectTypeBase = {
     ticks: number
-    onTick(entity: entity): void
+    onTick?(entity: entity): void
+    isFirstTime?: boolean
+    start?(entity: entity): void
+    end?(entity: entity): void
     particle: string
     spriteWidth: number
     spriteHeight: number
     frameAmount: number
-    effected?: boolean
     icon: string
     name: string
 }
@@ -339,9 +341,6 @@ const effects: Record<effect, effectTypeBase> = {
     },
     electrocute: {
         ticks: 100,
-        onTick: (entity) => {
-            return
-        },
         particle: 'img/particles/electrocute.png',
         spriteWidth: 128,
         spriteHeight: 128,
@@ -349,23 +348,26 @@ const effects: Record<effect, effectTypeBase> = {
         icon: 'img/icons/electrocute_icon.png',
         name: 'electrocute'
     },
-    thunder_shock: {
+    stun: {
         ticks: 2,
-        onTick: (entity) => {
-            entity.takeHit(0.1)
+        onTick: (entity: entity) => {
+            entity.takeHit(0)
         },
-        particle: 'img/particles/thunder_shock.png',
+        particle: 'img/particles/stun.png',
         spriteWidth: 96,
         spriteHeight: 96,
         frameAmount: 7,
-        icon: 'img/icons/thunder_shock_icon.png',
-        name: 'thunder_shock'
+        icon: 'img/icons/stun_icon.png',
+        name: 'stun'
     },
     healthboost: {
         ticks: 100,
-        onTick: (entity) => {
+        start: (entity: entity) => {
             entity.maxHealth = entity.maxHealth * 1.5
             entity.health *= 1.5
+        },
+        end: (entity: entity) => {
+            entity.maxHealth /= 1.5
         },
         particle: 'img/particles/healthboost.png',
         spriteWidth: 64,
@@ -373,20 +375,22 @@ const effects: Record<effect, effectTypeBase> = {
         frameAmount: 17,
         icon: 'img/icons/healthboost_icon.png',
         name: 'healthboost',
-        effected: false
+        isFirstTime: true
     },
     deaths_curse: {
         ticks: 100,
-        onTick: (entity) => {
-            return
-        },
         particle: 'img/particles/deaths_curse.png',
         spriteWidth: 64,
         spriteHeight: 64,
         frameAmount: 48,
         icon: 'img/icons/deaths_curse_icon.png',
         name: 'deaths_curse',
-        effected: false
+        end: (entity: entity) => {
+            if (Math.round(Math.random() * entity.health) < 10) {
+                entity.health = 0
+            }
+        },
+        isFirstTime: true
     },
     poison: {
         ticks: 5,
@@ -1582,6 +1586,7 @@ interface typeObject {
     allignment: string
     attackable: boolean
     interactable: boolean
+    isNotTurning?: boolean
 }
 
 interface AnimationState {
@@ -1707,6 +1712,7 @@ class quest {
 }
 
 // classes for objects in the game
+
 // other objects classes
 class Layer implements blocks {
     x: number // x coordinate
@@ -2046,6 +2052,7 @@ class interactable implements blocks {
     canBeInteracted: boolean
     isBlocking: boolean
     removeItem: item | null
+    pathToImage: string
     constructor(x: number, y: number, cooldown: number, pathToImage: string, spriteWidth: number, spriteHeight: number, scale: number, output: { amount: number, item: item }[], isInfinite: boolean, healthBarScale: number, worldElem: worldElementNames, canBeInteracted: boolean, isBlocking: boolean, removeItem: item | null) {
         this.x = x
         this.y = y
@@ -2062,8 +2069,9 @@ class interactable implements blocks {
         this.currentState = 'normal'
         this.healthBarScale = healthBarScale
         this.healthbar = null
+        this.pathToImage = pathToImage
         this.img = new Image()
-        this.img.src = pathToImage
+        this.img.src = this.pathToImage
         this.output = output
         this.spriteAnimations = {}
         this.animationStates = [
@@ -2112,7 +2120,6 @@ class interactable implements blocks {
         }
         if (this.removeItem) {
             const distanceXToPlayer = Math.abs((player.x + player.spriteWidth / 2) - (this.x + (this.spriteWidth / 2) * this.scale))
-            console.log(distanceXToPlayer);
             if (distanceXToPlayer <= player.interactionRange + 75 && !player.onCooldown && player.onGround) {
                 if (!this.showedText) {
                     this.showedText = true
@@ -2129,6 +2136,10 @@ class interactable implements blocks {
             }
         }
 
+        if (this.pathToImage === '/img/blocks/door_1.png' && this.isBlocking === false) {
+            this.img.src = '/img/blocks/door_1_open.png'
+        }
+
         this.frames++
         if (this.frames >= staggerFrames) {
             this.frames = 0
@@ -2143,6 +2154,8 @@ class interactable implements blocks {
         }
     }
     draw() {
+
+
         let frameX = this.spriteAnimations[this.currentState].loc[this.frameLoc].x // get current locations of the animation
         let frameY = this.spriteAnimations[this.currentState].loc[this.frameLoc].y
 
@@ -2434,14 +2447,30 @@ abstract class Entity {
         // check for effect ticks
         this.effects.forEach(effect => {
             effect.duration--
-            if (effect.duration <= 0) {
-                if (effect.effect.name === 'deaths_curse') this.health -= 100
-                this.removeEffect(effect.index)
+
+            if (effect.effect.isFirstTime && effect.effect.start) {
+                effect.effect.start(this)
             }
 
-            if (this.effectTicks % effect.effect.ticks === 0) {
-                effect.effect.onTick(this)
+            if (effect.duration <= 0) {
+                if (effect.effect.end) {
+                    effect.effect.end(this)
+                }
+                this.removeEffect(effect.index)
             }
+            if (this.effectTicks % effect.effect.ticks === 0) {
+                if (effect.effect.onTick) {
+                    effect.effect.onTick(this)
+                }
+            }
+
+            if (document.querySelector(`#${effect.effect.name}`)) {
+                const div = document.querySelector(`#${effect.effect.name}`);
+                if (div!.querySelector('#duration')) {
+                    div!.querySelector('#duration')!.innerHTML = `${effect.duration}`
+                }
+            }
+
         })
 
         if (this.type.interactable) {
@@ -2452,7 +2481,6 @@ abstract class Entity {
                     displayInfo('Press "R" to interact')
                     this.showedText = true
                 }
-                if (this.type.name === 'trader' && this.currentState !== 'greet' && this.currentState !== 'open' && this.currentState !== 'dialogue') this.changeState('greet')
                 player.interactionFocusEntity = this
                 /*                 player.interactionFocusContainer = null
                                 player.interactionFocusGrab = null */
@@ -2519,7 +2547,7 @@ abstract class Entity {
             orientation = -orientation
         }
 
-        if (orientation <= 0) {
+        if (orientation <= 0 && !this.type.isNotTurning) {
             ctx!.save() // save current state of the canvas
             const drawX = -(this.x + 400 * this.scale)
             ctx!.scale(-1, 1) // invert orientatian of the entity
@@ -2802,43 +2830,29 @@ class skeleton extends Entity implements entity {
 class trader extends Entity implements entity {
     trade: Trade[][]
     worldElem: worldElementNames
-    constructor(x: number, y: number, trade: Trade[][], worldElem: worldElementNames, id: number) {
+    constructor(x: number, y: number, img: string, spriteWidth: number, spriteHeight: number, frameAmount: number, scale: number, trade: Trade[][], worldElem: worldElementNames, isNotTurning: boolean, id: number) {
         let image = new Image()
-        image.src = 'img/passiveEntities/trader.png'
-        const scale = 0.5
+        image.src = img
 
         if (y === StaticPositions.OnGround) {
             y = 500
         }
 
-        super(x, y, 50, 200, 128, 128, 10,
+        super(x, y, 50, 200, spriteWidth, spriteHeight, 10,
             [
                 {
                     name: 'idle',
-                    frames: 5
-                },
-                {
-                    name: 'greet',
-                    frames: 11
-                },
-                {
-                    name: 'open',
-                    frames: 11
-                },
-                {
-                    name: 'dialogue',
-                    frames: 4
+                    frames: frameAmount
                 }
             ], image,
             {
-                isGround: true /* is it a ground/flying troop */, name: 'trader' /* name of the enemy */, allignment: 'passive' /* does it attack the player */, moving: true /* does it need to move while the player moves */, attackable: false, interactable: true
+                isGround: true /* is it a ground/flying troop */, name: 'trader' /* name of the enemy */, allignment: 'passive' /* does it attack the player */, moving: true /* does it need to move while the player moves */, attackable: false, interactable: true, isNotTurning: isNotTurning
             }, scale, [], worldElem, 'trader', id)
         this.worldElem = worldElem
         this.trade = trade
         this.init()
     }
     interact(): void {
-        this.changeState('open')
         openTradingMenu(this.trade)
     }
 }
@@ -2990,7 +3004,7 @@ class Player implements entity {
             [null, null, null, null, null],
             [null, null, null, null, null],
             [null, null, null, null, null],
-            ['supernova', null, null, null, 'big_regeneration_potion'],
+            ['supernova', 'key', null, null, 'big_regeneration_potion'],
         ]
         this.armor = [null, null, null]
         this.craftingInventory = [[null, null, null], [null, null, null], [null, null, null]]
@@ -3061,18 +3075,20 @@ class Player implements entity {
         // check for effect ticks
         this.effects.forEach(effect => {
             effect.duration--
+
+            if (effect.effect.isFirstTime && effect.effect.start) {
+                effect.effect.start(this)
+            }
+
             if (effect.duration <= 0) {
-                if (effect.effect.name === 'deaths_curse') this.health -= 100
+                if (effect.effect.end) {
+                    effect.effect.end(this)
+                }
                 this.removeEffect(effect.index)
             }
             if (this.effectTicks % effect.effect.ticks === 0) {
-                if (effect.effect.effected === undefined) {
+                if (effect.effect.onTick) {
                     effect.effect.onTick(this)
-                } else {
-                    if (effect.effect.effected === false) {
-                        effect.effect.onTick(this)
-                        effect.effect.effected = true
-                    }
                 }
             }
 
@@ -3217,7 +3233,7 @@ class Player implements entity {
                                 attackDamage += (this.checkEffect('strength').effect?.factor! / 2) * 6
                             }
                             if (this.checkEffect('electrocute').wasFound) {
-                                obj.addEffect('thunder_shock', 200, 1)
+                                obj.addEffect('stun', 200, 1)
                             }
                             obj.takeHit(attackDamage)
                             const selectedSlot = this.inventory[3][this.selectedSlot - 1]
@@ -3254,7 +3270,7 @@ class Player implements entity {
                                     attackDamage += (this.checkEffect('strength').effect?.factor! / 2) * 6
                                 }
                                 if (this.checkEffect('electrocute').wasFound) {
-                                    obj.addEffect('thunder_shock', 200, 1)
+                                    obj.addEffect('stun', 200, 1)
                                 }
                                 obj.takeHit(attackDamage)
                                 const selectedSlot = this.inventory[3][this.selectedSlot - 1]
@@ -3363,7 +3379,6 @@ class Player implements entity {
         for (let i = 0; i < this.effects.length; i++) {
             if (this.effects[i].index === index) {
                 document.querySelector(`#${this.effects[i].effect.name}`)!.remove()
-                if (this.effects[i].effect.name === 'healthboost') this.maxHealth = this.maxHealth / 1.5
                 this.effects.splice(i, 1)
                 break;
             }
@@ -4191,8 +4206,8 @@ function update(): void {
     })
 
     worlds[currentWorld].elements.forEach((element) => {
-        const VIEW_LEFT = -400
-        const VIEW_RIGHT = CANVAS_WIDTH + 400
+        const VIEW_LEFT = -600
+        const VIEW_RIGHT = CANVAS_WIDTH + 600
 
         if ((keys['KeyD'] || keys['KeyW']) && element.type.moving === true && !isBlocked) {
             element.x -= gameSpeed
@@ -4259,7 +4274,7 @@ function update(): void {
 }
 
 // world logic
-type worldElementNames = /* 'bush_fruit' | */ 'door_1' | 'teleporter' | 'trader' | 'wall_2' | 'wall_1' | 'goblin' | 'nightBorn' | 'skeleton' | 'tree_1' | 'tree_2' | 'rocks_1' | 'bush_1' | 'bush_2' | 'bush_3' | 'plant_1' | 'statue_1' | 'chest' | 'NPC'
+type worldElementNames = /* 'bush_fruit' | */ 'house' | 'door_1' | 'teleporter' | 'trader' | 'wall_2' | 'wall_1' | 'goblin' | 'nightBorn' | 'skeleton' | 'tree_1' | 'tree_2' | 'rocks_1' | 'bush_1' | 'bush_2' | 'bush_3' | 'plant_1' | 'statue_1' | 'chest' | 'NPC'
 
 const worldElements = {
     goblin: { class: goblin, args: [StaticPositions.OnGround, 'goblin'] },
@@ -4289,7 +4304,7 @@ NOTE: everthing under 1500 is instantly being displayed
 type worldName = keyof typeof worlds
 let currentWorld: worldName = 'jungle'
 type WorldElement = entity | blocks | container
-// '/img/passiveEntities/elder.png', 32, 32, 4, 0.4, ['Ohh, welcome traveler!', 'Isn\'t that statue beautifull!', 'What, you don\'t know anything??', 'Well, that\'s probably for the best.', 'The goblin king has declared war on Norwyn!', 'You need to rescue the captured humans!', 'I mean you do look like a strong warrior!', 'So what are you waiting for and go right to find them!'], 'elder', []
+
 const worlds: Record<string, {
     background: {
         imgs: string[]
@@ -4312,11 +4327,11 @@ const worlds: Record<string, {
         },
         elements: [
             new interactable(600, 560, 0, '/img/blocks/bush_2.png', 101, 40, 0.4, [], false, 1, 'bush_2', false, false, null),
-            new NPC(1400, 560, 'NPC', '/img/passiveEntities/elder.png', 32, 32, 4, 0.4, ['Ohh, welcome traveler!', 'Isn\'t that statue beautifull!', 'What, you don\'t remember anything??', 'Well, that\'s probably for the best.', 'The goblins have attacked us!', 'You need to rescue the captured humans!', 'I mean, you do look like a strong warrior!', 'So what are you waiting for and go north to find them!'], 'elder', [], 1, new quest('kill', [11, 12, 13], 'Defeat the goblins, who are guarding the captured humans!', [{ item: 'coin', amount: 1 }])),
+            new NPC(1400, 560, 'NPC', '/img/passiveEntities/elder.png', 32, 32, 4, 0.4, ['Ohh, welcome traveler!', 'Isn\'t that statue beautifull!', 'What, you don\'t remember anything??', 'Well, that\'s probably for the best.', 'The goblins have attacked us!', 'You need to rescue the captured humans!', 'I mean, you do look like a strong warrior!', 'So what are you waiting for and go north to find them!'], 'elder', [], 1, new quest('kill', [11, 12, 13], 'Defeat the goblins, who are guarding the captured humans!', [{ item: 'key', amount: 1 }])),
             new interactable(200, 320, 100, '/img/blocks/tree_1.png', 65, 60, 1, [{ amount: 1, item: 'stick' }], true, 2, 'tree_1', true, false, null),
             new interactable(1900, 310, 0, '/img/blocks/statue_1.png', 39, 83, 1, [], false, 1, 'statue_1', false, false, null),
             new interactable(1000, 560, 50, '/img/blocks/plant_1.png', 34, 61, 0.4, [{ amount: 1, item: 'string' }], false, 1, 'plant_1', true, false, null),
-            new trader(-600, StaticPositions.OnGround, [[{ amount: 1, item: 'coin' }, { amount: 2, item: 'string' }], [{ amount: 1, item: 'coin' }, { amount: 2, item: 'beer' }], [{ amount: 1, item: 'stone_sword' }, { amount: 2, item: 'coin' }]], 'trader', 3),
+            //new trader(-600, StaticPositions.OnGround, [[{ amount: 1, item: 'coin' }, { amount: 2, item: 'string' }], [{ amount: 1, item: 'coin' }, { amount: 2, item: 'beer' }], [{ amount: 1, item: 'stone_sword' }, { amount: 2, item: 'coin' }]], 'trader', 3),
             new chest(1200, StaticPositions.OnGround, [[null, null, "leather", null, null], [null, null, "horn", null, null], [null, "leather", null, null, null], [null, "stone", null, null, null]], 'chest'),
             new skeleton(2600, StaticPositions.OnGround, 'skeleton', 10),
             new NPC(2700, 560, 'NPC', '/img/passiveEntities/stranger.png', 32, 32, 4, 0.4, ['The skeleton wanted to take me to the other prisoners!', 'If you want to save them you will need some good weapons', 'Here a little gift for saving me!'], 'stranger', [{ item: 'stone', amount: 1 }], 5, null),
@@ -4325,8 +4340,14 @@ const worlds: Record<string, {
             new goblin(3850, StaticPositions.OnGround, 'goblin', 13),
             new NPC(3800, 560, 'NPC', '/img/passiveEntities/beggar.png', 34, 34, 5, 0.4, ['Thanks, man!'], 'beggar', [], 6, null),
             new NPC(3950, 430, 'NPC', '/img/passiveEntities/samurai.png', 96, 96, 10, 0.8, ['Thank you for saving me!', 'Here use this! It is the least I can give you!'], 'samurai', [{ item: 'coin', amount: 1 }], 6, null),
-            new teleporter(-1000, 625, 60, '/img/blocks/runeStone.png', 31, 34, 0.2, 1, 'teleporter', false, { dim: 'mountain', x: 650, y: 420 }),
+            //new teleporter(-1000, 625, 60, '/img/blocks/runeStone.png', 31, 34, 0.2, 1, 'teleporter', false, { dim: 'mountain', x: 650, y: 420 }),
             new interactable(-300, 505, 0, '/img/blocks/door_1.png', 189, 281, 0.5, [], false, 1, 'door_1', false, true, 'key'),
+            new trader(-1200, 505, '/img/passiveEntities/blacksmith.png', 96, 96, 7, 0.6, [[{ amount: 1, item: 'coin' }, { amount: 2, item: 'stone' }], [{ amount: 2, item: 'coin' }, { amount: 1, item: 'iron_ingot' }]], 'trader', true, 2),
+            new interactable(-1600, 305, 0, '/img/blocks/house_1.png', 88, 171, 1, [], false, 1, 'house', false, false, null),
+            new interactable(-2600, 305, 0, '/img/blocks/house_2.png', 355, 703, 1, [], false, 1, 'house', false, false, null),
+            new interactable(-3100, 305, 0, '/img/blocks/house_3.png', 355, 703, 1, [], false, 1, 'house', false, false, null),
+            new interactable(-2300, 100, 500, '/img/blocks/tree_2.png', 85, 69, 1.5, [{ amount: 2, item: 'stick' }], true, 3, 'tree_2', true, false, null),
+            new interactable(-1000, 560, 0, '/img/blocks/bush_3.png', 60, 31, 0.4, [], false, 1, 'bush_3', false, false, null),
         ]
     },
     mountain: {
