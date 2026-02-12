@@ -28,12 +28,13 @@ The story is also a core part of the game, but its development is very early and
 - Use Item: `Right Click`
 ## Installation
 1. download [node.js](https://nodejs.org/en/download)
-2. install TypeScript `npm install -g typescript`
-3. install express:
+2. go to the folder/directory `cd 'C:/path/to/the/folder'`
+3. install TypeScript `npm install -g typescript`
+4. install express:
    `npm install express@5.1.0`
-4. build the Javascript file:
+5. build the Javascript file:
    `npm run build`
-5. start server:
+6. start server:
    `npm run start`
 ## Tech Stack
 - HTML5
