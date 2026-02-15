@@ -28,13 +28,14 @@ The story is also a core part of the game, but its development is very early and
 - Use Item: `Right Click`
 ## Installation
 1. download [node.js](https://nodejs.org/en/download)
-2. go to the folder/directory in the command prompt `cd 'C:/path/to/the/folder'`
-3. install TypeScript `npm install -g typescript`
-4. install express:
+2. download a release of OathBound 
+3. go to the folder/directory in the command prompt `cd 'C:/path/to/the/folder'`
+4. install TypeScript `npm install -g typescript`
+5. install express:
    `npm install express@5.1.0`
-5. build the Javascript file:
+6. build the Javascript file:
    `npm run build`
-6. start server:
+7. start server:
    `npm run start`
 ## Tech Stack
 - HTML5
