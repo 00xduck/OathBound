@@ -54,6 +54,7 @@ This repository is currently not open for external contributors, but reporting o
 - **[karsiori](https://karsiori.itch.io)**
 - **[xzany](https://xzany.itch.io/)**
 - **[zamcham](https://zamcham.itch.io/)**
+- **[gandalfhardcore](https://gandalfhardcore.itch.io/)**
 
 _If I forgot you please reach out to me_
 
