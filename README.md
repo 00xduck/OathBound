@@ -28,7 +28,7 @@ The story is also a core part of the game, but its development is very early and
 - Use Item: `Right Click`
 ## Installation
 1. download [node.js](https://nodejs.org/en/download)
-2. download a release of **OathBound**
+2. download a [release of **OathBound**](https://github.com/00xduck/OathBound/releases)
 3. go to the folder/directory in the command prompt `cd 'C:/path/to/the/folder'`
 4. install TypeScript `npm install -g typescript`
 5. install express:
