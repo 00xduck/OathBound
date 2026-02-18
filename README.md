@@ -64,7 +64,7 @@ This repository is currently not open for external contributors, but reporting o
 <img src="/docs/gameplayFootage_3.png" width="500">
 
 ---
-**Created by _LUMA STUDIOS (personal project)_**
+**Created by _LUMA STUDIOS_**
 ---
 **All rights reserved.** <br>
 This project may **not** be redistributed, re-published,<br> or made publicly available without explicit permission from the author.
