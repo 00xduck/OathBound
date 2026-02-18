@@ -43,7 +43,8 @@ The story is also a core part of the game, but its development is very early and
 - Node.js
 - Express
 ## Contributing
-This repository is currently not open for external contributors, but reporting of errors or new ideas are appreciated!
+This repository is currently not open for external contributors, but reporting of errors or new ideas are appreciated and creating pull requests
+is not prohibited eventhough a merge is unlikely.
 ## Credits
 ### Assets
 - **[luizmelo](https://luizmelo.itch.io)**
