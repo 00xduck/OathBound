@@ -56,7 +56,7 @@ This repository is currently not open for external contributors, but reporting o
 - **[zamcham](https://zamcham.itch.io/)**
 - **[gandalfhardcore](https://gandalfhardcore.itch.io/)**
 
-_If I forgot you please reach out to me_
+**_If I forgot you please reach out to me_**
 
 ### Screenshots
 <img src="/docs/gameplayFootage_1.png" width="500">
