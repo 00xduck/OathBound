@@ -60,11 +60,15 @@ is not prohibited eventhough a merge is unlikely.
 **_If I forgot you please reach out to me_**
 
 ### Screenshots
-<img src="/docs/gameplayFootage_1.png" width="500">
+<div style="margin-left: 200px">
+<img src="/docs/gameplayFootage_1.png" width="500"></div>
 <hr>
-<img src="/docs/gameplayFootage_2.png" width="500">
+<div>
+<img src="/docs/gameplayFootage_2.png" width="500"></div>
 <hr>
+<div>
 <img src="/docs/gameplayFootage_3.png" width="500">
+</div>
 
 ---
 **Created by [**_LUMA STUDIOS_**](https://github.com/Schevell/LUMA-Studios)**
