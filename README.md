@@ -35,8 +35,6 @@ The story is also a core part of the game, but its development is very early and
    `npm install express@5.1.0`
 6. build the Javascript file & start server:
    `npm run buildStart`
-
-<video width="640" height="360" controls loop src="docs/tutorial.mp4">
 ## Tech Stack
 - HTML5
 - CSS
