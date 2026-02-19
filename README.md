@@ -61,7 +61,9 @@ is not prohibited eventhough a merge is unlikely.
 
 ### Screenshots
 <img src="/docs/gameplayFootage_1.png" width="500">
+<hr>
 <img src="/docs/gameplayFootage_2.png" width="500">
+<hr>
 <img src="/docs/gameplayFootage_3.png" width="500">
 
 ---
