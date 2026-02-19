@@ -35,6 +35,8 @@ The story is also a core part of the game, but its development is very early and
    `npm install express@5.1.0`
 6. build the Javascript file & start server:
    `npm run buildStart`
+
+<video src="https://www.dropbox.com/scl/fi/78yv12i677p32v5zjrwr0/oathbound-instructions.mp4?rlkey=wiezwsuwdajbn8w1qiu16we8p&st=4ahur9de&dl=0" width="500">
 ## Tech Stack
 - HTML5
 - CSS
