@@ -3478,7 +3478,6 @@ class Player implements entity {
             ctx!.restore()
         }
 
-
         let frameX = this.sprite.spriteAnimations[this.sprite.currentState].loc[this.sprite.frameLoc].x
         let frameY = this.sprite.spriteAnimations[this.sprite.currentState].loc[this.sprite.frameLoc].y
         if (this.data.Xdirec === 2) {
@@ -3490,6 +3489,18 @@ class Player implements entity {
         } else if (this.data.Xdirec === 1) {
             ctx!.drawImage(this.sprite.img, frameX, frameY, this.sprite.spriteWidth, this.sprite.spriteHeight, this.pos.x, this.pos.y, 450, 450)
         }// (image, sx, sy, sw, sh, dx, dy, dw, dh)
+
+        // draw selectedItem
+        const selectedItem = this.data.inventory[3][this.data.selectedSlot - 1]
+        if (selectedItem !== null) {
+            const image = new Image()
+            image.src = `img/items/${items[selectedItem].src}`
+            if (this.data.Xdirec === 1) {
+                ctx!.drawImage(image, items[selectedItem].spriteX, items[selectedItem].spriteY, items[selectedItem].width, items[selectedItem].height, this.pos.x + 245, this.pos.y + 190, 20 * items[selectedItem].scale, 20 * items[selectedItem].scale)
+            } else {
+                ctx!.drawImage(image, items[selectedItem].spriteX, items[selectedItem].spriteY, items[selectedItem].width, items[selectedItem].height, this.pos.x + 175, this.pos.y + 190, 20 * items[selectedItem].scale, 20 * items[selectedItem].scale)
+            }
+        }
     }
 
     init() {
@@ -4865,10 +4876,13 @@ const worlds: Record<string, {
             spriteHeight: 1546
         },
         elements: [
-            new block({ x: -1000, y: 0 }, { pathToImage: '', spriteWidth: 1, spriteHeight: 1, scale: 1 }, null, { isBlocking: true, removeItem: null }, 'invisWall', 0),
-            new block({ x: 1150, y: 0 }, { pathToImage: '', spriteWidth: 1, spriteHeight: 1, scale: 1 }, null, { isBlocking: true, removeItem: null }, 'invisWall', 0),
-            new NPC({ x: 500, y: 555 }, { pathToImage: '/img/passiveEntities/villager_2.png', spriteWidth: 34, spriteHeight: 34, frameAmount: 5, scale: 0.4, hitbox: { offsetX: -40, offsetY: 0, width: 250, height: 150 } }, 'NPC', { first: ['Hey!', 'Are you the guy who stopped the goblins?', 'Hahahaha...', 'I bet on a gold ingot you can\'t even defeat a single goblin!', 'Well, then show me by going to the goblin hideout!'], second: ['Too scared to go?'], questCompleted: ['WHAT!?', 'HOW...', 'This is impossible!', 'You definitly cheated!'] }, 'idk', [], 0, new quest('kill', [1112, 1113, 1114, 1115, 1116, 1117], 'Raid the goblin village in the far north!', [{ item: 'gold_ingot', amount: 1 }, { item: 'coin', amount: 1 }]), [{ action: "destroy", ids: [1111], dim: 'jungle' }]),
-            new teleporter({ x: 900, y: 505 }, { pathToImage: '/img/blocks/door_1.png', spriteWidth: 189, spriteHeight: 281, scale: 0.5 }, { cooldown: 25, healthBarScale: 1, interactCooldown: 200 }, { isBlocking: false, removeItem: null }, { dim: 'jungle', x: 650, y: 420 }, 'door_1', 0)
+            new block({ x: -1600, y: 0 }, { pathToImage: '', spriteWidth: 1, spriteHeight: 1, scale: 1 }, null, { isBlocking: true, removeItem: null }, 'invisWall', 0),
+            new block({ x: 1450, y: 0 }, { pathToImage: '', spriteWidth: 1, spriteHeight: 1, scale: 1 }, null, { isBlocking: true, removeItem: null }, 'invisWall', 0),
+            new NPC({ x: 500, y: 555 }, { pathToImage: '/img/passiveEntities/adventurer_1.png', spriteWidth: 34, spriteHeight: 34, frameAmount: 5, scale: 0.4, hitbox: { offsetX: -40, offsetY: 0, width: 250, height: 150 } }, 'NPC', { first: ['Hey!', 'Are you the guy who stopped the goblins?', 'Hahahaha...', 'I bet on a gold ingot you can\'t even defeat a single goblin!', 'Well, then show me by going to the goblin hideout!'], second: ['Too scared to go?'], questCompleted: ['WHAT!?', 'HOW...', 'This is impossible!', 'You definitly cheated!'] }, 'idk', [], 0, new quest('kill', [1112, 1113, 1114, 1115, 1116, 1117], 'Raid the goblin village in the far north!', [{ item: 'gold_ingot', amount: 1 }, { item: 'coin', amount: 1 }]), [{ action: "destroy", ids: [1111], dim: 'jungle' }]),
+            new teleporter({ x: 900, y: 505 }, { pathToImage: '/img/blocks/door_1.png', spriteWidth: 189, spriteHeight: 281, scale: 0.5 }, { cooldown: 25, healthBarScale: 1, interactCooldown: 200 }, { isBlocking: false, removeItem: null }, { dim: 'jungle', x: 650, y: 420 }, 'door_1', 0),
+            new NPC({ x: -500, y: 555 }, { pathToImage: '/img/passiveEntities/barmaid.png', spriteWidth: 34, spriteHeight: 34, frameAmount: 5, scale: 0.4, hitbox: { offsetX: -40, offsetY: 0, width: 250, height: 150 } }, 'NPC', { first: ['You want something to drink?'], second: ['Just go to the bartender'], questCompleted: [] }, 'idk', [], 0, null, null),
+            new NPC({ x: -150, y: 555 }, { pathToImage: '/img/passiveEntities/villager_2.png', spriteWidth: 34, spriteHeight: 34, frameAmount: 5, scale: 0.4, hitbox: { offsetX: -40, offsetY: 0, width: 250, height: 150 } }, 'NPC', { first: ['Aaahh...', 'Ohh, hello!', 'You want to taste some of the best wine?', 'I got you!', 'Its right here!'], second: [], questCompleted: [] }, 'idk', [], 0, null, null),
+            new trader({ x: -1300, y: 555 }, { img: '/img/passiveEntities/barkeep.png', spriteWidth: 34, spriteHeight: 34, frameAmount: 5, scale: 0.4 }, [[{ item: 'coin', amount: 1 }, { item: 'beer', amount: 2 }]], 'trader', true, 0)
         ]
     }
 }
