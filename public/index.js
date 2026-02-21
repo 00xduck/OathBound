@@ -7,7 +7,7 @@ const ctx = canvas.getContext('2d');
 if (!ctx)
     throw new Error('2D context not supported');
 // set dimensions
-const CANVAS_WIDTH = canvas.width = 2000;
+const CANVAS_WIDTH = canvas.width = /* 2000 */ window.innerWidth;
 const CANVAS_HEIGHT = canvas.height = 700;
 // initial values
 let gameSpeed = 0; // game speed depending on the players movement
@@ -259,6 +259,16 @@ const effects = {
         onTick: (entity) => {
             entity.takeHit(2);
         },
+        start(entity) {
+            if (entity.data.speed) {
+                entity.data.speed /= 1.5;
+            }
+        },
+        end(entity) {
+            if (entity.data.speed) {
+                entity.data.speed *= 1.5;
+            }
+        },
         particle: 'img/particles/ice.png',
         spriteWidth: 32,
         spriteHeight: 32,
@@ -311,7 +321,6 @@ const effects = {
         frameAmount: 17,
         icon: 'img/icons/healthboost_icon.png',
         name: 'healthboost',
-        isFirstTime: true
     },
     deaths_curse: {
         ticks: 100,
@@ -326,7 +335,6 @@ const effects = {
                 entity.data.health = 0;
             }
         },
-        isFirstTime: true
     },
     poison: {
         ticks: 5,
@@ -341,6 +349,26 @@ const effects = {
         frameAmount: 17,
         icon: 'img/icons/poison_icon.png',
         name: 'poison'
+    },
+    speed: {
+        ticks: 5,
+        start(entity) {
+            if (entity.data.speed) {
+                entity.data.speed *= 1.5;
+                console.log(entity.data.speed);
+            }
+        },
+        end(entity) {
+            if (entity.data.speed) {
+                entity.data.speed /= 1.5;
+            }
+        },
+        particle: 'img/particles/speed.png',
+        spriteWidth: 128,
+        spriteHeight: 128,
+        frameAmount: 12,
+        icon: 'img/icons/speed_icon.png',
+        name: 'speed'
     }
 };
 const items = {
@@ -360,7 +388,8 @@ const items = {
         attackRange: 150,
         attackCooldown: 1000,
         description: 'A sharpened stick <br>',
-        type: 'weapon'
+        type: 'weapon',
+        rendering: { pos: { x: 15, y: -25 }, isMirrored: false }
     },
     stone_sword: {
         spriteX: 16,
@@ -378,7 +407,8 @@ const items = {
         attackRange: 150,
         attackCooldown: 1000,
         description: '',
-        type: 'weapon'
+        type: 'weapon',
+        rendering: { pos: { x: 15, y: -25 }, isMirrored: false }
     },
     iron_sword: {
         spriteX: 32,
@@ -396,7 +426,8 @@ const items = {
         attackRange: 150,
         attackCooldown: 1000,
         description: '',
-        type: 'weapon'
+        type: 'weapon',
+        rendering: { pos: { x: 15, y: -25 }, isMirrored: false }
     },
     gold_sword: {
         spriteX: 48,
@@ -414,7 +445,8 @@ const items = {
         attackRange: 150,
         attackCooldown: 1000,
         description: 'Good looks can\'t win a fight!',
-        type: 'weapon'
+        type: 'weapon',
+        rendering: { pos: { x: 15, y: -25 }, isMirrored: false }
     },
     copper_sword: {
         spriteX: 64,
@@ -432,7 +464,8 @@ const items = {
         attackRange: 150,
         attackCooldown: 1000,
         description: 'Spartan Sword',
-        type: 'weapon'
+        type: 'weapon',
+        rendering: { pos: { x: 15, y: -25 }, isMirrored: false }
     },
     brocken_sword: {
         spriteX: 0,
@@ -450,7 +483,8 @@ const items = {
         attackRange: 150,
         attackCooldown: 1000,
         description: 'It has seen better days',
-        type: 'weapon'
+        type: 'weapon',
+        rendering: { pos: { x: 15, y: -25 }, isMirrored: false }
     },
     wood_rapier: {
         spriteX: 0,
@@ -468,7 +502,8 @@ const items = {
         attackRange: 190,
         attackCooldown: 1000,
         description: '- longer range <br> - less attack damage',
-        type: 'weapon'
+        type: 'weapon',
+        rendering: { pos: { x: 15, y: -25 }, isMirrored: false }
     },
     stone_rapier: {
         spriteX: 16,
@@ -486,7 +521,8 @@ const items = {
         attackRange: 190,
         attackCooldown: 1000,
         description: '',
-        type: 'weapon'
+        type: 'weapon',
+        rendering: { pos: { x: 15, y: -25 }, isMirrored: false }
     },
     iron_rapier: {
         spriteX: 32,
@@ -504,7 +540,8 @@ const items = {
         attackRange: 190,
         attackCooldown: 1000,
         description: '',
-        type: 'weapon'
+        type: 'weapon',
+        rendering: { pos: { x: 15, y: -25 }, isMirrored: false }
     },
     gold_rapier: {
         spriteX: 48,
@@ -522,7 +559,8 @@ const items = {
         attackRange: 190,
         attackCooldown: 1000,
         description: 'Polished to shine even the darkest of creatures!',
-        type: 'weapon'
+        type: 'weapon',
+        rendering: { pos: { x: 15, y: -25 }, isMirrored: false }
     },
     copper_rapier: {
         spriteX: 64,
@@ -540,7 +578,8 @@ const items = {
         attackRange: 190,
         attackCooldown: 1000,
         description: 'Oxidising Reach',
-        type: 'weapon'
+        type: 'weapon',
+        rendering: { pos: { x: 15, y: -25 }, isMirrored: false }
     },
     wood_sickle: {
         spriteX: 0,
@@ -558,7 +597,8 @@ const items = {
         attackRange: 100,
         attackCooldown: 500,
         description: '- less cooldown <br> - less reach',
-        type: 'weapon'
+        type: 'weapon',
+        rendering: { pos: { x: 15, y: -25 }, isMirrored: false }
     },
     stone_sickle: {
         spriteX: 16,
@@ -576,7 +616,8 @@ const items = {
         attackRange: 100,
         attackCooldown: 500,
         description: '',
-        type: 'weapon'
+        type: 'weapon',
+        rendering: { pos: { x: 15, y: -25 }, isMirrored: false }
     },
     iron_sickle: {
         spriteX: 32,
@@ -594,7 +635,8 @@ const items = {
         attackRange: 100,
         attackCooldown: 500,
         description: 'Are you a Communist?',
-        type: 'weapon'
+        type: 'weapon',
+        rendering: { pos: { x: 15, y: -25 }, isMirrored: false }
     },
     gold_sickle: {
         spriteX: 48,
@@ -612,7 +654,8 @@ const items = {
         attackRange: 100,
         attackCooldown: 500,
         description: 'Luxury, Applied Rapidly.',
-        type: 'weapon'
+        type: 'weapon',
+        rendering: { pos: { x: 15, y: -25 }, isMirrored: false }
     },
     copper_sickle: {
         spriteX: 64,
@@ -630,7 +673,8 @@ const items = {
         attackRange: 100,
         attackCooldown: 500,
         description: '',
-        type: 'weapon'
+        type: 'weapon',
+        rendering: { pos: { x: 15, y: -25 }, isMirrored: false }
     },
     beer: {
         spriteX: 0,
@@ -649,7 +693,8 @@ const items = {
         attackRange: 150,
         attackCooldown: 1000,
         description: 'Better drunk, than dead!',
-        type: 'food'
+        type: 'food',
+        rendering: { pos: { x: 0, y: 10 }, isMirrored: false }
     },
     heal_potion: {
         spriteX: 0,
@@ -1411,6 +1456,26 @@ const items = {
         attackCooldown: 1000,
         description: 'Might unlock something',
         type: 'item'
+    },
+    coffee: {
+        spriteX: 400,
+        spriteY: 112,
+        height: 16,
+        width: 16,
+        scale: 3,
+        attackDamage: 1,
+        src: 'items_sheet.png',
+        use: () => {
+            player.heal(5);
+            player.addEffect('speed', 250, 1);
+            return;
+        },
+        onUse: 'Makes you awake!',
+        clearsAfterUse: true,
+        attackRange: 150,
+        attackCooldown: 1000,
+        description: 'Are you now awake?',
+        type: 'food'
     }
 };
 // inputs
@@ -1497,7 +1562,7 @@ class menuClass {
             audio: {
                 name: 'audio',
                 settings: [
-                    { name: 'Master Sound', state: true }
+                    { name: 'Master Sound', state: false }
                 ]
             },
             video: {
@@ -1509,10 +1574,10 @@ class menuClass {
             dev: {
                 name: 'dev',
                 settings: [
-                    { name: 'No Clip', state: false },
+                    { name: 'No Clip', state: true },
                     { name: 'Inf Damage', state: false },
                     { name: 'No Aggro', state: false },
-                    { name: 'Hitboxes', state: false },
+                    { name: 'Hitboxes', state: true },
                 ]
             },
         };
@@ -1733,7 +1798,7 @@ class particle {
             this.pos.x = this.entity.pos.x + this.entity.sprite.spriteWidth;
         }
         else {
-            this.pos.x = this.entity.pos.x + this.entity.sprite.spriteWidth / 2;
+            this.pos.x = this.entity.pos.x + this.entity.sprite.spriteWidth;
         }
         if (this.entity.type.name === 'goblin') {
             this.pos.x += 30;
@@ -1918,10 +1983,19 @@ class healthbar {
             drawHealth = 100;
             drawMaxHealth = 100;
         }
-        ctx.fillStyle = backgroundColor;
-        ctx.fillRect(this.x + this.entity.sprite.spriteWidth, this.y + 120, 100 * scale, 20 * scale);
-        ctx.fillStyle = overColor;
-        ctx.fillRect(this.x + this.entity.sprite.spriteWidth, this.y + 120, (((drawHealth / drawMaxHealth) * 100 < 0) ? 0 : (drawHealth / drawMaxHealth) * 100) * scale, 20 * scale);
+        if (this.entity instanceof block) {
+            ctx.fillStyle = backgroundColor;
+            ctx.fillRect(CANVAS_WIDTH * 0.85, 200, 200, 40);
+            ctx.fillStyle = overColor;
+            ctx.fillRect(CANVAS_WIDTH * 0.85, 200, (((drawHealth / drawMaxHealth) * 200 < 0) ? 0 : (drawHealth / drawMaxHealth) * 200), 40);
+            ctx.drawImage(this.entity.sprite.img, 0, 0, this.entity.sprite.spriteWidth, this.entity.sprite.spriteHeight, CANVAS_WIDTH * 0.825, 200, 40, 40);
+        }
+        else {
+            ctx.fillStyle = backgroundColor;
+            ctx.fillRect(this.x + this.entity.sprite.spriteWidth, this.y + 120, 100 * scale, 20 * scale);
+            ctx.fillStyle = overColor;
+            ctx.fillRect(this.x + this.entity.sprite.spriteWidth, this.y + 120, (((drawHealth / drawMaxHealth) * 100 < 0) ? 0 : (drawHealth / drawMaxHealth) * 100) * scale, 20 * scale);
+        }
     }
     interact() {
         return;
@@ -2040,6 +2114,7 @@ class block {
             spriteHeight: sprite.spriteHeight,
             scale: sprite.scale,
         };
+        this.hitbox = sprite.hitbox;
         this.sprite.img.src = sprite.pathToImage;
         if (interact) {
             this.interactData = {
@@ -2075,8 +2150,7 @@ class block {
     }
     update() {
         if (this.interactData) {
-            const distanceXToPlayer = Math.abs((player.pos.x + player.sprite.spriteWidth / 2) - (this.pos.x + (this.sprite.spriteWidth / 2) * this.sprite.scale));
-            if (distanceXToPlayer <= player.data.interactionRange && !player.data.onCooldown && player.data.onGround) {
+            if (checkCollision({ hitbox: this.hitbox, pos: this.pos }, { hitbox: player.hitbox, pos: player.pos }) && !player.data.onCooldown && player.data.onGround) {
                 if (!this.data.showedText) {
                     this.data.showedText = true;
                     /* if (!this.wasCollected && this.isInfinite) displayInfo('Hold "R" to interact') */
@@ -2091,8 +2165,7 @@ class block {
             }
         }
         if (this.blocking.removeItem) {
-            const distanceXToPlayer = Math.abs((player.pos.x + player.sprite.spriteWidth / 2) - (this.pos.x + (this.sprite.spriteWidth / 2) * this.sprite.scale));
-            if (distanceXToPlayer <= player.data.interactionRange + 75 && !player.data.onCooldown && player.data.onGround) {
+            if (checkCollision({ hitbox: this.hitbox, pos: this.pos }, { hitbox: player.hitbox, pos: player.pos }) && !player.data.onCooldown && player.data.onGround) {
                 if (!this.data.showedText) {
                     this.data.showedText = true;
                     displayInfo('Press "R" to unlock');
@@ -2111,13 +2184,31 @@ class block {
         }
     }
     draw() {
-        ctx.drawImage(this.sprite.img, 0, 0, this.sprite.spriteWidth, this.sprite.spriteHeight, this.pos.x, this.pos.y, 400 * this.sprite.scale, 400 * this.sprite.scale);
+        if (menu.checkSetting('Hitboxes')) {
+            ctx.save();
+            ctx.strokeStyle = this.type.allignment === 'enemy' ? 'red' : (this.type.allignment === 'passive' ? 'yellow' : 'green');
+            ctx.lineWidth = 2;
+            ctx.strokeRect(this.pos.x + this.hitbox.offsetX, this.pos.y + this.hitbox.offsetY, this.hitbox.width, this.hitbox.height);
+            ctx.restore();
+        }
+        ctx.drawImage(this.sprite.img, 0, 0, this.sprite.spriteWidth, this.sprite.spriteHeight, this.pos.x, this.pos.y, this.sprite.spriteWidth * this.sprite.scale, this.sprite.spriteHeight * this.sprite.scale);
     }
     interact() {
         if (this.interactData && !this.onCooldown) {
             if (this.data.wasCollected && !this.interactData.isInfinite)
                 return;
             if (!this.data.spawnedHealthbar) {
+                let remover = [];
+                nonWorldElems.forEach((elem, i) => {
+                    if (elem instanceof healthbar && elem.entity instanceof block) {
+                        elem.entity.data.spawnedHealthbar = false;
+                        elem.entity.data.health = 0;
+                        remover.push(i);
+                    }
+                });
+                remover.forEach(i => {
+                    nonWorldElems.splice(i, 1);
+                });
                 nonWorldElems.push(new healthbar(this));
                 this.data.spawnedHealthbar = true;
             }
@@ -2153,6 +2244,12 @@ class block {
             }
         }
     }
+    get center() {
+        return {
+            x: this.pos.x + this.hitbox.offsetX + this.hitbox.width / 2,
+            y: this.pos.y + this.hitbox.offsetY + this.hitbox.height / 2
+        };
+    }
 }
 class teleporter {
     constructor(pos, sprite, interact, blocking, destination, worldElem, id) {
@@ -2164,6 +2261,7 @@ class teleporter {
             spriteHeight: sprite.spriteHeight,
             scale: sprite.scale,
         };
+        this.hitbox = sprite.hitbox;
         this.sprite.img.src = sprite.pathToImage;
         if (interact) {
             this.interactData = {
@@ -2198,8 +2296,7 @@ class teleporter {
         this.destination = destination;
     }
     update() {
-        const distanceXToPlayer = Math.abs((player.pos.x + player.sprite.spriteWidth / 2) - (this.pos.x + (this.sprite.spriteWidth / 2) * this.sprite.scale));
-        if (distanceXToPlayer <= player.data.interactionRange && !player.data.onCooldown && player.data.onGround) {
+        if (checkCollision({ hitbox: this.hitbox, pos: this.pos }, { hitbox: player.hitbox, pos: player.pos }) && !player.data.onCooldown && player.data.onGround) {
             if (!this.data.showedText) {
                 this.data.showedText = true;
                 if (!this.data.wasCollected)
@@ -2215,6 +2312,13 @@ class teleporter {
         }
     }
     draw() {
+        if (menu.checkSetting('Hitboxes')) {
+            ctx.save();
+            ctx.strokeStyle = this.type.allignment === 'enemy' ? 'red' : (this.type.allignment === 'passive' ? 'yellow' : 'green');
+            ctx.lineWidth = 2;
+            ctx.strokeRect(this.pos.x + this.hitbox.offsetX, this.pos.y + this.hitbox.offsetY, this.hitbox.width, this.hitbox.height);
+            ctx.restore();
+        }
         ctx.drawImage(this.sprite.img, 0, 0, this.sprite.spriteWidth, this.sprite.spriteHeight, this.pos.x, this.pos.y, 400 * this.sprite.scale, 400 * this.sprite.scale);
     }
     interact() {
@@ -2248,6 +2352,12 @@ class teleporter {
             }, (_a = this.interactData) === null || _a === void 0 ? void 0 : _a.interactCooldown);
             /* player.pos.y = this.destination.y */
         }
+    }
+    get center() {
+        return {
+            x: this.pos.x + this.hitbox.offsetX + this.hitbox.width / 2,
+            y: this.pos.y + this.hitbox.offsetY + this.hitbox.height / 2
+        };
     }
 }
 // enemy classes
@@ -2310,10 +2420,6 @@ class Entity {
         // check for effect ticks
         this.effectData.effects.forEach(effect => {
             effect.duration--;
-            if (effect.effect.isFirstTime && effect.effect.start) {
-                effect.effect.start(this);
-                effect.effect.isFirstTime = false;
-            }
             if (effect.duration <= 0) {
                 if (effect.effect.end) {
                     effect.effect.end(this);
@@ -2522,6 +2628,8 @@ class Entity {
             particles.push(new particle(this, effects[effect].spriteWidth, effects[effect].spriteHeight, image, this.effectData.effectCounter, effects[effect].frameAmount));
             this.effectData.effectCounter++;
         }
+        if (effects[effect].start)
+            effects[effect].start(this);
     }
     removeEffect(index) {
         for (let i = 0; i < this.effectData.effects.length; i++) {
@@ -2798,6 +2906,12 @@ class NPC extends Entity {
             this.isSpeaking = true;
         }
     }
+    get center() {
+        return {
+            x: this.pos.x + this.hitbox.offsetX + this.hitbox.width / 2,
+            y: this.pos.y + this.hitbox.offsetY + this.hitbox.height / 2
+        };
+    }
 }
 // player classs
 class Player {
@@ -2865,7 +2979,7 @@ class Player {
             onInventory: false,
             onTradingMenu: false,
             showedText: false,
-            speed: 20,
+            speed: 7,
             onSecondaryInventory: false,
             canMove: true,
             isMoving: false,
@@ -2907,10 +3021,6 @@ class Player {
         // check for effect ticks
         this.effectData.effects.forEach(effect => {
             effect.duration--;
-            if (effect.effect.isFirstTime && effect.effect.start) {
-                effect.effect.start(this);
-                effect.effect.isFirstTime = false;
-            }
             if (effect.duration <= 0) {
                 if (effect.effect.end) {
                     effect.effect.end(this);
@@ -2996,10 +3106,23 @@ class Player {
             const image = new Image();
             image.src = `img/items/${items[selectedItem].src}`;
             if (this.data.Xdirec === 1) {
-                ctx.drawImage(image, items[selectedItem].spriteX, items[selectedItem].spriteY, items[selectedItem].width, items[selectedItem].height, this.pos.x + 245, this.pos.y + 190, 20 * items[selectedItem].scale, 20 * items[selectedItem].scale);
+                if (!items[selectedItem].rendering) {
+                    ctx.drawImage(image, items[selectedItem].spriteX, items[selectedItem].spriteY, items[selectedItem].width, items[selectedItem].height, this.pos.x + 245, this.pos.y + 190, 20 * items[selectedItem].scale, 20 * items[selectedItem].scale);
+                }
+                else {
+                    ctx.drawImage(image, items[selectedItem].spriteX, items[selectedItem].spriteY, items[selectedItem].width, items[selectedItem].height, this.pos.x + 245 + -items[selectedItem].rendering.pos.x, this.pos.y + 190 + items[selectedItem].rendering.pos.y, 20 * items[selectedItem].scale, 20 * items[selectedItem].scale);
+                }
             }
             else {
-                ctx.drawImage(image, items[selectedItem].spriteX, items[selectedItem].spriteY, items[selectedItem].width, items[selectedItem].height, this.pos.x + 175, this.pos.y + 190, 20 * items[selectedItem].scale, 20 * items[selectedItem].scale);
+                ctx.save();
+                ctx.scale(-1, 1);
+                if (!items[selectedItem].rendering) {
+                    ctx.drawImage(image, items[selectedItem].spriteX, items[selectedItem].spriteY, items[selectedItem].width, items[selectedItem].height, -(this.pos.x + 200), this.pos.y + 190, 20 * items[selectedItem].scale, 20 * items[selectedItem].scale);
+                }
+                else {
+                    ctx.drawImage(image, items[selectedItem].spriteX, items[selectedItem].spriteY, items[selectedItem].width, items[selectedItem].height, -(this.pos.x + 200 + items[selectedItem].rendering.pos.x), this.pos.y + 190 + items[selectedItem].rendering.pos.y, 20 * items[selectedItem].scale, 20 * items[selectedItem].scale);
+                }
+                ctx.restore();
             }
         }
     }
@@ -3202,7 +3325,7 @@ class Player {
             particles.push(new particle(this, effects[effect].spriteWidth, effects[effect].spriteHeight, image, this.effectData.effectCounter, effects[effect].frameAmount));
             this.effectData.effectCounter++;
             const innerDiv = document.createElement('div');
-            innerDiv.id = `${effect} `;
+            innerDiv.id = `${effect}`;
             const div = document.querySelector('.effect-icons-div');
             const effectIcon = document.createElement('div');
             effectIcon.title = effects[effect].name;
@@ -3215,11 +3338,13 @@ class Player {
             innerDiv === null || innerDiv === void 0 ? void 0 : innerDiv.appendChild(durationDiv);
             div === null || div === void 0 ? void 0 : div.appendChild(innerDiv);
         }
+        if (effects[effect].start)
+            effects[effect].start(this);
     }
     removeEffect(index) {
         for (let i = 0; i < this.effectData.effects.length; i++) {
             if (this.effectData.effects[i].index === index) {
-                document.querySelector(`#${this.effectData.effects[i].effect.name} `).remove();
+                document.querySelector(`#${this.effectData.effects[i].effect.name}`).remove();
                 this.effectData.effects.splice(i, 1);
                 break;
             }
@@ -3242,6 +3367,12 @@ class Player {
             }
         });
         return { wasFound: foundEffect, effect: effect2 };
+    }
+    get center() {
+        return {
+            x: this.pos.x + this.hitbox.offsetX + this.hitbox.width / 2,
+            y: this.pos.y + this.hitbox.offsetY + this.hitbox.height / 2
+        };
     }
 }
 //
@@ -4012,9 +4143,11 @@ function update() {
         if (!menu.checkSetting('No Clip')) {
             worlds[currentWorld].elements.forEach(elem => {
                 if (elem instanceof block && elem.blocking.isBlocking) {
-                    const distanceXToPlayer = Math.abs((player.pos.x + player.sprite.spriteWidth + 50) - elem.pos.x);
-                    if (distanceXToPlayer <= 7) {
+                    if (checkCollision({ hitbox: elem.hitbox, pos: elem.pos }, { hitbox: player.hitbox, pos: player.pos })) {
                         isBlocked = true;
+                        if (elem.center.x < player.center.x) {
+                            isBlocked = false;
+                        }
                         if (elem.blocking.text) {
                             displayInfo(elem.blocking.text);
                         }
@@ -4028,14 +4161,8 @@ function update() {
             if (player.sprite.currentState !== 'run' && player.data.onGround) {
                 player.changeState('run');
             }
-            if (player.checkEffect('ice').wasFound) {
-                gameSpeed = 3.5;
-                levelPos += 3.5;
-            }
-            else {
-                gameSpeed = 7;
-                levelPos += 7;
-            }
+            gameSpeed = player.data.speed;
+            levelPos += player.data.speed;
             player.data.Xdirec = 1;
             player.data.isMoving = true;
         }
@@ -4045,9 +4172,11 @@ function update() {
         if (!menu.checkSetting('No Clip')) {
             worlds[currentWorld].elements.forEach(elem => {
                 if (elem instanceof block && elem.blocking.isBlocking) {
-                    const distanceXToPlayer = Math.abs(player.pos.x - (elem.pos.x + elem.sprite.spriteWidth * elem.sprite.scale));
-                    if (distanceXToPlayer <= 7) {
+                    if (checkCollision({ hitbox: elem.hitbox, pos: elem.pos }, { hitbox: player.hitbox, pos: player.pos })) {
                         isBlocked = true;
+                        if (elem.center.x > player.center.x) {
+                            isBlocked = false;
+                        }
                         if (elem.blocking.text) {
                             displayInfo(elem.blocking.text);
                         }
@@ -4061,14 +4190,8 @@ function update() {
             if (player.sprite.currentState !== 'run' && player.data.onGround) {
                 player.changeState('run');
             }
-            if (player.checkEffect('ice').wasFound) {
-                gameSpeed = -3.5;
-                levelPos -= 3.5;
-            }
-            else {
-                gameSpeed = -7;
-                levelPos -= 7;
-            }
+            gameSpeed = -player.data.speed;
+            levelPos -= player.data.speed;
             player.data.Xdirec = 2;
             player.data.isMoving = true;
         }
@@ -4193,18 +4316,18 @@ const worlds = {
         },
         elements: [
             // start area
-            new block({ x: 1800, y: 0 }, { pathToImage: '', spriteWidth: 1, spriteHeight: 1, scale: 1 }, null, { isBlocking: true, removeItem: null, text: 'This path is dangerous!' }, 'invisWall', 20),
+            new block({ x: 1800, y: 0 }, { pathToImage: '', spriteWidth: 1, spriteHeight: 1, scale: 1, hitbox: { offsetX: 0, offsetY: 0, width: 100, height: 2000 } }, null, { isBlocking: true, removeItem: null, text: 'This path is dangerous!' }, 'invisWall', 20),
             new NPC({ x: 1400, y: 560 }, { pathToImage: '/img/passiveEntities/elder.png', spriteWidth: 32, spriteHeight: 32, frameAmount: 4, scale: 0.4, hitbox: { offsetX: -40, offsetY: 0, width: 250, height: 150 } }, 'NPC', { first: ['Ohh, welcome traveler!', 'Isn\'t that statue beautifull!', 'What, you don\'t remember anything??', 'Well, that\'s probably for the best.', 'The goblins have attacked us!', 'You need to rescue the captured humans!', 'I mean, you do look like a strong warrior!', 'So what are you waiting for and go north to find them!'], second: ['Please, recue them!'], questCompleted: ['Thank you so much!', 'The samurai was my friend!'] }, 'elder', [], 1, new quest('kill', [11, 12, 13], 'Defeat the goblins, who are guarding the captured humans!', [{ item: 'key', amount: 1 }]), [{ action: 'destroy', ids: [20], dim: 'jungle' }]),
-            new block({ x: 200, y: 320 }, { pathToImage: '/img/blocks/tree_1.png', spriteWidth: 65, spriteHeight: 60, scale: 1 }, { cooldown: 100, output: [{ amount: 1, item: 'stick' }], isInfinite: true, healthBarScale: 2.5 }, { isBlocking: false, removeItem: null }, 'tree_1', 0),
-            new block({ x: 1900, y: 310 }, { pathToImage: '/img/blocks/statue_1.png', spriteWidth: 39, spriteHeight: 83, scale: 1 }, null, { isBlocking: false, removeItem: null }, 'statue_1', 0),
-            new block({ x: 1000, y: 560 }, { pathToImage: '/img/blocks/plant_1.png', spriteWidth: 34, spriteHeight: 61, scale: 0.4 }, { cooldown: 50, output: [{ amount: 1, item: 'string' }], isInfinite: false, healthBarScale: 1 }, { isBlocking: false, removeItem: null }, 'plant_1', 0),
-            new block({ x: 2500, y: 560 }, { pathToImage: '/img/blocks/plant_1.png', spriteWidth: 34, spriteHeight: 61, scale: 0.4 }, { cooldown: 50, output: [{ amount: 1, item: 'string' }], isInfinite: false, healthBarScale: 1 }, { isBlocking: false, removeItem: null }, 'plant_1', 0),
-            new block({ x: 600, y: 560 }, { pathToImage: '/img/blocks/bush_2.png', spriteWidth: 101, spriteHeight: 40, scale: 0.4 }, null, { isBlocking: false, removeItem: null }, 'bush_2', 0),
+            new block({ x: 200, y: 370 }, { pathToImage: '/img/blocks/tree_1.png', spriteWidth: 65, spriteHeight: 60, scale: 6, hitbox: { offsetX: 0, offsetY: 0, width: 300, height: 400 } }, { cooldown: 100, output: [{ amount: 1, item: 'stick' }], isInfinite: true, healthBarScale: 2.5 }, { isBlocking: false, removeItem: null }, 'tree_1', 0),
+            new block({ x: 1900, y: 220 }, { pathToImage: '/img/blocks/statue_1.png', spriteWidth: 39, spriteHeight: 83, scale: 6, hitbox: { offsetX: 0, offsetY: 0, width: 250, height: 500 } }, null, { isBlocking: false, removeItem: null }, 'statue_1', 0),
+            new block({ x: 1000, y: 560 }, { pathToImage: '/img/blocks/plant_1.png', spriteWidth: 34, spriteHeight: 61, scale: 2.4, hitbox: { offsetX: 0, offsetY: 0, width: 100, height: 160 } }, { cooldown: 50, output: [{ amount: 1, item: 'string' }], isInfinite: false, healthBarScale: 1 }, { isBlocking: false, removeItem: null }, 'plant_1', 0),
+            new block({ x: 600, y: 610 }, { pathToImage: '/img/blocks/bush_2.png', spriteWidth: 101, spriteHeight: 40, scale: 2.4, hitbox: { offsetX: 0, offsetY: 0, width: 230, height: 100 } }, null, { isBlocking: false, removeItem: null }, 'bush_2', 0),
             new chest(1200, StaticPositions.OnGround, [[null, null, "leather", null, null], [null, null, "horn", null, null], [null, "leather", null, null, null], [null, "stone", null, null, null]], 'chest'),
             // captured humans area
-            new block({ x: 4500, y: 0 }, { pathToImage: '', spriteWidth: 1, spriteHeight: 1, scale: 1 }, null, { isBlocking: true, removeItem: null, text: 'Are you crazy?' }, 'invisWall', 1111),
-            new block({ x: 3700, y: 470 }, { pathToImage: '/img/blocks/wall_1.png', spriteWidth: 139, spriteHeight: 47, scale: 0.6 }, null, { isBlocking: false, removeItem: null }, 'wall_1', 0),
-            new block({ x: 3200, y: 560 }, { pathToImage: '/img/blocks/bush_2.png', spriteWidth: 101, spriteHeight: 40, scale: 0.4 }, null, { isBlocking: false, removeItem: null }, 'bush_2', 0),
+            new block({ x: 2500, y: 560 }, { pathToImage: '/img/blocks/plant_1.png', spriteWidth: 34, spriteHeight: 61, scale: 2.4, hitbox: { offsetX: 0, offsetY: 0, width: 100, height: 160 } }, { cooldown: 50, output: [{ amount: 1, item: 'string' }], isInfinite: false, healthBarScale: 1 }, { isBlocking: false, removeItem: null }, 'plant_1', 0),
+            new block({ x: 4500, y: 0 }, { pathToImage: '', spriteWidth: 1, spriteHeight: 1, scale: 1, hitbox: { offsetX: 0, offsetY: 0, width: 100, height: 2000 } }, null, { isBlocking: true, removeItem: null, text: 'Are you crazy?' }, 'invisWall', 1111),
+            new block({ x: 3700, y: 570 }, { pathToImage: '/img/blocks/wall_1.png', spriteWidth: 139, spriteHeight: 47, scale: 3.6, hitbox: { offsetX: 0, offsetY: 0, width: 450, height: 150 } }, null, { isBlocking: false, removeItem: null }, 'wall_1', 0),
+            new block({ x: 3200, y: 610 }, { pathToImage: '/img/blocks/bush_2.png', spriteWidth: 101, spriteHeight: 40, scale: 2.4, hitbox: { offsetX: 0, offsetY: 0, width: 230, height: 100 } }, null, { isBlocking: false, removeItem: null }, 'bush_2', 0),
             new skeleton(2600, StaticPositions.OnGround, 'skeleton', 10),
             new NPC({ x: 2700, y: 560 }, { pathToImage: '/img/passiveEntities/stranger.png', spriteWidth: 32, spriteHeight: 32, frameAmount: 4, scale: 0.4, hitbox: { offsetX: -40, offsetY: 0, width: 250, height: 150 } }, 'NPC', { first: ['The skeleton wanted to take me to the other prisoners!', 'If you want to save them you will need some good weapons', 'Here a little gift for saving me!'], second: ['Thank you!'] }, 'stranger', [{ item: 'stone', amount: 1 }], 5, null, null),
             new goblin(3600, StaticPositions.OnGround, 'goblin', 11),
@@ -4213,19 +4336,19 @@ const worlds = {
             new NPC({ x: 3800, y: 560 }, { pathToImage: '/img/passiveEntities/beggar.png', spriteWidth: 34, spriteHeight: 34, frameAmount: 5, scale: 0.4, hitbox: { offsetX: -40, offsetY: 0, width: 250, height: 150 } }, 'NPC', { first: ['Thanks, man!'] }, 'beggar', [], 6, null, null),
             new NPC({ x: 3950, y: 430 }, { pathToImage: '/img/passiveEntities/samurai.png', spriteWidth: 96, spriteHeight: 96, frameAmount: 10, scale: 0.8, hitbox: { offsetX: 75, offsetY: 175, width: 150, height: 100 } }, 'NPC', { first: ['Thank you for saving me!', 'Here use this! It is the least I can give you!'], second: ['Thank you for saving me!'] }, 'samurai', [{ item: 'coin', amount: 1 }], 6, null, null),
             // village
-            new block({ x: -3600, y: 0 }, { pathToImage: '', spriteWidth: 1, spriteHeight: 1, scale: 1 }, null, { isBlocking: true, removeItem: null, text: '' }, 'invisWall', 2001),
-            new block({ x: -2800, y: 0 }, { pathToImage: '', spriteWidth: 1, spriteHeight: 1, scale: 1 }, null, { isBlocking: true, removeItem: null, text: 'Explore other parts of the village first!' }, 'invisWall', 30),
-            new block({ x: -300, y: 505 }, { pathToImage: '/img/blocks/door_1.png', spriteWidth: 189, spriteHeight: 281, scale: 0.5 }, null, { isBlocking: true, removeItem: 'key' }, 'door_1', 0),
+            new block({ x: -3560, y: 0 }, { pathToImage: '', spriteWidth: 1, spriteHeight: 1, scale: 1, hitbox: { offsetX: 0, offsetY: 0, width: 100, height: 2000 } }, null, { isBlocking: true, removeItem: null, text: '' }, 'invisWall', 2001),
+            new block({ x: -2800, y: 0 }, { pathToImage: '', spriteWidth: 1, spriteHeight: 1, scale: 1, hitbox: { offsetX: 0, offsetY: 0, width: 100, height: 2000 } }, null, { isBlocking: true, removeItem: null, text: 'Explore other parts of the village first!' }, 'invisWall', 30),
+            new block({ x: -300, y: 450 }, { pathToImage: '/img/blocks/door_1.png', spriteWidth: 189, spriteHeight: 281, scale: 1, hitbox: { offsetX: 0, offsetY: 0, width: 190, height: 300 } }, null, { isBlocking: true, removeItem: 'key' }, 'door_1', 0),
             new trader({ x: -1200, y: 505 }, { img: '/img/passiveEntities/blacksmith.png', spriteWidth: 96, spriteHeight: 96, frameAmount: 7, scale: 0.6 }, [[{ amount: 1, item: 'coin' }, { amount: 2, item: 'stone' }], [{ amount: 2, item: 'coin' }, { amount: 1, item: 'iron_ingot' }]], 'trader', true, 2),
-            new block({ x: -1600, y: 305 }, { pathToImage: '/img/blocks/house_1.png', spriteWidth: 88, spriteHeight: 171, scale: 1 }, null, { isBlocking: false, removeItem: null }, 'house', 0),
-            new teleporter({ x: -2600, y: 305 }, { pathToImage: '/img/blocks/house_2.png', spriteWidth: 355, spriteHeight: 703, scale: 1 }, { cooldown: 25, healthBarScale: 1, interactCooldown: 200 }, { isBlocking: false, removeItem: null }, { dim: 'house_1', x: 650, y: 420 }, 'house', 0),
-            new block({ x: -3100, y: 305 }, { pathToImage: '/img/blocks/house_3.png', spriteWidth: 355, spriteHeight: 703, scale: 1 }, null, { isBlocking: false, removeItem: null }, 'house', 0),
-            new block({ x: -2300, y: 100 }, { pathToImage: '/img/blocks/tree_2.png', spriteWidth: 85, spriteHeight: 69, scale: 1.5 }, { cooldown: 200, output: [{ amount: 2, item: 'stick' }], isInfinite: true, healthBarScale: 3 }, { isBlocking: false, removeItem: null }, 'tree_2', 0),
-            new block({ x: -1000, y: 560 }, { pathToImage: '/img/blocks/bush_3.png', spriteWidth: 60, spriteHeight: 31, scale: 0.4 }, null, { isBlocking: false, removeItem: null }, 'bush_3', 0),
+            new block({ x: -1600, y: 190 }, { pathToImage: '/img/blocks/house_1.png', spriteWidth: 88, spriteHeight: 171, scale: 3, hitbox: { offsetX: 10, offsetY: 0, width: 245, height: 510 } }, null, { isBlocking: false, removeItem: null }, 'house', 0),
+            new teleporter({ x: -2600, y: 305 }, { pathToImage: '/img/blocks/house_2.png', spriteWidth: 355, spriteHeight: 703, scale: 1, hitbox: { offsetX: 10, offsetY: 0, width: 380, height: 400 } }, { cooldown: 25, healthBarScale: 1, interactCooldown: 200 }, { isBlocking: false, removeItem: null }, { dim: 'house_1', x: 650, y: 420 }, 'house', 0),
+            new block({ x: -3100, y: 178 }, { pathToImage: '/img/blocks/house_3.png', spriteWidth: 355, spriteHeight: 703, scale: 0.75, hitbox: { offsetX: 0, offsetY: 0, width: 260, height: 500 } }, null, { isBlocking: false, removeItem: null }, 'house', 0),
+            new block({ x: -2200, y: 300 }, { pathToImage: '/img/blocks/tree_2.png', spriteWidth: 85, spriteHeight: 69, scale: 6, hitbox: { offsetX: 0, offsetY: 0, width: 500, height: 500 } }, { cooldown: 200, output: [{ amount: 2, item: 'stick' }], isInfinite: true, healthBarScale: 3 }, { isBlocking: false, removeItem: null }, 'tree_2', 0),
+            new block({ x: -1000, y: 628 }, { pathToImage: '/img/blocks/bush_3.png', spriteWidth: 60, spriteHeight: 31, scale: 2.4, hitbox: { offsetX: 0, offsetY: 0, width: 100, height: 100 } }, null, { isBlocking: false, removeItem: null }, 'bush_3', 0),
             new NPC({ x: -2000, y: 560 }, { pathToImage: '/img/passiveEntities/villager_1.png', spriteWidth: 34, spriteHeight: 34, frameAmount: 5, scale: 0.4, hitbox: { offsetX: 0, offsetY: 0, width: 210, height: 150 } }, 'NPC', { first: ['Why does everybody leave their garbage on the street?!'], second: ['Did you do that?'] }, 'mopper', [], -2, null, null),
-            new block({ x: -1700, y: 620 }, { pathToImage: '/img/blocks/crate.png', spriteWidth: 44, spriteHeight: 43, scale: 0.2 }, { cooldown: 75, output: [{ item: 'coin', amount: 1 }], isInfinite: false, healthBarScale: 1 }, { isBlocking: false, removeItem: null }, 'crate', 0),
-            new block({ x: -1770, y: 630 }, { pathToImage: '/img/blocks/crate.png', spriteWidth: 44, spriteHeight: 43, scale: 0.2 }, null, { isBlocking: false, removeItem: null }, 'crate', 0),
-            new block({ x: -1700, y: 540 }, { pathToImage: '/img/blocks/barrel.png', spriteWidth: 27, spriteHeight: 35, scale: 0.2 }, null, { isBlocking: false, removeItem: null }, 'barrel', 0),
+            new block({ x: -1700, y: 620 }, { pathToImage: '/img/blocks/crate.png', spriteWidth: 44, spriteHeight: 43, scale: 2, hitbox: { offsetX: 0, offsetY: 0, width: 100, height: 100 } }, { cooldown: 75, output: [{ item: 'coin', amount: 1 }], isInfinite: false, healthBarScale: 1 }, { isBlocking: false, removeItem: null }, 'crate', 0),
+            new block({ x: -1770, y: 630 }, { pathToImage: '/img/blocks/crate.png', spriteWidth: 44, spriteHeight: 43, scale: 2, hitbox: { offsetX: 0, offsetY: 0, width: 100, height: 100 } }, null, { isBlocking: false, removeItem: null }, 'crate', 0),
+            new block({ x: -1700, y: 550 }, { pathToImage: '/img/blocks/barrel.png', spriteWidth: 27, spriteHeight: 35, scale: 2, hitbox: { offsetX: 0, offsetY: 0, width: 100, height: 100 } }, null, { isBlocking: false, removeItem: null }, 'barrel', 0),
             new NPC({ x: -3000, y: 555 }, { pathToImage: '/img/passiveEntities/adventurer.png', spriteWidth: 32, spriteHeight: 34, frameAmount: 4, scale: 0.4, hitbox: { offsetX: -40, offsetY: 0, width: 250, height: 150 } }, 'NPC', { first: ['Please, help us!', 'We need to stop the goblins!', 'Here use this to defend yourself!', 'Now defeat the goblins!'], second: ['THEY ARE COMING!'], questCompleted: ['Finally the goblins have been stopped!', 'From attacking our village at least!'] }, 'elder', [{ item: 'peasants_robe', amount: 1 }], -2, new quest('kill', [21, 22, 23, 24, 25], 'Defend the village from the goblins', [{ item: 'iron_ingot', amount: 1 }, { item: 'coin', amount: 2 }]), [{
                     action: 'spawn', ids: [], dim: 'jungle', extra: [
                         new goblin(-250, StaticPositions.OnGround, 'goblin', 21),
@@ -4239,14 +4362,14 @@ const worlds = {
                     action: 'destroy', ids: [2001], dim: 'jungle'
                 }
             ]),
-            new teleporter({ x: -3900, y: 305 }, { pathToImage: '/img/blocks/house_4.png', spriteWidth: 355, spriteHeight: 703, scale: 1 }, { cooldown: 25, healthBarScale: 1, interactCooldown: 200 }, { isBlocking: false, removeItem: null }, { dim: 'house_2', x: 650, y: 420 }, 'house', 0),
+            new teleporter({ x: -3900, y: 305 }, { pathToImage: '/img/blocks/house_4.png', spriteWidth: 355, spriteHeight: 703, scale: 1, hitbox: { offsetX: 50, offsetY: 0, width: 300, height: 500 } }, { cooldown: 25, healthBarScale: 1, interactCooldown: 200 }, { isBlocking: false, removeItem: null }, { dim: 'house_2', x: 650, y: 420 }, 'house', 0),
             // goblin hideout
-            new block({ x: 4500, y: 560 }, { pathToImage: '/img/blocks/plant_1.png', spriteWidth: 34, spriteHeight: 61, scale: 0.4 }, { cooldown: 50, output: [{ amount: 1, item: 'string' }], isInfinite: false, healthBarScale: 1 }, { isBlocking: false, removeItem: null }, 'plant_1', 0),
-            new block({ x: 4800, y: 560 }, { pathToImage: '/img/blocks/bush_3.png', spriteWidth: 60, spriteHeight: 31, scale: 0.4 }, null, { isBlocking: false, removeItem: null }, 'bush_3', 0),
-            new block({ x: 5360, y: 320 }, { pathToImage: '/img/blocks/tree_1.png', spriteWidth: 65, spriteHeight: 60, scale: 1 }, { cooldown: 100, output: [{ amount: 1, item: 'stick' }], isInfinite: true, healthBarScale: 2.5 }, { isBlocking: false, removeItem: null }, 'tree_1', 0),
-            new block({ x: 5500, y: -45 }, { pathToImage: '/img/blocks/goblin_house_1.png', spriteWidth: 353, spriteHeight: 707, scale: 2 }, null, { isBlocking: false, removeItem: null }, 'house', 0),
-            new block({ x: 6300, y: 325 }, { pathToImage: '/img/blocks/goblin_house_2.png', spriteWidth: 408, spriteHeight: 612, scale: 1 }, null, { isBlocking: false, removeItem: null }, 'house', 0),
-            new block({ x: 5000, y: 365 }, { pathToImage: '/img/blocks/goblin_house_3.png', spriteWidth: 408, spriteHeight: 612, scale: 1 }, null, { isBlocking: false, removeItem: null }, 'house', 0),
+            new block({ x: 4500, y: 560 }, { pathToImage: '/img/blocks/plant_1.png', spriteWidth: 34, spriteHeight: 61, scale: 2.4, hitbox: { offsetX: 0, offsetY: 0, width: 100, height: 160 } }, { cooldown: 50, output: [{ amount: 1, item: 'string' }], isInfinite: false, healthBarScale: 1 }, { isBlocking: false, removeItem: null }, 'plant_1', 0),
+            new block({ x: 4900, y: 628 }, { pathToImage: '/img/blocks/bush_3.png', spriteWidth: 60, spriteHeight: 31, scale: 2.4, hitbox: { offsetX: 0, offsetY: 0, width: 100, height: 100 } }, null, { isBlocking: false, removeItem: null }, 'bush_3', 0),
+            new block({ x: 5360, y: 370 }, { pathToImage: '/img/blocks/tree_1.png', spriteWidth: 65, spriteHeight: 60, scale: 6, hitbox: { offsetX: 0, offsetY: 0, width: 300, height: 400 } }, { cooldown: 100, output: [{ amount: 1, item: 'stick' }], isInfinite: true, healthBarScale: 2.5 }, { isBlocking: false, removeItem: null }, 'tree_1', 0),
+            new block({ x: 5500, y: -600 }, { pathToImage: '/img/blocks/goblin_house_1.png', spriteWidth: 353, spriteHeight: 707, scale: 2, hitbox: { offsetX: 100, offsetY: 600, width: 500, height: 1000 } }, null, { isBlocking: false, removeItem: null }, 'house', 0),
+            new block({ x: 6300, y: 160 }, { pathToImage: '/img/blocks/goblin_house_2.png', spriteWidth: 408, spriteHeight: 612, scale: 1, hitbox: { offsetX: 0, offsetY: 70, width: 350, height: 500 } }, null, { isBlocking: false, removeItem: null }, 'house', 0),
+            new block({ x: 5000, y: 185 }, { pathToImage: '/img/blocks/goblin_house_3.png', spriteWidth: 408, spriteHeight: 612, scale: 1, hitbox: { offsetX: 50, offsetY: 200, width: 300, height: 400 } }, null, { isBlocking: false, removeItem: null }, 'house', 0),
             new goblin(5300, StaticPositions.OnGround, 'goblin', 1112),
             new goblin(5500, StaticPositions.OnGround, 'goblin', 1113),
             new goblin(5700, StaticPositions.OnGround, 'goblin', 1114),
@@ -4258,7 +4381,7 @@ const worlds = {
                 }
             }, 'enemy', 1117),
             new chest(6900, StaticPositions.OnGround, [[null, null, "leather", null, null], ["stone", null, "heal_potion", null, null], [null, null, null, null, null], [null, null, null, null, "fruit"]], 'chest'),
-            new block({ x: 7300, y: 0 }, { pathToImage: '', spriteWidth: 1, spriteHeight: 1, scale: 1 }, null, { isBlocking: true, removeItem: null, text: '' }, 'invisWall', 20),
+            new block({ x: 7300, y: 0 }, { pathToImage: '', spriteWidth: 1, spriteHeight: 1, scale: 1, hitbox: { offsetX: 0, offsetY: 0, width: 100, height: 2000 } }, null, { isBlocking: true, removeItem: null, text: '' }, 'invisWall', 20),
         ]
     },
     mountain: {
@@ -4290,16 +4413,16 @@ const worlds = {
             spriteHeight: 1546
         },
         elements: [
-            new block({ x: -1000, y: 0 }, { pathToImage: '', spriteWidth: 1, spriteHeight: 1, scale: 1 }, null, { isBlocking: true, removeItem: null }, 'invisWall', 0),
-            new block({ x: 1150, y: 0 }, { pathToImage: '', spriteWidth: 1, spriteHeight: 1, scale: 1 }, null, { isBlocking: true, removeItem: null }, 'invisWall', 0),
+            new block({ x: -1000, y: 0 }, { pathToImage: '', spriteWidth: 1, spriteHeight: 1, scale: 1, hitbox: { offsetX: 0, offsetY: 0, width: 100, height: 2000 } }, null, { isBlocking: true, removeItem: null }, 'invisWall', 0),
+            new block({ x: 1150, y: 0 }, { pathToImage: '', spriteWidth: 1, spriteHeight: 1, scale: 1, hitbox: { offsetX: 0, offsetY: 0, width: 100, height: 2000 } }, null, { isBlocking: true, removeItem: null }, 'invisWall', 0),
             new chest(-500, StaticPositions.OnGround, [[null, null, null, null, "string"], ["beer", null, null, null, null], [null, null, null, "coin", null], ["string", null, null, null, null]], 'chest'),
             new trader({ x: -300, y: 545 }, { img: '/img/passiveEntities/witch.png', spriteWidth: 34, spriteHeight: 34, frameAmount: 5, scale: 0.4 }, [[{ item: 'coin', amount: 1 }, { item: 'heal_potion', amount: 1 }], [{ item: 'coin', amount: 1 }, { item: 'regeneration_potion', amount: 1 }]], 'NPC', true, -2),
             new NPC({ x: 500, y: 560 }, { pathToImage: '/img/passiveEntities/shady_guy.png', spriteWidth: 34, spriteHeight: 34, frameAmount: 5, scale: 0.4, hitbox: { offsetX: -40, offsetY: 0, width: 250, height: 150 } }, 'NPC', { first: ['I overheard some knights!', 'They were talking about an invasion!', 'An invasion from the goblins attacking our very village!', 'They even wanted to desert!'] }, 'idk', [], -2, null, [{ action: 'destroy', ids: [30], dim: 'jungle' }]),
-            new block({ x: 900, y: 620 }, { pathToImage: '/img/blocks/crate.png', spriteWidth: 44, spriteHeight: 43, scale: 0.2 }, null, { isBlocking: false, removeItem: null }, 'crate', 0),
-            new block({ x: 0, y: 630 }, { pathToImage: '/img/blocks/crate.png', spriteWidth: 44, spriteHeight: 43, scale: 0.2 }, null, { isBlocking: false, removeItem: null }, 'crate', 0),
-            new block({ x: -10, y: 620 }, { pathToImage: '/img/blocks/crate.png', spriteWidth: 44, spriteHeight: 43, scale: 0.2 }, null, { isBlocking: false, removeItem: null }, 'crate', 0),
+            new block({ x: 700, y: 620 }, { pathToImage: '/img/blocks/crate.png', spriteWidth: 44, spriteHeight: 43, scale: 2, hitbox: { offsetX: 0, offsetY: 0, width: 100, height: 100 } }, null, { isBlocking: false, removeItem: null }, 'crate', 0),
+            new block({ x: 0, y: 630 }, { pathToImage: '/img/blocks/crate.png', spriteWidth: 44, spriteHeight: 43, scale: 2, hitbox: { offsetX: 0, offsetY: 0, width: 100, height: 100 } }, null, { isBlocking: false, removeItem: null }, 'crate', 0),
+            new block({ x: -10, y: 620 }, { pathToImage: '/img/blocks/crate.png', spriteWidth: 44, spriteHeight: 43, scale: 2, hitbox: { offsetX: 0, offsetY: 0, width: 100, height: 100 } }, null, { isBlocking: false, removeItem: null }, 'crate', 0),
             //new block({ x: -300, y: 505 }, { pathToImage: '/img/blocks/door_1.png', spriteWidth: 189, spriteHeight: 281, scale: 0.5 }, null, { isBlocking: true, removeItem: 'key' }, 'door_1'),
-            new teleporter({ x: 900, y: 505 }, { pathToImage: '/img/blocks/door_1.png', spriteWidth: 189, spriteHeight: 281, scale: 0.5 }, { cooldown: 25, healthBarScale: 1, interactCooldown: 200 }, { isBlocking: false, removeItem: null }, { dim: 'jungle', x: 650, y: 420 }, 'door_1', 0)
+            new teleporter({ x: 900, y: 505 }, { pathToImage: '/img/blocks/door_1.png', spriteWidth: 189, spriteHeight: 281, scale: 0.5, hitbox: { offsetX: 0, offsetY: 0, width: 220, height: 400 } }, { cooldown: 25, healthBarScale: 1, interactCooldown: 200 }, { isBlocking: false, removeItem: null }, { dim: 'jungle', x: 650, y: 420 }, 'door_1', 0)
         ]
     },
     house_2: {
@@ -4311,13 +4434,18 @@ const worlds = {
             spriteHeight: 1546
         },
         elements: [
-            new block({ x: -1600, y: 0 }, { pathToImage: '', spriteWidth: 1, spriteHeight: 1, scale: 1 }, null, { isBlocking: true, removeItem: null }, 'invisWall', 0),
-            new block({ x: 1450, y: 0 }, { pathToImage: '', spriteWidth: 1, spriteHeight: 1, scale: 1 }, null, { isBlocking: true, removeItem: null }, 'invisWall', 0),
+            new block({ x: -1600, y: 0 }, { pathToImage: '', spriteWidth: 1, spriteHeight: 1, scale: 1, hitbox: { offsetX: 0, offsetY: 0, width: 100, height: 2000 } }, null, { isBlocking: true, removeItem: null }, 'invisWall', 0),
+            new block({ x: 1450, y: 0 }, { pathToImage: '', spriteWidth: 1, spriteHeight: 1, scale: 1, hitbox: { offsetX: 0, offsetY: 0, width: 100, height: 2000 } }, null, { isBlocking: true, removeItem: null }, 'invisWall', 0),
             new NPC({ x: 500, y: 555 }, { pathToImage: '/img/passiveEntities/adventurer_1.png', spriteWidth: 34, spriteHeight: 34, frameAmount: 5, scale: 0.4, hitbox: { offsetX: -40, offsetY: 0, width: 250, height: 150 } }, 'NPC', { first: ['Hey!', 'Are you the guy who stopped the goblins?', 'Hahahaha...', 'I bet on a gold ingot you can\'t even defeat a single goblin!', 'Well, then show me by going to the goblin hideout!'], second: ['Too scared to go?'], questCompleted: ['WHAT!?', 'HOW...', 'This is impossible!', 'You definitly cheated!'] }, 'idk', [], 0, new quest('kill', [1112, 1113, 1114, 1115, 1116, 1117], 'Raid the goblin village in the far north!', [{ item: 'gold_ingot', amount: 1 }, { item: 'coin', amount: 1 }]), [{ action: "destroy", ids: [1111], dim: 'jungle' }]),
-            new teleporter({ x: 900, y: 505 }, { pathToImage: '/img/blocks/door_1.png', spriteWidth: 189, spriteHeight: 281, scale: 0.5 }, { cooldown: 25, healthBarScale: 1, interactCooldown: 200 }, { isBlocking: false, removeItem: null }, { dim: 'jungle', x: 650, y: 420 }, 'door_1', 0),
+            new teleporter({ x: 900, y: 505 }, { pathToImage: '/img/blocks/door_1.png', spriteWidth: 189, spriteHeight: 281, scale: 0.5, hitbox: { offsetX: 0, offsetY: 0, width: 100, height: 100 } }, { cooldown: 25, healthBarScale: 1, interactCooldown: 200 }, { isBlocking: false, removeItem: null }, { dim: 'jungle', x: 650, y: 420 }, 'door_1', 0),
             new NPC({ x: -500, y: 555 }, { pathToImage: '/img/passiveEntities/barmaid.png', spriteWidth: 34, spriteHeight: 34, frameAmount: 5, scale: 0.4, hitbox: { offsetX: -40, offsetY: 0, width: 250, height: 150 } }, 'NPC', { first: ['You want something to drink?'], second: ['Just go to the bartender'], questCompleted: [] }, 'idk', [], 0, null, null),
             new NPC({ x: -150, y: 555 }, { pathToImage: '/img/passiveEntities/villager_2.png', spriteWidth: 34, spriteHeight: 34, frameAmount: 5, scale: 0.4, hitbox: { offsetX: -40, offsetY: 0, width: 250, height: 150 } }, 'NPC', { first: ['Aaahh...', 'Ohh, hello!', 'You want to taste some of the best wine?', 'I got you!', 'Its right here!'], second: [], questCompleted: [] }, 'idk', [], 0, null, null),
-            new trader({ x: -1300, y: 555 }, { img: '/img/passiveEntities/barkeep.png', spriteWidth: 34, spriteHeight: 34, frameAmount: 5, scale: 0.4 }, [[{ item: 'coin', amount: 1 }, { item: 'beer', amount: 2 }]], 'trader', true, 0)
+            new trader({ x: -1300, y: 555 }, { img: '/img/passiveEntities/barkeep.png', spriteWidth: 34, spriteHeight: 34, frameAmount: 5, scale: 0.4 }, [[{ item: 'coin', amount: 1 }, { item: 'beer', amount: 2 }], [{ item: 'coin', amount: 1 }, { item: 'coffee', amount: 1 }]], 'trader', true, 0),
+            new block({ x: -900, y: 630 }, { pathToImage: '/img/blocks/table.png', spriteWidth: 73, spriteHeight: 28, scale: 2.6, hitbox: { offsetX: 0, offsetY: 0, width: 250, height: 150 } }, null, { isBlocking: false, removeItem: null }, 'barrel', 0),
+            new block({ x: 100, y: 630 }, { pathToImage: '/img/blocks/table.png', spriteWidth: 73, spriteHeight: 28, scale: 2.6, hitbox: { offsetX: 0, offsetY: 0, width: 250, height: 150 } }, null, { isBlocking: false, removeItem: null }, 'barrel', 0),
+            new block({ x: -1000, y: 630 }, { pathToImage: '/img/blocks/chair.png', spriteWidth: 22, spriteHeight: 34, scale: 2.6, hitbox: { offsetX: 0, offsetY: 0, width: 100, height: 150 } }, null, { isBlocking: false, removeItem: null }, 'barrel', 0),
+            new block({ x: 50, y: 630 }, { pathToImage: '/img/blocks/chair.png', spriteWidth: 22, spriteHeight: 34, scale: 2.6, hitbox: { offsetX: 0, offsetY: 0, width: 100, height: 150 } }, null, { isBlocking: false, removeItem: null }, 'barrel', 0),
+            new block({ x: -800, y: 610 }, { pathToImage: '/img/blocks/beer.png', spriteWidth: 9, spriteHeight: 8, scale: 2.6, hitbox: { offsetX: 0, offsetY: 0, width: 50, height: 50 } }, null, { isBlocking: false, removeItem: null }, 'barrel', 0),
         ]
     }
 };
