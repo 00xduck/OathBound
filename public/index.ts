@@ -7,6 +7,7 @@ if (!ctx) throw new Error('2D context not supported')
 const CANVAS_WIDTH = canvas.width = /* 2000 */ window.innerWidth
 const CANVAS_HEIGHT = canvas.height = 700
 
+
 // initial values
 let gameSpeed = 0 // game speed depending on the players movement
 let gameFrame = 0 // counter for the frames
@@ -52,7 +53,7 @@ type ItemData = {
     scale: number
     attackDamage: number
     src: string
-    use: () => void
+    use?: () => void
     attack?: (entity: entity) => void
     onUse: string
     clearsAfterUse: boolean
@@ -98,277 +99,50 @@ type recipe = {
     H?: item
 }
 
-const recipes: recipe[] = [
-    {
-        recipe: [
-            ' A ',
-            ' AC',
-            ' B ',
-        ],
-        output: "iron_sword",
-        A: 'iron_ingot',
-        B: 'stick',
-        C: 'string'
-    },
-    {
-        recipe: [
-            ' A ',
-            ' AC',
-            ' B ',
-        ],
-        output: "gold_sword",
-        A: 'gold_ingot',
-        B: 'stick',
-        C: 'string'
-    },
-    {
-        recipe: [
-            ' A ',
-            ' AC',
-            ' B ',
-        ],
-        output: "copper_sword",
-        A: 'copper_ingot',
-        B: 'stick',
-        C: 'string'
-    },
-    {
-        recipe: [
-            'AAA',
-            'A A',
-            '   ',
-        ],
-        output: "iron_helmet",
-        A: 'iron_ingot',
-    },
-    {
-        recipe: [
-            '',
-            'A A',
-            'A A',
-        ],
-        output: "iron_boots",
-        A: 'iron_ingot',
-    },
-    {
-        recipe: [
-            '   ',
-            'A A',
-            'B B',
-        ],
-        output: "hardened_boots",
-        A: 'iron_ingot',
-        B: 'leather'
-    },
-    {
-        recipe: [
-            '   ',
-            'A A',
-            'A A',
-        ],
-        output: "leather_boots",
-        A: 'leather',
-    },
-    {
-        recipe: [
-            'A A',
-            'BAB',
-            'AAA',
-        ],
-        output: "peasants_robe",
-        A: 'leather',
-        B: 'string'
-    },
-    {
-        recipe: [
-            'A A',
-            'BAB',
-            'AAA',
-        ],
-        output: "peasants_robe",
-        A: 'leather',
-        B: 'string'
-    },
-    {
-        recipe: [
-            'BAB',
-            'A A',
-            '   ',
-        ],
-        output: "leather_hood",
-        A: 'leather',
-        B: 'string'
-    },
-    {
-        recipe: [
-            'A A',
-            'AAA',
-            'AAA',
-        ],
-        output: "iron_chestplate_tier_1",
-        A: 'iron_ingot',
-    },
-    {
-        recipe: [
-            ' A ',
-            ' AC',
-            ' B ',
-        ],
-        output: "stone_sword",
-        A: 'stone',
-        B: 'stick',
-        C: 'string'
-    },
-    {
-        recipe: [
-            ' A ',
-            ' AB',
-            ' A ',
-        ],
-        output: "wood_sword",
-        A: 'stick',
-        B: 'string'
-    },
-    {
-        recipe: [
-            'A A',
-            'BAB',
-            'AAA',
-        ],
-        output: "iron_chestplate_tier_2",
-        A: 'iron_ingot',
-        B: 'silver_ingot'
-    },
-    {
-        recipe: [
-            'A A',
-            'BAB',
-            'BBB',
-        ],
-        output: "iron_chestplate_tier_3",
-        A: 'iron_ingot',
-        B: 'silver_ingot'
-    },
-    {
-        recipe: [
-            'A A',
-            'BAB',
-            'BBB',
-        ],
-        output: "steel_robe",
-        A: 'silver_ingot',
-        B: 'cloth'
-    },
-    {
-        recipe: [
-            'A A',
-            'AAA',
-            '   ',
-        ],
-        output: "gold_crown",
-        A: 'gold_ingot',
-    },
-    {
-        recipe: [
-            'B B',
-            'AAA',
-            '   ',
-        ],
-        output: "berserker_helmet",
-        A: 'iron_ingot',
-        B: 'horn'
-    },
-    {
-        recipe: [
-            'AAA',
-            'ABA',
-            '   ',
-        ],
-        output: "knights_helm",
-        A: 'silver_ingot',
-        B: 'iron_ingot'
+let effects: Record<effect, effectTypeBase>;
+let items: Record<item, ItemData>
+let recipes: recipe[];
+let worlds: Record<string, {
+    background: {
+        imgs: string[]
+        spriteWidth: number
+        spriteHeight: number
     }
-]
+    elements: WorldElement[]
+}> = {}
 
-const effects: Record<effect, effectTypeBase> = {
+const effectFunctions = {
     burning: {
-        ticks: 50,
-        onTick: (entity) => {
+        onTick: (entity: entity) => {
             entity.takeHit(3)
         },
-        particle: 'img/particles/burning.png',
-        spriteWidth: 32,
-        spriteHeight: 48,
-        frameAmount: 8,
-        icon: 'img/icons/fire_icon.png',
-        name: 'burning'
     },
     regeneration: {
-        ticks: 30,
-        onTick: (entity) => {
+        onTick: (entity: entity) => {
             entity.heal(2)
         },
-        particle: 'img/particles/regeneration.png',
-        spriteWidth: 64,
-        spriteHeight: 64,
-        frameAmount: 23,
-        icon: 'img/icons/regeneration_icon.png',
-        name: 'regeneration'
     },
     ice: {
-        ticks: 100,
-        onTick: (entity) => {
+        onTick: (entity: entity) => {
             entity.takeHit(2)
         },
-        start(entity) {
+        start(entity: entity) {
             if (entity.data.speed) {
                 entity.data.speed /= 1.5
             }
         },
-        end(entity) {
+        end(entity: entity) {
             if (entity.data.speed) {
                 entity.data.speed *= 1.5
             }
         },
-        particle: 'img/particles/ice.png',
-        spriteWidth: 32,
-        spriteHeight: 32,
-        frameAmount: 8,
-        icon: 'img/icons/ice_icon.png',
-        name: 'ice'
-    },
-    strength: {
-        ticks: 100,
-        particle: 'img/particles/strength.png',
-        spriteWidth: 80,
-        spriteHeight: 80,
-        frameAmount: 4,
-        icon: 'img/icons/strength_icon.png',
-        name: 'strength'
-    },
-    electrocute: {
-        ticks: 100,
-        particle: 'img/particles/electrocute.png',
-        spriteWidth: 128,
-        spriteHeight: 128,
-        frameAmount: 9,
-        icon: 'img/icons/electrocute_icon.png',
-        name: 'electrocute'
     },
     stun: {
-        ticks: 2,
         onTick: (entity: entity) => {
             entity.takeHit(0)
         },
-        particle: 'img/particles/stun.png',
-        spriteWidth: 96,
-        spriteHeight: 96,
-        frameAmount: 7,
-        icon: 'img/icons/stun_icon.png',
-        name: 'stun'
     },
     healthboost: {
-        ticks: 100,
         start: (entity: entity) => {
             entity.data.maxHealth = entity.data.maxHealth * 1.5
             entity.data.health *= 1.5
@@ -376,21 +150,8 @@ const effects: Record<effect, effectTypeBase> = {
         end: (entity: entity) => {
             entity.data.maxHealth /= 1.5
         },
-        particle: 'img/particles/healthboost.png',
-        spriteWidth: 64,
-        spriteHeight: 64,
-        frameAmount: 17,
-        icon: 'img/icons/healthboost_icon.png',
-        name: 'healthboost',
     },
     deaths_curse: {
-        ticks: 100,
-        particle: 'img/particles/deaths_curse.png',
-        spriteWidth: 64,
-        spriteHeight: 64,
-        frameAmount: 48,
-        icon: 'img/icons/deaths_curse_icon.png',
-        name: 'deaths_curse',
         end: (entity: entity) => {
             if (Math.round(Math.random() * entity.data.health) < 10) {
                 entity.data.health = 0
@@ -398,904 +159,86 @@ const effects: Record<effect, effectTypeBase> = {
         },
     },
     poison: {
-        ticks: 5,
-        onTick: (entity) => {
+        onTick: (entity: entity) => {
             if (entity.data.isMoving) {
                 entity.takeHit(3)
             }
         },
-        particle: 'img/particles/poison.png',
-        spriteWidth: 128,
-        spriteHeight: 128,
-        frameAmount: 17,
-        icon: 'img/icons/poison_icon.png',
-        name: 'poison'
     },
     speed: {
-        ticks: 5,
-        start(entity) {
+        start(entity: entity) {
             if (entity.data.speed) {
                 entity.data.speed *= 1.5
             }
         },
-        end(entity) {
+        end(entity: entity) {
             if (entity.data.speed) {
                 entity.data.speed /= 1.5
             }
         },
-        particle: 'img/particles/speed.png',
-        spriteWidth: 128,
-        spriteHeight: 128,
-        frameAmount: 12,
-        icon: 'img/icons/speed_icon.png',
-        name: 'speed'
     }
 }
-
-const items: Record<item, ItemData> = {
-    wood_sword: {
-        spriteX: 0,
-        spriteY: 0,
-        height: 16,
-        width: 16,
-        scale: 4,
-        attackDamage: 6,
-        src: 'weapons.png',
-        use: () => {
-            return
-        },
-        onUse: '',
-        clearsAfterUse: false,
-        attackRange: 150,
-        attackCooldown: 1000,
-        description: 'A sharpened stick <br>',
-        type: 'weapon',
-        rendering: { pos: { x: 15, y: -25 }, isMirrored: false }
-    },
-    stone_sword: {
-        spriteX: 16,
-        spriteY: 0,
-        height: 16,
-        width: 16,
-        scale: 4,
-        attackDamage: 8,
-        src: 'weapons.png',
-        use: () => {
-            return
-        },
-        onUse: '',
-        clearsAfterUse: false,
-        attackRange: 150,
-        attackCooldown: 1000,
-        description: '',
-        type: 'weapon',
-        rendering: { pos: { x: 15, y: -25 }, isMirrored: false }
-    },
-    iron_sword: {
-        spriteX: 32,
-        spriteY: 0,
-        height: 16,
-        width: 16,
-        scale: 4,
-        attackDamage: 10,
-        src: 'weapons.png',
-        use: () => {
-            return
-        },
-        onUse: '',
-        clearsAfterUse: false,
-        attackRange: 150,
-        attackCooldown: 1000,
-        description: '',
-        type: 'weapon',
-        rendering: { pos: { x: 15, y: -25 }, isMirrored: false }
-    },
-    gold_sword: {
-        spriteX: 48,
-        spriteY: 0,
-        height: 16,
-        width: 16,
-        scale: 4,
-        attackDamage: 15,
-        src: 'weapons.png',
-        use: () => {
-            return
-        },
-        onUse: '',
-        clearsAfterUse: false,
-        attackRange: 150,
-        attackCooldown: 1000,
-        description: 'Good looks can\'t win a fight!',
-        type: 'weapon',
-        rendering: { pos: { x: 15, y: -25 }, isMirrored: false }
-    },
-    copper_sword: {
-        spriteX: 64,
-        spriteY: 0,
-        height: 16,
-        width: 16,
-        scale: 4,
-        attackDamage: 12,
-        src: 'weapons.png',
-        use: () => {
-            return
-        },
-        onUse: '',
-        clearsAfterUse: false,
-        attackRange: 150,
-        attackCooldown: 1000,
-        description: 'Spartan Sword',
-        type: 'weapon',
-        rendering: { pos: { x: 15, y: -25 }, isMirrored: false }
-    },
-    brocken_sword: {
-        spriteX: 0,
-        spriteY: 256,
-        height: 16,
-        width: 16,
-        scale: 4,
-        attackDamage: 3,
-        src: 'weapons.png',
-        use: () => {
-            return
-        },
-        onUse: '',
-        clearsAfterUse: false,
-        attackRange: 150,
-        attackCooldown: 1000,
-        description: 'It has seen better days',
-        type: 'weapon',
-        rendering: { pos: { x: 15, y: -25 }, isMirrored: false }
-    },
-    wood_rapier: {
-        spriteX: 0,
-        spriteY: 64,
-        height: 16,
-        width: 16,
-        scale: 4,
-        attackDamage: 3,
-        src: 'weapons.png',
-        use: () => {
-            return
-        },
-        onUse: '',
-        clearsAfterUse: false,
-        attackRange: 190,
-        attackCooldown: 1000,
-        description: '- longer range <br> - less attack damage',
-        type: 'weapon',
-        rendering: { pos: { x: 15, y: -25 }, isMirrored: false }
-    },
-    stone_rapier: {
-        spriteX: 16,
-        spriteY: 64,
-        height: 16,
-        width: 16,
-        scale: 4,
-        attackDamage: 5,
-        src: 'weapons.png',
-        use: () => {
-            return
-        },
-        onUse: '',
-        clearsAfterUse: false,
-        attackRange: 190,
-        attackCooldown: 1000,
-        description: '',
-        type: 'weapon',
-        rendering: { pos: { x: 15, y: -25 }, isMirrored: false }
-    },
-    iron_rapier: {
-        spriteX: 32,
-        spriteY: 64,
-        height: 16,
-        width: 16,
-        scale: 4,
-        attackDamage: 8,
-        src: 'weapons.png',
-        use: () => {
-            return
-        },
-        onUse: '',
-        clearsAfterUse: false,
-        attackRange: 190,
-        attackCooldown: 1000,
-        description: '',
-        type: 'weapon',
-        rendering: { pos: { x: 15, y: -25 }, isMirrored: false }
-    },
-    gold_rapier: {
-        spriteX: 48,
-        spriteY: 64,
-        height: 16,
-        width: 16,
-        scale: 4,
-        attackDamage: 12,
-        src: 'weapons.png',
-        use: () => {
-            return
-        },
-        onUse: '',
-        clearsAfterUse: false,
-        attackRange: 190,
-        attackCooldown: 1000,
-        description: 'Polished to shine even the darkest of creatures!',
-        type: 'weapon',
-        rendering: { pos: { x: 15, y: -25 }, isMirrored: false }
-    },
-    copper_rapier: {
-        spriteX: 64,
-        spriteY: 64,
-        height: 16,
-        width: 16,
-        scale: 4,
-        attackDamage: 10,
-        src: 'weapons.png',
-        use: () => {
-            return
-        },
-        onUse: '',
-        clearsAfterUse: false,
-        attackRange: 190,
-        attackCooldown: 1000,
-        description: 'Oxidising Reach',
-        type: 'weapon',
-        rendering: { pos: { x: 15, y: -25 }, isMirrored: false }
-    },
-    wood_sickle: {
-        spriteX: 0,
-        spriteY: 32,
-        height: 16,
-        width: 16,
-        scale: 4,
-        attackDamage: 2,
-        src: 'weapons.png',
-        use: () => {
-            return
-        },
-        onUse: '',
-        clearsAfterUse: false,
-        attackRange: 100,
-        attackCooldown: 500,
-        description: '- less cooldown <br> - less reach',
-        type: 'weapon',
-        rendering: { pos: { x: 15, y: -25 }, isMirrored: false }
-    },
-    stone_sickle: {
-        spriteX: 16,
-        spriteY: 32,
-        height: 16,
-        width: 16,
-        scale: 4,
-        attackDamage: 4,
-        src: 'weapons.png',
-        use: () => {
-            return
-        },
-        onUse: '',
-        clearsAfterUse: false,
-        attackRange: 100,
-        attackCooldown: 500,
-        description: '',
-        type: 'weapon',
-        rendering: { pos: { x: 15, y: -25 }, isMirrored: false }
-    },
-    iron_sickle: {
-        spriteX: 32,
-        spriteY: 32,
-        height: 16,
-        width: 16,
-        scale: 4,
-        attackDamage: 6,
-        src: 'weapons.png',
-        use: () => {
-            return
-        },
-        onUse: '',
-        clearsAfterUse: false,
-        attackRange: 100,
-        attackCooldown: 500,
-        description: 'Are you a Communist?',
-        type: 'weapon',
-        rendering: { pos: { x: 15, y: -25 }, isMirrored: false }
-    },
-    gold_sickle: {
-        spriteX: 48,
-        spriteY: 32,
-        height: 16,
-        width: 16,
-        scale: 4,
-        attackDamage: 10,
-        src: 'weapons.png',
-        use: () => {
-            return
-        },
-        onUse: '',
-        clearsAfterUse: false,
-        attackRange: 100,
-        attackCooldown: 500,
-        description: 'Luxury, Applied Rapidly.',
-        type: 'weapon',
-        rendering: { pos: { x: 15, y: -25 }, isMirrored: false }
-    },
-    copper_sickle: {
-        spriteX: 64,
-        spriteY: 32,
-        height: 16,
-        width: 16,
-        scale: 4,
-        attackDamage: 8,
-        src: 'weapons.png',
-        use: () => {
-            return
-        },
-        onUse: '',
-        clearsAfterUse: false,
-        attackRange: 100,
-        attackCooldown: 500,
-        description: '',
-        type: 'weapon',
-        rendering: { pos: { x: 15, y: -25 }, isMirrored: false }
-    },
+const itemFunctions = {
     beer: {
-        spriteX: 0,
-        spriteY: 0,
-        height: 32,
-        width: 32,
-        scale: 1.5,
-        attackDamage: 1,
-        src: 'beer.png',
         use: () => {
             player.heal(5)
             return
         },
-        onUse: 'Heals 5 HP',
-        clearsAfterUse: true,
-        attackRange: 150,
-        attackCooldown: 1000,
-        description: 'Better drunk, than dead!',
-        type: 'food',
-        rendering: { pos: { x: 0, y: 10 }, isMirrored: false }
     },
     heal_potion: {
-        spriteX: 0,
-        spriteY: 0,
-        height: 32,
-        width: 32,
-        scale: 1.5,
-        attackDamage: 1,
-        src: 'heal_potion.png',
         use: () => {
             player.heal(20)
             return
         },
-        onUse: 'Heals 20 HP',
-        clearsAfterUse: true,
-        attackRange: 150,
-        attackCooldown: 1000,
-        description: 'Side effects may include winning',
-        type: 'food'
     },
     big_heal_potion: {
-        spriteX: 0,
-        spriteY: 0,
-        height: 32,
-        width: 32,
-        scale: 1.5,
-        attackDamage: 1,
-        src: 'big_heal_potion.png',
         use: () => {
             player.heal(35)
             return
         },
-        onUse: 'Heals 35 HP',
-        clearsAfterUse: true,
-        attackRange: 150,
-        attackCooldown: 1000,
-        description: 'For injuries labeled "fatal"',
-        type: 'food'
-    },
-    coin: {
-        spriteX: 0,
-        spriteY: 0,
-        height: 32,
-        width: 32,
-        scale: 1.5,
-        attackDamage: 1,
-        src: 'coin.png',
-        use: () => {
-            return
-        },
-        onUse: '',
-        clearsAfterUse: false,
-        attackRange: 150,
-        attackCooldown: 1000,
-        description: 'Can be used to trade',
-        type: 'item'
     },
     pappbanditem: {
-        spriteX: 0,
-        spriteY: 0,
-        height: 32,
-        width: 32,
-        scale: 1.5,
-        attackDamage: 1000,
-        src: 'pappbanditem.png',
         use: () => {
             player.heal(1000000)
         },
-        onUse: 'Grants great power!',
-        clearsAfterUse: false,
-        attackRange: 15000,
-        attackCooldown: 0,
-        description: 'Papp-Band-Item',
-        type: 'testItem'
-    },
-    iron_helmet: {
-        spriteX: 0,
-        spriteY: 0,
-        height: 64,
-        width: 64,
-        scale: 0.75,
-        attackDamage: 1,
-        src: 'armor.png',
-        use: () => {
-            return;
-        },
-        onUse: '',
-        clearsAfterUse: false,
-        attackRange: 150,
-        attackCooldown: 1000,
-        description: 'A shiny helmet!',
-        type: 'armor',
-        slot: 'helmet',
-        protection: 10
-    },
-    iron_chestplate_tier_1: {
-        spriteX: 384,
-        spriteY: 256,
-        height: 64,
-        width: 64,
-        scale: 0.75,
-        attackDamage: 1,
-        src: 'armor.png',
-        use: () => {
-            return;
-        },
-        onUse: '',
-        clearsAfterUse: false,
-        attackRange: 150,
-        attackCooldown: 1000,
-        description: 'Tier One',
-        type: 'armor',
-        slot: 'chestplate',
-        protection: 15
-    },
-    iron_chestplate_tier_2: {
-        spriteX: 448,
-        spriteY: 256,
-        height: 64,
-        width: 64,
-        scale: 0.75,
-        attackDamage: 1,
-        src: 'armor.png',
-        use: () => {
-            return;
-        },
-        onUse: '',
-        clearsAfterUse: false,
-        attackRange: 150,
-        attackCooldown: 1000,
-        description: 'Tier Two',
-        type: 'armor',
-        slot: 'chestplate',
-        protection: 20
-    },
-    iron_chestplate_tier_3: {
-        spriteX: 512,
-        spriteY: 256,
-        height: 64,
-        width: 64,
-        scale: 0.75,
-        attackDamage: 1,
-        src: 'armor.png',
-        use: () => {
-            return;
-        },
-        onUse: '',
-        clearsAfterUse: false,
-        attackRange: 150,
-        attackCooldown: 1000,
-        description: 'Tier Three',
-        type: 'armor',
-        slot: 'chestplate',
-        protection: 25
-    },
-    hardened_boots: {
-        spriteX: 128,
-        spriteY: 128,
-        height: 64,
-        width: 64,
-        scale: 0.75,
-        attackDamage: 1,
-        src: 'armor.png',
-        use: () => {
-            return;
-        },
-        onUse: '',
-        clearsAfterUse: false,
-        attackRange: 150,
-        attackCooldown: 1000,
-        description: '',
-        type: 'armor',
-        slot: 'boots',
-        protection: 7.5
-    },
-    gold_crown: {
-        spriteX: 256,
-        spriteY: 64,
-        height: 64,
-        width: 64,
-        scale: 0.75,
-        attackDamage: 1,
-        src: 'armor.png',
-        use: () => {
-            return;
-        },
-        onUse: '',
-        clearsAfterUse: false,
-        attackRange: 150,
-        attackCooldown: 1000,
-        description: '',
-        type: 'armor',
-        slot: 'helmet',
-        protection: 7.5
-    },
-    leather_hood: {
-        spriteX: 512,
-        spriteY: 0,
-        height: 64,
-        width: 64,
-        scale: 0.75,
-        attackDamage: 1,
-        src: 'armor.png',
-        use: () => {
-            return;
-        },
-        onUse: '',
-        clearsAfterUse: false,
-        attackRange: 150,
-        attackCooldown: 1000,
-        description: '',
-        type: 'armor',
-        slot: 'helmet',
-        protection: 5
-    },
-    leather_boots: {
-        spriteX: 0,
-        spriteY: 128,
-        height: 64,
-        width: 64,
-        scale: 0.75,
-        attackDamage: 1,
-        src: 'armor.png',
-        use: () => {
-            return;
-        },
-        onUse: '',
-        clearsAfterUse: false,
-        attackRange: 150,
-        attackCooldown: 1000,
-        description: '',
-        type: 'armor',
-        slot: 'boots',
-        protection: 5
-    },
-    berserker_helmet: {
-        spriteX: 64,
-        spriteY: 0,
-        height: 64,
-        width: 64,
-        scale: 0.75,
-        attackDamage: 2,
-        src: 'armor.png',
-        use: () => {
-            return;
-        },
-        onUse: '',
-        clearsAfterUse: false,
-        attackRange: 150,
-        attackCooldown: 1000,
-        description: 'Horns don\'t add much protection, do they?',
-        type: 'armor',
-        slot: 'helmet',
-        protection: 12.5
-    },
-    knights_helm: {
-        spriteX: 448,
-        spriteY: 0,
-        height: 64,
-        width: 64,
-        scale: 0.75,
-        attackDamage: 2,
-        src: 'armor.png',
-        use: () => {
-            return;
-        },
-        onUse: '',
-        clearsAfterUse: false,
-        attackRange: 150,
-        attackCooldown: 1000,
-        description: 'Forged for the masses of the army!',
-        type: 'armor',
-        slot: 'helmet',
-        protection: 15
-    },
-    flaming_saber: {
-        spriteX: 0,
-        spriteY: 0,
-        height: 32,
-        width: 32,
-        scale: 2,
-        attackDamage: 18,
-        src: 'weapons2.png',
-        use: () => {
-            return
-        },
-        attack(entity: entity) {
-            entity.addEffect('burning', 500, 1)
-        },
-        onUse: '',
-        clearsAfterUse: false,
-        attackRange: 150,
-        attackCooldown: 1000,
-        description: 'Make your enemies your next buffet',
-        type: 'weapon'
     },
     holy_longsword: {
-        spriteX: 128,
-        spriteY: 0,
-        height: 32,
-        width: 32,
-        scale: 2,
-        attackDamage: 20,
-        src: 'weapons2.png',
         use: () => {
             player.addEffect('healthboost', 500, 1)
         },
-        onUse: '',
-        clearsAfterUse: false,
-        attackRange: 150,
-        attackCooldown: 1000,
-        description: 'With the power of heaven!',
-        type: 'weapon'
-    },
-    poisoned_staff: {
-        spriteX: 64,
-        spriteY: 0,
-        height: 32,
-        width: 32,
-        scale: 2,
-        attackDamage: 16,
-        src: 'weapons2.png',
-        use: () => {
-            return
-        },
-        attack: (entity) => {
-            entity.addEffect('poison', 1000, 1)
-        },
-        onUse: '',
-        clearsAfterUse: false,
-        attackRange: 150,
-        attackCooldown: 1000,
-        description: 'Don\'t hit yourself!',
-        type: 'weapon'
     },
     supernova: {
-        spriteX: 0,
-        spriteY: 32,
-        height: 32,
-        width: 32,
-        scale: 2,
-        attackDamage: 32,
-        src: 'weapons2.png',
         use: () => {
             player.addEffect('strength', 500, 1)
         },
-        onUse: '',
-        clearsAfterUse: false,
-        attackRange: 150,
-        attackCooldown: 2000,
-        description: 'Uhmm',
-        type: 'weapon'
-    },
-    null: {
-        spriteX: 96,
-        spriteY: 64,
-        height: 32,
-        width: 32,
-        scale: 2,
-        attackDamage: 10,
-        src: 'weapons2.png',
-        use: () => {
-            return
-        },
-        attack(entity: entity) {
-            player.takeHit(10)
-            entity.addEffect('deaths_curse', 1500, 1)
-        },
-        onUse: '',
-        clearsAfterUse: false,
-        attackRange: 150,
-        attackCooldown: 2000,
-        description: 'Only death will win!',
-        type: 'weapon'
-    },
-    steel_robe: {
-        spriteX: 320,
-        spriteY: 192,
-        height: 64,
-        width: 64,
-        scale: 0.75,
-        attackDamage: 1,
-        src: 'armor.png',
-        use: () => {
-            return;
-        },
-        onUse: '',
-        clearsAfterUse: false,
-        attackRange: 150,
-        attackCooldown: 1000,
-        description: 'Classy armor',
-        type: 'armor',
-        slot: 'chestplate',
-        protection: 20
-    },
-    iron_boots: {
-        spriteX: 192,
-        spriteY: 128,
-        height: 64,
-        width: 64,
-        scale: 0.75,
-        attackDamage: 1,
-        src: 'armor.png',
-        use: () => {
-            return;
-        },
-        onUse: '',
-        clearsAfterUse: false,
-        attackRange: 150,
-        attackCooldown: 1000,
-        description: '',
-        type: 'armor',
-        slot: 'boots',
-        protection: 9
-    },
-    peasants_robe: {
-        spriteX: 384,
-        spriteY: 320,
-        height: 64,
-        width: 64,
-        scale: 0.75,
-        attackDamage: 1,
-        src: 'armor.png',
-        use: () => {
-            return;
-        },
-        onUse: '',
-        clearsAfterUse: false,
-        attackRange: 150,
-        attackCooldown: 1000,
-        description: 'Muddy and teared',
-        type: 'armor',
-        slot: 'chestplate',
-        protection: 10
     },
     regeneration_potion: {
-        spriteX: 0,
-        spriteY: 0,
-        height: 26,
-        width: 12,
-        scale: 1.5,
-        attackDamage: 1,
-        src: 'regeneration_potion.png',
         use: () => {
             player.addEffect('regeneration', 600, 1)
-            return
         },
-        onUse: 'Gives the regeneration effect',
-        clearsAfterUse: true,
-        attackRange: 150,
-        attackCooldown: 1000,
-        description: '',
-        type: 'food'
     },
     big_regeneration_potion: {
-        spriteX: 0,
-        spriteY: 0,
-        height: 37,
-        width: 19,
-        scale: 1.5,
-        attackDamage: 1,
-        src: 'big_regeneration_potion.png',
         use: () => {
             player.addEffect('regeneration', 1000, 1)
             return
         },
-        onUse: 'Gives the regeneration effect',
-        clearsAfterUse: true,
-        attackRange: 150,
-        attackCooldown: 1000,
-        description: 'Side effects may include winning',
-        type: 'food'
-    },
-    icing_rapier: {
-        spriteX: 32,
-        spriteY: 0,
-        height: 32,
-        width: 32,
-        scale: 2,
-        attackDamage: 15,
-        src: 'weapons2.png',
-        use: () => {
-            return
-        },
-        attack(entity: entity) {
-            entity.addEffect('ice', 1000, 1)
-        },
-        onUse: '',
-        clearsAfterUse: false,
-        attackRange: 150,
-        attackCooldown: 2000,
-        description: 'Uhmm',
-        type: 'weapon'
     },
     healthboost_potion: {
-        spriteX: 0,
-        spriteY: 0,
-        height: 25,
-        width: 14,
-        scale: 1.5,
-        attackDamage: 1,
-        src: 'healthboost_potion.png',
         use: () => {
             player.addEffect('healthboost', 3000, 1)
-            return
         },
-        onUse: 'Gives +50% health',
-        clearsAfterUse: true,
-        attackRange: 150,
-        attackCooldown: 1000,
-        description: '',
-        type: 'food'
     },
     lightning_potion: {
-        spriteX: 0,
-        spriteY: 0,
-        height: 64,
-        width: 64,
-        scale: 0.75,
-        attackDamage: 1,
-        src: 'lightning_potion.png',
         use: () => {
             player.addEffect('electrocute', 1500, 1)
-            return
         },
-        onUse: 'Gives electrocute effect',
-        clearsAfterUse: true,
-        attackRange: 150,
-        attackCooldown: 1000,
-        description: 'feel the power of Zeus',
-        type: 'food'
+    },
+    fruit: {
+        use: () => {
+            player.heal(5)
+        },
     },
     mushroom: {
-        spriteX: 240,
-        spriteY: 128,
-        height: 16,
-        width: 16,
-        scale: 2,
-        attackDamage: 1,
-        src: 'items_sheet.png',
         use: () => {
             let removeArr: number[] = []
             player.effectData.effects.forEach((effect, i) => {
@@ -1306,240 +249,32 @@ const items: Record<item, ItemData> = {
                 player.removeEffect(i)
             })
         },
-        onUse: 'Removes all effects',
-        clearsAfterUse: true,
-        attackRange: 150,
-        attackCooldown: 1000,
-        description: 'A bit squishy in the mouth',
-        type: 'food'
-    },
-    stick: {
-        spriteX: 368,
-        spriteY: 272,
-        height: 16,
-        width: 16,
-        scale: 2,
-        attackDamage: 1,
-        src: 'items_sheet.png',
-        use: () => {
-        },
-        onUse: '',
-        clearsAfterUse: false,
-        attackRange: 150,
-        attackCooldown: 1000,
-        description: '',
-        type: 'item'
-    },
-    iron_ingot: {
-        spriteX: 256,
-        spriteY: 176,
-        height: 16,
-        width: 16,
-        scale: 2,
-        attackDamage: 1,
-        src: 'items_sheet.png',
-        use: () => {
-        },
-        onUse: '',
-        clearsAfterUse: false,
-        attackRange: 150,
-        attackCooldown: 1000,
-        description: '',
-        type: 'item'
-    },
-    gold_ingot: {
-        spriteX: 272,
-        spriteY: 176,
-        height: 16,
-        width: 16,
-        scale: 2,
-        attackDamage: 1,
-        src: 'items_sheet.png',
-        use: () => {
-        },
-        onUse: '',
-        clearsAfterUse: false,
-        attackRange: 150,
-        attackCooldown: 1000,
-        description: '',
-        type: 'item'
-    },
-    copper_ingot: {
-        spriteX: 240,
-        spriteY: 176,
-        height: 16,
-        width: 16,
-        scale: 2,
-        attackDamage: 1,
-        src: 'items_sheet.png',
-        use: () => {
-        },
-        onUse: '',
-        clearsAfterUse: false,
-        attackRange: 150,
-        attackCooldown: 1000,
-        description: '',
-        type: 'item'
-    },
-    leather: {
-        spriteX: 144,
-        spriteY: 192,
-        height: 16,
-        width: 16,
-        scale: 2,
-        attackDamage: 1,
-        src: 'items_sheet.png',
-        use: () => {
-        },
-        onUse: '',
-        clearsAfterUse: false,
-        attackRange: 150,
-        attackCooldown: 1000,
-        description: 'Moo!',
-        type: 'item'
-    },
-    string: {
-        spriteX: 352,
-        spriteY: 224,
-        height: 16,
-        width: 16,
-        scale: 2,
-        attackDamage: 1,
-        src: 'items_sheet.png',
-        use: () => {
-        },
-        onUse: '',
-        clearsAfterUse: false,
-        attackRange: 150,
-        attackCooldown: 1000,
-        description: '',
-        type: 'item'
-    },
-    stone: {
-        spriteX: 368,
-        spriteY: 320,
-        height: 16,
-        width: 16,
-        scale: 2,
-        attackDamage: 1,
-        src: 'items_sheet.png',
-        use: () => {
-        },
-        onUse: '',
-        clearsAfterUse: false,
-        attackRange: 150,
-        attackCooldown: 1000,
-        description: 'A big rock',
-        type: 'item'
-    },
-    silver_ingot: {
-        spriteX: 320,
-        spriteY: 176,
-        height: 16,
-        width: 16,
-        scale: 2,
-        attackDamage: 1,
-        src: 'items_sheet.png',
-        use: () => {
-        },
-        onUse: '',
-        clearsAfterUse: false,
-        attackRange: 150,
-        attackCooldown: 1000,
-        description: '',
-        type: 'item'
-    },
-    cloth: {
-        spriteX: 352,
-        spriteY: 208,
-        height: 16,
-        width: 16,
-        scale: 2,
-        attackDamage: 1,
-        src: 'items_sheet.png',
-        use: () => {
-        },
-        onUse: '',
-        clearsAfterUse: false,
-        attackRange: 150,
-        attackCooldown: 1000,
-        description: 'Made in China',
-        type: 'item'
-    },
-    horn: {
-        spriteX: 176,
-        spriteY: 352,
-        height: 16,
-        width: 16,
-        scale: 2,
-        attackDamage: 1,
-        src: 'items_sheet.png',
-        use: () => {
-        },
-        onUse: '',
-        clearsAfterUse: false,
-        attackRange: 150,
-        attackCooldown: 1000,
-        description: 'Goat weapon',
-        type: 'item'
-    },
-    fruit: {
-        spriteX: 48,
-        spriteY: 160,
-        height: 16,
-        width: 16,
-        scale: 2,
-        attackDamage: 1,
-        src: 'items_sheet.png',
-        use: () => {
-            player.heal(5)
-        },
-        onUse: '',
-        clearsAfterUse: false,
-        attackRange: 150,
-        attackCooldown: 1000,
-        description: '',
-        type: 'item'
-    },
-    key: {
-        spriteX: 384,
-        spriteY: 224,
-        height: 16,
-        width: 16,
-        scale: 2,
-        attackDamage: 1,
-        src: 'items_sheet.png',
-        use: () => {
-            return
-        },
-        onUse: '',
-        clearsAfterUse: false,
-        attackRange: 150,
-        attackCooldown: 1000,
-        description: 'Might unlock something',
-        type: 'item'
     },
     coffee: {
-        spriteX: 400,
-        spriteY: 112,
-        height: 16,
-        width: 16,
-        scale: 3,
-        attackDamage: 1,
-        src: 'items_sheet.png',
         use: () => {
             player.heal(5)
             player.addEffect('speed', 250, 1)
             return
         },
-        onUse: 'Makes you awake!',
-        clearsAfterUse: true,
-        attackRange: 150,
-        attackCooldown: 1000,
-        description: 'Are you now awake?',
-        type: 'food'
+    },
+    icing_rapier: {
+        attack(entity: entity) {
+            entity.addEffect('ice', 1000, 1)
+        },
+    },
+    flaming_saber: {
+        attack(entity: entity) {
+            entity.addEffect('burning', 500, 1)
+        },
+    },
+    null: {
+        attack(entity: entity) {
+            player.takeHit(10)
+            entity.addEffect('deaths_curse', 1500, 1)
+        },
     }
 }
+
 
 type InventorySlot = item | null
 type Inventory = InventorySlot[][]
@@ -1779,10 +514,10 @@ class menuClass {
             dev: {
                 name: 'dev',
                 settings: [
-                    { name: 'No Clip', state: true },
+                    { name: 'No Clip', state: false },
                     { name: 'Inf Damage', state: false },
                     { name: 'No Aggro', state: false },
-                    { name: 'Hitboxes', state: true },
+                    { name: 'Hitboxes', state: false },
                 ]
 
             },
@@ -3521,14 +2256,14 @@ class Player implements entity {
             effect.duration--
 
             if (effect.duration <= 0) {
-                if (effect.effect.end) {
-                    effect.effect.end(this)
+                if ((effectFunctions as any)[effect.effect.name].end) {
+                    (effectFunctions as any)[effect.effect.name].end(this)
                 }
                 this.removeEffect(effect.index)
             }
             if (this.effectData.effectTicks % effect.effect.ticks === 0) {
-                if (effect.effect.onTick) {
-                    effect.effect.onTick(this)
+                if ((effectFunctions as any)[effect.effect.name].onTick) {
+                    (effectFunctions as any)[effect.effect.name].onTick(this)
                 }
             }
 
@@ -3714,8 +2449,8 @@ class Player implements entity {
                             obj.takeHit(attackDamage)
                             const selectedSlot = this.data.inventory[3][this.data.selectedSlot - 1]
                             if (selectedSlot !== null) {
-                                if (items[selectedSlot].attack) {
-                                    items[selectedSlot].attack(obj)
+                                if ((itemFunctions as any)[selectedSlot].attack) {
+                                    (itemFunctions as any)[selectedSlot].attack()
                                 }
                             }
                         }
@@ -3751,8 +2486,8 @@ class Player implements entity {
                                 obj.takeHit(attackDamage)
                                 const selectedSlot = this.data.inventory[3][this.data.selectedSlot - 1]
                                 if (selectedSlot !== null) {
-                                    if (items[selectedSlot].attack) {
-                                        items[selectedSlot].attack(obj)
+                                    if ((itemFunctions as any)[selectedSlot].attack) {
+                                        (itemFunctions as any)[selectedSlot].attack()
                                     }
                                 }
                             }
@@ -3781,7 +2516,9 @@ class Player implements entity {
         const currentItem = player.data.inventory[3][this.data.selectedSlot - 1]
         if (!currentItem) return
         if (items[player.data.inventory[3][this.data.selectedSlot - 1]!].clearsAfterUse) player.data.inventory[3][this.data.selectedSlot - 1] = null
-        items[currentItem].use()
+        if ((itemFunctions as any)[currentItem].use) {
+            (itemFunctions as any)[currentItem].use()
+        }
         updateHotbar()
     }
 
@@ -3847,8 +2584,8 @@ class Player implements entity {
             innerDiv?.appendChild(durationDiv)
             div?.appendChild(innerDiv)
         }
-        if (effects[effect].start)
-            effects[effect].start(this)
+        if ((effectFunctions as any)[effect].start)
+            (effectFunctions as any)[effect].start(this)
     }
 
     removeEffect(index: number) {
@@ -4655,28 +3392,93 @@ function checkForRecipes(): { output: item | null; isValid: boolean } {
     return { output: null, isValid: false }
 }
 
+async function initialise() {
+    // import data
+    await fetch('./data/recipes.json')
+        .then(res => res.json())
+        .then(data => {
+            recipes = data
+        });
+
+    await fetch('./data/effects.json')
+        .then(res => res.json())
+        .then(data => {
+            effects = data
+        });
+
+    await fetch('./data/items.json')
+        .then(res => res.json())
+        .then(data => {
+            items = data
+        });
+
+    interface WorldData {
+        name: string
+        background: { imgs: string[], spriteWidth: number, spriteHeight: number }
+        elements: WorldElement[];
+    }
+
+    interface WorldElement {
+        class: string;
+        args: any[];
+    }
+
+    const intermediatWorld: Record<string, WorldData> = await fetch('./data/worlds.json')
+        .then(r => r.json());
+
+    const elemRegistry: Record<string, new (...args: any[]) => any> = {
+        block: block,
+        NPC: NPC,
+        goblin: goblin,
+        skeleton: skeleton,
+        nightBorn: nightBorn,
+        chest: chest,
+        trader: trader,
+        teleporter: teleporter,
+        enemy: enemy,
+    };
+
+    Object.values(intermediatWorld).forEach((world: WorldData) => {
+        if (!worlds[world.name]) {
+            worlds[world.name] = { background: { imgs: [], spriteWidth: 0, spriteHeight: 0 }, elements: [] };
+        }
+        worlds[world.name as any].background = {
+            imgs: world.background.imgs,
+            spriteWidth: world.background.spriteWidth,
+            spriteHeight: world.background.spriteHeight
+        }
+        world.elements.forEach((element: WorldElement) => {
+            const ElemClass = elemRegistry[element.class];
+
+            if (!ElemClass) {
+                alert(`World loading error!`)
+                throw new Error(`World loading error!`);
+            }
+
+            const instance = new ElemClass(...element.args);
+            worlds[world.name as any].elements.push(instance);
+        });
+    });
+}
+
 function update(): void {
+    const now = performance.now();
+
     ctx!.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
 
     // display fps
     const fpsDiv = document.querySelector('.fps-div');
-
-    // performace.now() => returns a time
-    const now = performance.now()
-    frameCount++
-
+    frameCount++;
     if (now - lastTime >= 1000) {
-        fps = frameCount
-        frameCount = 0
-        lastTime = now
-
-        fpsDiv!.innerHTML = `<h1>${fps} FPS</h1>`
+        fps = frameCount;
+        lastTime = now;
+        frameCount = 0;
+        fpsDiv!.innerHTML = `<h1>${fps} FPS</h1>`;
     }
 
-
     // player logic
-    player.data.isMoving = false
-    let isBlocked = false
+    player.data.isMoving = false;
+    let isBlocked = false;
     // check for keydown/up inputs
     if ((keys['KeyD'] || keys['KeyW']) && !player.data.onInventory && !player.data.onTradingMenu && !player.data.onSecondaryInventory) {
         // check for obstacles
@@ -4684,29 +3486,27 @@ function update(): void {
             worlds[currentWorld].elements.forEach(elem => {
                 if (elem instanceof block && elem.blocking.isBlocking) {
                     if (checkCollision({ hitbox: elem.hitbox, pos: elem.pos }, { hitbox: player.hitbox, pos: player.pos })) {
-                        isBlocked = true
+                        isBlocked = true;
                         if (elem.center.x < player.center.x) {
-                            isBlocked = false
+                            isBlocked = false;
                         }
-
                         if (elem.blocking.text) {
-                            displayInfo(elem.blocking.text)
+                            displayInfo(elem.blocking.text);
                         }
-                        if (player.sprite.currentState !== 'idle' && player.sprite.currentState !== 'jump' && player.sprite.currentState !== 'fall') player.changeState('idle')
+                        if (player.sprite.currentState !== 'idle' && player.sprite.currentState !== 'jump' && player.sprite.currentState !== 'fall') player.changeState('idle');
                     }
                 }
-            })
+            });
         }
-
         if (!player.data.onCooldown && !isBlocked) {
             if (player.sprite.currentState !== 'run' && player.data.onGround) {
-                player.changeState('run')
+                player.changeState('run');
             }
-            gameSpeed = player.data.speed
-            levelPos += player.data.speed
-
-            player.data.Xdirec = 1
-            player.data.isMoving = true
+            // Beispiel: gameSpeed und levelPos zeitbasiert machen
+            gameSpeed = player.data.speed;
+            levelPos += player.data.speed;
+            player.data.Xdirec = 1;
+            player.data.isMoving = true;
         }
     } else if ((keys['KeyA'] || keys['KeyS']) && !player.data.onInventory && !player.data.onTradingMenu && !player.data.onSecondaryInventory) {
         // check for obstacles
@@ -4714,316 +3514,124 @@ function update(): void {
             worlds[currentWorld].elements.forEach(elem => {
                 if (elem instanceof block && elem.blocking.isBlocking) {
                     if (checkCollision({ hitbox: elem.hitbox, pos: elem.pos }, { hitbox: player.hitbox, pos: player.pos })) {
-                        isBlocked = true
+                        isBlocked = true;
                         if (elem.center.x > player.center.x) {
-                            isBlocked = false
+                            isBlocked = false;
                         }
                         if (elem.blocking.text) {
-                            displayInfo(elem.blocking.text)
+                            displayInfo(elem.blocking.text);
                         }
-                        if (player.sprite.currentState !== 'idle' && player.sprite.currentState !== 'jump' && player.sprite.currentState !== 'fall') player.changeState('idle')
+                        if (player.sprite.currentState !== 'idle' && player.sprite.currentState !== 'jump' && player.sprite.currentState !== 'fall') player.changeState('idle');
                     }
                 }
-            })
+            });
         }
-
         if (!player.data.onCooldown && !isBlocked) {
             if (player.sprite.currentState !== 'run' && player.data.onGround) {
-                player.changeState('run')
+                player.changeState('run');
             }
-            gameSpeed = -player.data.speed
-            levelPos -= player.data.speed
-            player.data.Xdirec = 2
-            player.data.isMoving = true
+            // Beispiel: gameSpeed und levelPos zeitbasiert machen
+            gameSpeed = -player.data.speed;
+            levelPos -= player.data.speed;
+            player.data.Xdirec = 2;
+            player.data.isMoving = true;
         }
     }
-
-    if (isBlocked) gameSpeed = 0
-
+    if (isBlocked) gameSpeed = 0;
     deadObjects.forEach(obj => { // delete all objects that have been marked as dead
-        let indexHealthbar = -1
+        let indexHealthbar = -1;
         for (let i = 0; i < nonWorldElems.length; i++) {
             if (nonWorldElems[i].type.name === 'healthbar' && (nonWorldElems[i] as healthbar).entity === obj) {
-                indexHealthbar = i
-                break
+                indexHealthbar = i;
+                break;
             }
         }
         if (indexHealthbar !== -1) {
-            nonWorldElems.splice(indexHealthbar, 1)
+            nonWorldElems.splice(indexHealthbar, 1);
         }
-
-        worlds[currentWorld].elements.splice(worlds[currentWorld].elements.indexOf(obj), 1)
-
-    })
+        worlds[currentWorld].elements.splice(worlds[currentWorld].elements.indexOf(obj), 1);
+    });
     // reset deadobjects
-    deadObjects = []
+    deadObjects = [];
 
     backgroundLayers.forEach(Layer => {
-        Layer.update()
-        Layer.draw()
-    })
+        Layer.update();
+        Layer.draw();
+    });
 
     worlds[currentWorld].elements.forEach((element) => {
-        const VIEW_LEFT = -600
-        const VIEW_RIGHT = CANVAS_WIDTH + 600
+        const VIEW_LEFT = -600;
+        const VIEW_RIGHT = CANVAS_WIDTH + 600;
 
+        // Bewegung der Elemente zeitbasiert machen
         if ((keys['KeyD'] || keys['KeyW']) && element.type.moving === true && !isBlocked) {
-            element.pos.x -= gameSpeed
+            element.pos.x -= gameSpeed;
         } else if ((keys['KeyA'] || keys['KeyS']) && element.type.moving === true && !isBlocked) {
-            element.pos.x -= gameSpeed
+            element.pos.x -= gameSpeed;
         }
 
-        element.update()
+        element.update();
 
         if (element.pos.x >= VIEW_LEFT && element.pos.x <= VIEW_RIGHT) {
-            element.draw()
+            element.draw();
         }
     });
 
     nonWorldElems.forEach(elem => {
-        elem.update()
-        elem.draw()
-    })
+        elem.update();
+        elem.draw();
+    });
 
-    player.update()
-    player.draw()
+    player.update();
+    player.draw();
 
     particles.forEach(particle => {
+        // Bewegung der Partikel zeitbasiert machen
         if ((keys['KeyD'] || keys['KeyW']) && particle.type.moving === true && !isBlocked) {
-            particle.pos.x -= gameSpeed
+            particle.pos.x -= gameSpeed;
         } else if ((keys['KeyA'] || keys['KeyS']) && particle.type.moving === true && !isBlocked) {
-            particle.pos.x -= gameSpeed
+            particle.pos.x -= gameSpeed;
         }
-
-
-        particle.update()
-        particle.draw()
-    })
+        particle.update();
+        particle.draw();
+    });
     const questDiv = document.querySelector('#questDiv');
     if (activeQuests.length > 0) {
-        questDiv?.classList.remove('display-none')
+        questDiv?.classList.remove('display-none');
     } else {
-        questDiv?.classList.add('display-none')
+        questDiv?.classList.add('display-none');
     }
     // check if any new events occured
     if (!isQuestUIupdated) {
-        questDiv!.innerHTML = ''
+        questDiv!.innerHTML = '';
         activeQuests.forEach(quest => {
-            const questCompleted = quest.update() // update quest && check if it is completed
-
-            questDiv!.innerHTML += `<hr class="background-color-black"><div><h2>${quest.text}</h2></div>`
-
-            let amountOfCompleted = 0
+            const questCompleted = quest.update(); // update quest && check if it is completed
+            questDiv!.innerHTML += `<hr class="background-color-black"><div><h2>${quest.text}</h2></div>`;
+            let amountOfCompleted = 0;
             quest.entities.forEach(entity => {
-                if (entity.completed) amountOfCompleted++
-            })
-            questDiv!.innerHTML += `<h1>${amountOfCompleted}/${quest.entities.length}</h1>`
-
+                if (entity.completed) amountOfCompleted++;
+            });
+            questDiv!.innerHTML += `<h1>${amountOfCompleted}/${quest.entities.length}</h1>`;
             if (questCompleted) {
-                questDiv!.innerHTML += `<button class="confirm-btn" id="questBtn" style="scale: 0.8;"></button>`
+                questDiv!.innerHTML += `<button class="confirm-btn" id="questBtn" style="scale: 0.8;"></button>`;
                 document.querySelector('#questBtn')?.addEventListener('click', () => {
-                    quest.finish()
-                })
+                    quest.finish();
+                });
             }
-
-        })
-
-        isQuestUIupdated = true
+        });
+        isQuestUIupdated = true;
     }
-
-    currentEvents = []
-
-
-    gameFrame++
-    requestAnimationFrame(update)
+    currentEvents = [];
+    gameFrame++;
+    requestAnimationFrame(update);
 }
 
 // world logic
 type worldElementNames = /* 'bush_fruit' | */ 'enemy' | 'invisWall' | 'barrel' | 'crate' | 'player' | 'house_1' | 'house' | 'door_1' | 'teleporter' | 'trader' | 'wall_2' | 'wall_1' | 'goblin' | 'nightBorn' | 'skeleton' | 'tree_1' | 'tree_2' | 'rocks_1' | 'bush_1' | 'bush_2' | 'bush_3' | 'plant_1' | 'statue_1' | 'chest' | 'NPC'
 
-const worldElements = {
-    goblin: { class: goblin, args: [StaticPositions.OnGround, 'goblin'] },
-    nightBorn: { class: nightBorn, args: [StaticPositions.OnGround, 'nightborn'] },
-    skeleton: { class: skeleton, args: [StaticPositions.OnGround, 'skeleton'] },
-    tree_1: { class: block, args: [320, 100, '/img/blocks/tree_1.png', 65, 60, 1, [{ amount: 1, item: 'stick' }], true, 2, 'tree_1', true, false, null] },
-    tree_2: { class: block, args: [100, 500, '/img/blocks/tree_2.png', 85, 69, 1.5, [{ amount: 2, item: 'stick' }], true, 3, 'tree_2', true, false, null] },
-    rocks_1: { class: block, args: [530, 150, '/img/blocks/rocks_1.png', 67, 39, 0.5, [{ amount: 2, item: 'stone' }], true, 1, 'rocks_1', true, false, null] },
-    bush_1: { class: block, args: [560, 0, '/img/blocks/bush_1.png', 106, 43, 0.4, [], false, 1, 'bush_1', false, false, null] },
-    bush_2: { class: block, args: [560, 0, '/img/blocks/bush_2.png', 101, 40, 0.4, [], false, 1, 'bush_2', false, false, null] },
-    bush_3: { class: block, args: [560, 0, '/img/blocks/bush_3.png', 60, 31, 0.4, [], false, 1, 'bush_3', false, false, null] },
-    wall_1: { class: block, args: [470, 0, '/img/blocks/wall_1.png', 139, 47, 0.6, [], false, 1, 'wall_1', false, false, null] },
-    wall_2: { class: block, args: [530, 0, '/img/blocks/wall_2.png', 31, 63, 0.5, [], false, 1, 'wall_2', false, false, null] },
-    plant_1: { class: block, args: [560, 50, '/img/blocks/plant_1.png', 34, 61, 0.4, [{ amount: 1, item: 'string' }], false, 1, 'plant_1', true, false, null] },
-    //bush_fruit: { class: interactable, args: [605, 50, '/img/blocks/bush_fruit.png', 84, 55, 0.25, [{ amount: 1, item: 'fruit' }], false, 1, 'bush_fruit', true] },
-    statue_1: { class: block, args: [310, 0, '/img/blocks/statue_1.png', 39, 83, 1, [], false, 1, 'statue_1', false, false, null] },
-    chest: { class: chest, args: [StaticPositions.OnGround, 'chest'] },
-    NPC: { class: NPC, args: ['NPC'] },
-    trader: { class: trader, args: [StaticPositions.OnGround] },
-    teleporter: { class: teleporter, args: [] }
-}
-
 type worldName = keyof typeof worlds
 let currentWorld: worldName = 'jungle'
 type WorldElement = entity | blocks | container
-
-const worlds: Record<string, {
-    background: {
-        imgs: string[]
-        spriteWidth: number
-        spriteHeight: number
-    }
-    elements: WorldElement[]
-}> = {
-    jungle: {
-        background: {
-            imgs: [
-                'plx-1-jungle.png',
-                'plx-2-jungle.png',
-                'plx-3-jungle.png',
-                'plx-4-jungle.png',
-                'plx-5-jungle.png',
-            ],
-            spriteWidth: 2400,
-            spriteHeight: 700
-        },
-        elements: [
-            // start area
-            new block({ x: 1800, y: 0 }, { pathToImage: '', spriteWidth: 1, spriteHeight: 1, scale: 1, hitbox: { offsetX: 0, offsetY: 0, width: 100, height: 2000 } }, null, { isBlocking: true, removeItem: null, text: 'This path is dangerous!' }, 'invisWall', 20),
-            new NPC({ x: 1400, y: 560 }, { pathToImage: '/img/passiveEntities/elder.png', spriteWidth: 32, spriteHeight: 32, frameAmount: 4, scale: 0.4, hitbox: { offsetX: -40, offsetY: 0, width: 250, height: 150 } }, 'NPC', { first: ['Ohh, welcome traveler!', 'Isn\'t that statue beautifull!', 'What, you don\'t remember anything??', 'Well, that\'s probably for the best.', 'The goblins have attacked us!', 'You need to rescue the captured humans!', 'I mean, you do look like a strong warrior!', 'So what are you waiting for and go north to find them!'], second: ['Please, recue them!'], questCompleted: ['Thank you so much!', 'The samurai was my friend!'] }, 'elder', [], 1, new quest('kill', [11, 12, 13], 'Defeat the goblins, who are guarding the captured humans!', [{ item: 'key', amount: 1 }]), [{ action: 'destroy', ids: [20], dim: 'jungle' }]),
-            new block({ x: 200, y: 370 }, { pathToImage: '/img/blocks/tree_1.png', spriteWidth: 65, spriteHeight: 60, scale: 6, hitbox: { offsetX: 0, offsetY: 0, width: 300, height: 400 } }, { cooldown: 100, output: [{ amount: 1, item: 'stick' }], isInfinite: true, healthBarScale: 2.5 }, { isBlocking: false, removeItem: null }, 'tree_1', 0),
-            new block({ x: 1900, y: 220 }, { pathToImage: '/img/blocks/statue_1.png', spriteWidth: 39, spriteHeight: 83, scale: 6, hitbox: { offsetX: 0, offsetY: 0, width: 250, height: 500 } }, null, { isBlocking: false, removeItem: null }, 'statue_1', 0),
-            new block({ x: 1000, y: 560 }, { pathToImage: '/img/blocks/plant_1.png', spriteWidth: 34, spriteHeight: 61, scale: 2.4, hitbox: { offsetX: 0, offsetY: 0, width: 100, height: 160 } }, { cooldown: 50, output: [{ amount: 1, item: 'string' }], isInfinite: false, healthBarScale: 1 }, { isBlocking: false, removeItem: null }, 'plant_1', 0),
-            new block({ x: 600, y: 610 }, { pathToImage: '/img/blocks/bush_2.png', spriteWidth: 101, spriteHeight: 40, scale: 2.4, hitbox: { offsetX: 0, offsetY: 0, width: 230, height: 100 } }, null, { isBlocking: false, removeItem: null }, 'bush_2', 0),
-            new chest(1200, StaticPositions.OnGround, [[null, null, "leather", null, null], [null, null, "horn", null, null], [null, "leather", null, null, null], [null, "stone", null, null, null]], 'chest'),
-
-            // captured humans area
-            new block({ x: 2500, y: 560 }, { pathToImage: '/img/blocks/plant_1.png', spriteWidth: 34, spriteHeight: 61, scale: 2.4, hitbox: { offsetX: 0, offsetY: 0, width: 100, height: 160 } }, { cooldown: 50, output: [{ amount: 1, item: 'string' }], isInfinite: false, healthBarScale: 1 }, { isBlocking: false, removeItem: null }, 'plant_1', 0),
-            new block({ x: 4500, y: 0 }, { pathToImage: '', spriteWidth: 1, spriteHeight: 1, scale: 1, hitbox: { offsetX: 0, offsetY: 0, width: 100, height: 2000 } }, null, { isBlocking: true, removeItem: null, text: 'Are you crazy?' }, 'invisWall', 1111),
-            new block({ x: 3700, y: 570 }, { pathToImage: '/img/blocks/wall_1.png', spriteWidth: 139, spriteHeight: 47, scale: 3.6, hitbox: { offsetX: 0, offsetY: 0, width: 450, height: 150 } }, null, { isBlocking: false, removeItem: null }, 'wall_1', 0),
-            new block({ x: 3200, y: 610 }, { pathToImage: '/img/blocks/bush_2.png', spriteWidth: 101, spriteHeight: 40, scale: 2.4, hitbox: { offsetX: 0, offsetY: 0, width: 230, height: 100 } }, null, { isBlocking: false, removeItem: null }, 'bush_2', 0),
-            new skeleton(2600, StaticPositions.OnGround, 'skeleton', 10),
-            new NPC({ x: 2700, y: 560 }, { pathToImage: '/img/passiveEntities/stranger.png', spriteWidth: 32, spriteHeight: 32, frameAmount: 4, scale: 0.4, hitbox: { offsetX: -40, offsetY: 0, width: 250, height: 150 } }, 'NPC', { first: ['The skeleton wanted to take me to the other prisoners!', 'If you want to save them you will need some good weapons', 'Here a little gift for saving me!'], second: ['Thank you!'] }, 'stranger', [{ item: 'stone', amount: 1 }], 5, null, null),
-            new goblin(3600, StaticPositions.OnGround, 'goblin', 11),
-            new goblin(3700, StaticPositions.OnGround, 'goblin', 12),
-            new goblin(3850, StaticPositions.OnGround, 'goblin', 13),
-            new NPC({ x: 3800, y: 560 }, { pathToImage: '/img/passiveEntities/beggar.png', spriteWidth: 34, spriteHeight: 34, frameAmount: 5, scale: 0.4, hitbox: { offsetX: -40, offsetY: 0, width: 250, height: 150 } }, 'NPC', { first: ['Thanks, man!'] }, 'beggar', [], 6, null, null),
-            new NPC({ x: 3950, y: 430 }, { pathToImage: '/img/passiveEntities/samurai.png', spriteWidth: 96, spriteHeight: 96, frameAmount: 10, scale: 0.8, hitbox: { offsetX: 75, offsetY: 175, width: 150, height: 100 } }, 'NPC', { first: ['Thank you for saving me!', 'Here use this! It is the least I can give you!'], second: ['Thank you for saving me!'] }, 'samurai', [{ item: 'coin', amount: 1 }], 6, null, null),
-            // village
-            new block({ x: -3560, y: 0 }, { pathToImage: '', spriteWidth: 1, spriteHeight: 1, scale: 1, hitbox: { offsetX: 0, offsetY: 0, width: 100, height: 2000 } }, null, { isBlocking: true, removeItem: null, text: '' }, 'invisWall', 2001),
-            new block({ x: -2800, y: 0 }, { pathToImage: '', spriteWidth: 1, spriteHeight: 1, scale: 1, hitbox: { offsetX: 0, offsetY: 0, width: 100, height: 2000 } }, null, { isBlocking: true, removeItem: null, text: 'Explore other parts of the village first!' }, 'invisWall', 30),
-            new block({ x: -300, y: 450 }, { pathToImage: '/img/blocks/door_1.png', spriteWidth: 189, spriteHeight: 281, scale: 1, hitbox: { offsetX: 0, offsetY: 0, width: 190, height: 300 } }, null, { isBlocking: true, removeItem: 'key' }, 'door_1', 0),
-            new trader({ x: -1200, y: 505 }, { img: '/img/passiveEntities/blacksmith.png', spriteWidth: 96, spriteHeight: 96, frameAmount: 7, scale: 0.6 }, [[{ amount: 1, item: 'coin' }, { amount: 2, item: 'stone' }], [{ amount: 2, item: 'coin' }, { amount: 1, item: 'iron_ingot' }]], 'trader', true, 2),
-            new block({ x: -1600, y: 190 }, { pathToImage: '/img/blocks/house_1.png', spriteWidth: 88, spriteHeight: 171, scale: 3, hitbox: { offsetX: 10, offsetY: 0, width: 245, height: 510 } }, null, { isBlocking: false, removeItem: null }, 'house', 0),
-            new teleporter({ x: -2600, y: 305 }, { pathToImage: '/img/blocks/house_2.png', spriteWidth: 355, spriteHeight: 703, scale: 1, hitbox: { offsetX: 10, offsetY: 0, width: 380, height: 400 } }, { cooldown: 25, healthBarScale: 1, interactCooldown: 200 }, { isBlocking: false, removeItem: null }, { dim: 'house_1', x: 650, y: 420 }, 'house', 0),
-            new block({ x: -3100, y: 178 }, { pathToImage: '/img/blocks/house_3.png', spriteWidth: 355, spriteHeight: 703, scale: 0.75, hitbox: { offsetX: 0, offsetY: 0, width: 260, height: 500 } }, null, { isBlocking: false, removeItem: null }, 'house', 0),
-            new block({ x: -2200, y: 300 }, { pathToImage: '/img/blocks/tree_2.png', spriteWidth: 85, spriteHeight: 69, scale: 6, hitbox: { offsetX: 0, offsetY: 0, width: 500, height: 500 } }, { cooldown: 200, output: [{ amount: 2, item: 'stick' }], isInfinite: true, healthBarScale: 3 }, { isBlocking: false, removeItem: null }, 'tree_2', 0),
-            new block({ x: -1000, y: 628 }, { pathToImage: '/img/blocks/bush_3.png', spriteWidth: 60, spriteHeight: 31, scale: 2.4, hitbox: { offsetX: 0, offsetY: 0, width: 100, height: 100 } }, null, { isBlocking: false, removeItem: null }, 'bush_3', 0),
-            new NPC({ x: -2000, y: 560 }, { pathToImage: '/img/passiveEntities/villager_1.png', spriteWidth: 34, spriteHeight: 34, frameAmount: 5, scale: 0.4, hitbox: { offsetX: 0, offsetY: 0, width: 210, height: 150 } }, 'NPC', { first: ['Why does everybody leave their garbage on the street?!'], second: ['Did you do that?'] }, 'mopper', [], -2, null, null),
-            new block({ x: -1700, y: 620 }, { pathToImage: '/img/blocks/crate.png', spriteWidth: 44, spriteHeight: 43, scale: 2, hitbox: { offsetX: 0, offsetY: 0, width: 100, height: 100 } }, { cooldown: 75, output: [{ item: 'coin', amount: 1 }], isInfinite: false, healthBarScale: 1 }, { isBlocking: false, removeItem: null }, 'crate', 0),
-            new block({ x: -1770, y: 630 }, { pathToImage: '/img/blocks/crate.png', spriteWidth: 44, spriteHeight: 43, scale: 2, hitbox: { offsetX: 0, offsetY: 0, width: 100, height: 100 } }, null, { isBlocking: false, removeItem: null }, 'crate', 0),
-            new block({ x: -1700, y: 550 }, { pathToImage: '/img/blocks/barrel.png', spriteWidth: 27, spriteHeight: 35, scale: 2, hitbox: { offsetX: 0, offsetY: 0, width: 100, height: 100 } }, null, { isBlocking: false, removeItem: null }, 'barrel', 0),
-            new NPC({ x: -3000, y: 555 }, { pathToImage: '/img/passiveEntities/adventurer.png', spriteWidth: 32, spriteHeight: 34, frameAmount: 4, scale: 0.4, hitbox: { offsetX: -40, offsetY: 0, width: 250, height: 150 } }, 'NPC', { first: ['Please, help us!', 'We need to stop the goblins!', 'Here use this to defend yourself!', 'Now defeat the goblins!'], second: ['THEY ARE COMING!'], questCompleted: ['Finally the goblins have been stopped!', 'From attacking our village at least!'] }, 'elder', [{ item: 'peasants_robe', amount: 1 }], -2, new quest('kill', [21, 22, 23, 24, 25], 'Defend the village from the goblins', [{ item: 'iron_ingot', amount: 1 }, { item: 'coin', amount: 2 }]),
-                [{
-                    action: 'spawn', ids: [], dim: 'jungle', extra: [
-                        new goblin(-250, StaticPositions.OnGround, 'goblin', 21),
-                        new goblin(-300, StaticPositions.OnGround, 'goblin', 22),
-                        new goblin(-310, StaticPositions.OnGround, 'goblin', 23),
-                        new goblin(1150, StaticPositions.OnGround, 'goblin', 24),
-                        new goblin(1400, StaticPositions.OnGround, 'goblin', 25),]
-                },
-                {
-                    action: 'destroy', ids: [2001], dim: 'jungle'
-                }
-                ]),
-            new teleporter({ x: -3900, y: 305 }, { pathToImage: '/img/blocks/house_4.png', spriteWidth: 355, spriteHeight: 703, scale: 1, hitbox: { offsetX: 50, offsetY: 0, width: 300, height: 500 } }, { cooldown: 25, healthBarScale: 1, interactCooldown: 200 }, { isBlocking: false, removeItem: null }, { dim: 'house_2', x: 650, y: 420 }, 'house', 0),
-            // goblin hideout
-            new block({ x: 4500, y: 560 }, { pathToImage: '/img/blocks/plant_1.png', spriteWidth: 34, spriteHeight: 61, scale: 2.4, hitbox: { offsetX: 0, offsetY: 0, width: 100, height: 160 } }, { cooldown: 50, output: [{ amount: 1, item: 'string' }], isInfinite: false, healthBarScale: 1 }, { isBlocking: false, removeItem: null }, 'plant_1', 0),
-            new block({ x: 4900, y: 628 }, { pathToImage: '/img/blocks/bush_3.png', spriteWidth: 60, spriteHeight: 31, scale: 2.4, hitbox: { offsetX: 0, offsetY: 0, width: 100, height: 100 } }, null, { isBlocking: false, removeItem: null }, 'bush_3', 0),
-            new block({ x: 5360, y: 370 }, { pathToImage: '/img/blocks/tree_1.png', spriteWidth: 65, spriteHeight: 60, scale: 6, hitbox: { offsetX: 0, offsetY: 0, width: 300, height: 400 } }, { cooldown: 100, output: [{ amount: 1, item: 'stick' }], isInfinite: true, healthBarScale: 2.5 }, { isBlocking: false, removeItem: null }, 'tree_1', 0),
-            new block({ x: 5500, y: -600 }, { pathToImage: '/img/blocks/goblin_house_1.png', spriteWidth: 353, spriteHeight: 707, scale: 2, hitbox: { offsetX: 100, offsetY: 600, width: 500, height: 1000 } }, null, { isBlocking: false, removeItem: null }, 'house', 0),
-            new block({ x: 6300, y: 160 }, { pathToImage: '/img/blocks/goblin_house_2.png', spriteWidth: 408, spriteHeight: 612, scale: 1, hitbox: { offsetX: 0, offsetY: 70, width: 350, height: 500 } }, null, { isBlocking: false, removeItem: null }, 'house', 0),
-            new block({ x: 5000, y: 185 }, { pathToImage: '/img/blocks/goblin_house_3.png', spriteWidth: 408, spriteHeight: 612, scale: 1, hitbox: { offsetX: 50, offsetY: 200, width: 300, height: 400 } }, null, { isBlocking: false, removeItem: null }, 'house', 0),
-            new goblin(5300, StaticPositions.OnGround, 'goblin', 1112),
-            new goblin(5500, StaticPositions.OnGround, 'goblin', 1113),
-            new goblin(5700, StaticPositions.OnGround, 'goblin', 1114),
-            new goblin(5950, StaticPositions.OnGround, 'goblin', 1115),
-            new goblin(6100, StaticPositions.OnGround, 'goblin', 1116),
-            new enemy({ x: 6400, y: 500 }, { pathToImage: '/img/enemies/archer.png', spriteWidth: 64, spriteHeight: 64, scale: 0.5, animationStates: [{ name: 'idle', frames: 5 }, { name: 'attack', frames: 11 }, { name: 'run', frames: 8 }, { name: 'take_hit', frames: 5 }, { name: 'death', frames: 6 }], hitbox: { offsetX: 35, offsetY: 90, width: 100, height: 110 } }, { maxHealth: 100, attackRange: 500, attackDamage: 10, drops: [], name: 'archer' }, {
-                allignment: 'enemy', attackable: true, interactable: false, isGround: true, moving: true, name: 'archer', attackType: {
-                    type: 'rangedCombat', projectile: { spriteWidth: 30, scale: 0.05, damage: 10, range: 550, speed: 12, spriteHeight: 5, pathToImage: '/img/projectiles/arrow.png', animationStates: [{ name: 'flying', frames: 1 }], hitbox: { offsetX: 0, offsetY: -5, width: 100, height: 20 } }
-                }
-            }, 'enemy', 1117),
-            new chest(6900, StaticPositions.OnGround, [[null, null, "leather", null, null], ["stone", null, "heal_potion", null, null], [null, null, null, null, null], [null, null, null, null, "fruit"]], 'chest'),
-            new block({ x: 7300, y: 0 }, { pathToImage: '', spriteWidth: 1, spriteHeight: 1, scale: 1, hitbox: { offsetX: 0, offsetY: 0, width: 100, height: 2000 } }, null, { isBlocking: true, removeItem: null, text: '' }, 'invisWall', 20),
-
-        ]
-    },
-    mountain: {
-        background: {
-            imgs: [
-                'plx-6-mountain.png',
-                'plx-5-mountain.png',
-                'plx-4-mountain.png',
-                'plx-3-mountain.png',
-                'plx-2-mountain.png',
-                'plx-1-mountain.png',
-            ],
-            spriteWidth: 1900,
-            spriteHeight: 1000
-        },
-        elements: [
-            new goblin(1500, StaticPositions.OnGround, 'goblin', 14),
-            new goblin(1600, StaticPositions.OnGround, 'goblin', 14),
-            new chest(1800, StaticPositions.OnGround, [[null, "iron_ingot", null, null, null], ["beer", null, null, null, null], [null, null, null, "coin", null], ["brocken_sword", null, null, null, null]], 'chest'),
-            new goblin(1700, StaticPositions.OnGround, 'goblin', 14),
-        ]
-    },
-    house_1: {
-        background: {
-            imgs: [
-                'plx-1-house_1.png',
-            ],
-            spriteWidth: 2000,
-            spriteHeight: 1546
-        },
-        elements: [
-            new block({ x: -1000, y: 0 }, { pathToImage: '', spriteWidth: 1, spriteHeight: 1, scale: 1, hitbox: { offsetX: 0, offsetY: 0, width: 100, height: 2000 } }, null, { isBlocking: true, removeItem: null }, 'invisWall', 0),
-            new block({ x: 1150, y: 0 }, { pathToImage: '', spriteWidth: 1, spriteHeight: 1, scale: 1, hitbox: { offsetX: 0, offsetY: 0, width: 100, height: 2000 } }, null, { isBlocking: true, removeItem: null }, 'invisWall', 0),
-            new chest(-500, StaticPositions.OnGround, [[null, null, null, null, "string"], ["beer", null, null, null, null], [null, null, null, "coin", null], ["string", null, null, null, null]], 'chest'),
-            new trader({ x: -300, y: 545 }, { img: '/img/passiveEntities/witch.png', spriteWidth: 34, spriteHeight: 34, frameAmount: 5, scale: 0.4 }, [[{ item: 'coin', amount: 1 }, { item: 'heal_potion', amount: 1 }], [{ item: 'coin', amount: 1 }, { item: 'regeneration_potion', amount: 1 }]], 'NPC', true, -2),
-            new NPC({ x: 500, y: 560 }, { pathToImage: '/img/passiveEntities/shady_guy.png', spriteWidth: 34, spriteHeight: 34, frameAmount: 5, scale: 0.4, hitbox: { offsetX: -40, offsetY: 0, width: 250, height: 150 } }, 'NPC', { first: ['I overheard some knights!', 'They were talking about an invasion!', 'An invasion from the goblins attacking our very village!', 'They even wanted to desert!'] }, 'idk', [], -2, null, [{ action: 'destroy', ids: [30], dim: 'jungle' }]),
-            new block({ x: 700, y: 620 }, { pathToImage: '/img/blocks/crate.png', spriteWidth: 44, spriteHeight: 43, scale: 2, hitbox: { offsetX: 0, offsetY: 0, width: 100, height: 100 } }, null, { isBlocking: false, removeItem: null }, 'crate', 0),
-            new block({ x: 0, y: 630 }, { pathToImage: '/img/blocks/crate.png', spriteWidth: 44, spriteHeight: 43, scale: 2, hitbox: { offsetX: 0, offsetY: 0, width: 100, height: 100 } }, null, { isBlocking: false, removeItem: null }, 'crate', 0),
-            new block({ x: -10, y: 620 }, { pathToImage: '/img/blocks/crate.png', spriteWidth: 44, spriteHeight: 43, scale: 2, hitbox: { offsetX: 0, offsetY: 0, width: 100, height: 100 } }, null, { isBlocking: false, removeItem: null }, 'crate', 0),
-            //new block({ x: -300, y: 505 }, { pathToImage: '/img/blocks/door_1.png', spriteWidth: 189, spriteHeight: 281, scale: 0.5 }, null, { isBlocking: true, removeItem: 'key' }, 'door_1'),
-            new teleporter({ x: 900, y: 505 }, { pathToImage: '/img/blocks/door_1.png', spriteWidth: 189, spriteHeight: 281, scale: 0.5, hitbox: { offsetX: 0, offsetY: 0, width: 220, height: 400 } }, { cooldown: 25, healthBarScale: 1, interactCooldown: 200 }, { isBlocking: false, removeItem: null }, { dim: 'jungle', x: 650, y: 420 }, 'door_1', 0)
-        ]
-    },
-    house_2: {
-        background: {
-            imgs: [
-                'plx-1-house_1.png',
-            ],
-            spriteWidth: 2000,
-            spriteHeight: 1546
-        },
-        elements: [
-            new block({ x: -1600, y: 0 }, { pathToImage: '', spriteWidth: 1, spriteHeight: 1, scale: 1, hitbox: { offsetX: 0, offsetY: 0, width: 100, height: 2000 } }, null, { isBlocking: true, removeItem: null }, 'invisWall', 0),
-            new block({ x: 1450, y: 0 }, { pathToImage: '', spriteWidth: 1, spriteHeight: 1, scale: 1, hitbox: { offsetX: 0, offsetY: 0, width: 100, height: 2000 } }, null, { isBlocking: true, removeItem: null }, 'invisWall', 0),
-            new NPC({ x: 500, y: 555 }, { pathToImage: '/img/passiveEntities/adventurer_1.png', spriteWidth: 34, spriteHeight: 34, frameAmount: 5, scale: 0.4, hitbox: { offsetX: -40, offsetY: 0, width: 250, height: 150 } }, 'NPC', { first: ['Hey!', 'Are you the guy who stopped the goblins?', 'Hahahaha...', 'I bet on a gold ingot you can\'t even defeat a single goblin!', 'Well, then show me by going to the goblin hideout!'], second: ['Too scared to go?'], questCompleted: ['WHAT!?', 'HOW...', 'This is impossible!', 'You definitly cheated!'] }, 'idk', [], 0, new quest('kill', [1112, 1113, 1114, 1115, 1116, 1117], 'Raid the goblin village in the far north!', [{ item: 'gold_ingot', amount: 1 }, { item: 'coin', amount: 1 }]), [{ action: "destroy", ids: [1111], dim: 'jungle' }]),
-            new teleporter({ x: 900, y: 505 }, { pathToImage: '/img/blocks/door_1.png', spriteWidth: 189, spriteHeight: 281, scale: 0.5, hitbox: { offsetX: 0, offsetY: 0, width: 100, height: 100 } }, { cooldown: 25, healthBarScale: 1, interactCooldown: 200 }, { isBlocking: false, removeItem: null }, { dim: 'jungle', x: 650, y: 420 }, 'door_1', 0),
-            new NPC({ x: -500, y: 555 }, { pathToImage: '/img/passiveEntities/barmaid.png', spriteWidth: 34, spriteHeight: 34, frameAmount: 5, scale: 0.4, hitbox: { offsetX: -40, offsetY: 0, width: 250, height: 150 } }, 'NPC', { first: ['You want something to drink?'], second: ['Just go to the bartender'], questCompleted: [] }, 'idk', [], 0, null, null),
-            new NPC({ x: -150, y: 555 }, { pathToImage: '/img/passiveEntities/villager_2.png', spriteWidth: 34, spriteHeight: 34, frameAmount: 5, scale: 0.4, hitbox: { offsetX: -40, offsetY: 0, width: 250, height: 150 } }, 'NPC', { first: ['Aaahh...', 'Ohh, hello!', 'You want to taste some of the best wine?', 'I got you!', 'Its right here!'], second: [], questCompleted: [] }, 'idk', [], 0, null, null),
-            new trader({ x: -1300, y: 555 }, { img: '/img/passiveEntities/barkeep.png', spriteWidth: 34, spriteHeight: 34, frameAmount: 5, scale: 0.4 }, [[{ item: 'coin', amount: 1 }, { item: 'beer', amount: 2 }], [{ item: 'coin', amount: 1 }, { item: 'coffee', amount: 1 }]], 'trader', true, 0),
-            new block({ x: -900, y: 630 }, { pathToImage: '/img/blocks/table.png', spriteWidth: 73, spriteHeight: 28, scale: 2.6, hitbox: { offsetX: 0, offsetY: 0, width: 250, height: 150 } }, null, { isBlocking: false, removeItem: null }, 'barrel', 0),
-            new block({ x: 100, y: 630 }, { pathToImage: '/img/blocks/table.png', spriteWidth: 73, spriteHeight: 28, scale: 2.6, hitbox: { offsetX: 0, offsetY: 0, width: 250, height: 150 } }, null, { isBlocking: false, removeItem: null }, 'barrel', 0),
-            new block({ x: -1000, y: 630 }, { pathToImage: '/img/blocks/chair.png', spriteWidth: 22, spriteHeight: 34, scale: 2.6, hitbox: { offsetX: 0, offsetY: 0, width: 100, height: 150 } }, null, { isBlocking: false, removeItem: null }, 'barrel', 0),
-            new block({ x: 50, y: 630 }, { pathToImage: '/img/blocks/chair.png', spriteWidth: 22, spriteHeight: 34, scale: 2.6, hitbox: { offsetX: 0, offsetY: 0, width: 100, height: 150 } }, null, { isBlocking: false, removeItem: null }, 'barrel', 0),
-            new block({ x: -800, y: 610 }, { pathToImage: '/img/blocks/beer.png', spriteWidth: 9, spriteHeight: 8, scale: 2.6, hitbox: { offsetX: 0, offsetY: 0, width: 50, height: 50 } }, null, { isBlocking: false, removeItem: null }, 'barrel', 0),
-
-        ]
-    }
-}
 
 function changeWorld(world: worldName) {
     backgroundLayers = []
@@ -5051,7 +3659,12 @@ player.showHealthbar()
 const menu = new menuClass()
 
 // initialise && push layers
-changeWorld('jungle')
+async function start() {
+    await updateHotbar()
+    await initialise()
 
-updateHotbar()
-update()
+    await changeWorld('jungle')
+    await update()
+}
+
+start()

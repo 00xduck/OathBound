@@ -1,0 +1,92 @@
+{
+    "burning": {
+        "ticks": 50,
+        "particle": "img/particles/burning.png",
+        "spriteWidth": 32,
+        "spriteHeight": 48,
+        "frameAmount": 8,
+        "icon": "img/icons/fire_icon.png",
+        "name": "burning"
+    },
+    "regeneration": {
+        "ticks": 30,
+        "particle": "img/particles/regeneration.png",
+        "spriteWidth": 64,
+        "spriteHeight": 64,
+        "frameAmount": 23,
+        "icon": "img/icons/regeneration_icon.png",
+        "name": "regeneration"
+    },
+    "ice": {
+        "ticks": 100,
+        "particle": "img/particles/ice.png",
+        "spriteWidth": 32,
+        "spriteHeight": 32,
+        "frameAmount": 8,
+        "icon": "img/icons/ice_icon.png",
+        "name": "ice"
+    },
+    "strength": {
+        "ticks": 100,
+        "particle": "img/particles/strength.png",
+        "spriteWidth": 80,
+        "spriteHeight": 80,
+        "frameAmount": 4,
+        "icon": "img/icons/strength_icon.png",
+        "name": "strength"
+    },
+    "electrocute": {
+        "ticks": 100,
+        "particle": "img/particles/electrocute.png",
+        "spriteWidth": 128,
+        "spriteHeight": 128,
+        "frameAmount": 9,
+        "icon": "img/icons/electrocute_icon.png",
+        "name": "electrocute"
+    },
+    "stun": {
+        "ticks": 2,
+        "particle": "img/particles/stun.png",
+        "spriteWidth": 96,
+        "spriteHeight": 96,
+        "frameAmount": 7,
+        "icon": "img/icons/stun_icon.png",
+        "name": "stun"
+    },
+    "healthboost": {
+        "ticks": 100,
+        "particle": "img/particles/healthboost.png",
+        "spriteWidth": 64,
+        "spriteHeight": 64,
+        "frameAmount": 17,
+        "icon": "img/icons/healthboost_icon.png",
+        "name": "healthboost"
+    },
+    "deaths_curse": {
+        "ticks": 100,
+        "particle": "img/particles/deaths_curse.png",
+        "spriteWidth": 64,
+        "spriteHeight": 64,
+        "frameAmount": 48,
+        "icon": "img/icons/deaths_curse_icon.png",
+        "name": "deaths_curse"
+    },
+    "poison": {
+        "ticks": 10,
+        "particle": "img/particles/poison.png",
+        "spriteWidth": 128,
+        "spriteHeight": 128,
+        "frameAmount": 17,
+        "icon": "img/icons/poison_icon.png",
+        "name": "poison"
+    },
+    "speed": {
+        "ticks": 5,
+        "particle": "img/particles/speed.png",
+        "spriteWidth": 128,
+        "spriteHeight": 128,
+        "frameAmount": 12,
+        "icon": "img/icons/speed_icon.png",
+        "name": "speed"
+    }
+}

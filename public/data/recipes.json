@@ -2,32 +2,35 @@
     {
         "recipe": [
             " A ",
-            " A ",
+            " AC",
             " B "
         ],
         "output": "iron_sword",
         "A": "iron_ingot",
-        "B": "stick"
+        "B": "stick",
+        "C": "string"
     },
     {
         "recipe": [
             " A ",
-            " A ",
+            " AC",
             " B "
         ],
         "output": "gold_sword",
         "A": "gold_ingot",
-        "B": "stick"
+        "B": "stick",
+        "C": "string"
     },
     {
         "recipe": [
             " A ",
-            " A ",
+            " AC",
             " B "
         ],
         "output": "copper_sword",
         "A": "copper_ingot",
-        "B": "stick"
+        "B": "stick",
+        "C": "string"
     },
     {
         "recipe": [
@@ -119,7 +122,7 @@
     {
         "recipe": [
             " A ",
-            "BAB",
+            " AB",
             " A "
         ],
         "output": "wood_sword",
