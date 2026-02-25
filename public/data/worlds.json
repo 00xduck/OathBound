@@ -1522,6 +1522,43 @@
                     "invisWall",
                     20
                 ]
+            },
+            {
+                "class": "teleporter",
+                "args": [
+                    {
+                        "x": -4700,
+                        "y": 11
+                    },
+                    {
+                        "pathToImage": "/img/blocks/house_5.png",
+                        "spriteWidth": 353,
+                        "spriteHeight": 707,
+                        "scale": 1.75,
+                        "hitbox": {
+                            "offsetX": 200,
+                            "offsetY": 150,
+                            "width": 300,
+                            "height": 500
+                        }
+                    },
+                    {
+                        "cooldown": 25,
+                        "healthBarScale": 1,
+                        "interactCooldown": 200
+                    },
+                    {
+                        "isBlocking": false,
+                        "removeItem": null
+                    },
+                    {
+                        "dim": "house_3",
+                        "x": 650,
+                        "y": 420
+                    },
+                    "house",
+                    0
+                ]
             }
         ]
     },
@@ -2355,5 +2392,16 @@
                 ]
             }
         ]
+    },
+    "house_3": {
+        "name": "house_3",
+        "background": {
+            "imgs": [
+                "plx-1-house_1.png"
+            ],
+            "spriteWidth": 2000,
+            "spriteHeight": 1546
+        },
+        "elements": []
     }
 }

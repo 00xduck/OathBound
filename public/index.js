@@ -1831,23 +1831,21 @@ class Player {
         if (selectedItem !== null) {
             const image = new Image();
             image.src = `img/items/${items[selectedItem].src}`;
-            if (this.data.Xdirec === 1) {
-                if (!items[selectedItem].rendering) {
-                    ctx.drawImage(image, items[selectedItem].spriteX, items[selectedItem].spriteY, items[selectedItem].width, items[selectedItem].height, this.pos.x + 245, this.pos.y + 190, 20 * items[selectedItem].scale, 20 * items[selectedItem].scale);
-                }
-                else {
-                    ctx.drawImage(image, items[selectedItem].spriteX, items[selectedItem].spriteY, items[selectedItem].width, items[selectedItem].height, this.pos.x + 245 + -items[selectedItem].rendering.pos.x, this.pos.y + 190 + items[selectedItem].rendering.pos.y, 20 * items[selectedItem].scale, 20 * items[selectedItem].scale);
-                }
+            let drawX = items[selectedItem].rendering ? (this.data.Xdirec === 1 ? this.pos.x + 245 + items[selectedItem].rendering.pos.x : (this.pos.x + 200 + items[selectedItem].rendering.pos.x2 ? items[selectedItem].rendering.pos.x2 : items[selectedItem].rendering.pos.x)) : (this.data.Xdirec === 1 ? this.pos.x + 245 : (this.pos.x + 200));
+            const drawY = items[selectedItem].rendering ? this.pos.y + 190 + items[selectedItem].rendering.pos.y : this.pos.y + 190;
+            const scale = items[selectedItem].rendering ? 20 * items[selectedItem].rendering.scale : 20 * items[selectedItem].scale;
+            let isMirrored = this.data.Xdirec === 2;
+            if (items[selectedItem].rendering) {
+                isMirrored = items[selectedItem].rendering.isMirrored && this.data.Xdirec === 1;
+            }
+            if (!isMirrored) {
+                ctx.drawImage(image, items[selectedItem].spriteX, items[selectedItem].spriteY, items[selectedItem].width, items[selectedItem].height, drawX, drawY, scale, scale);
             }
             else {
                 ctx.save();
                 ctx.scale(-1, 1);
-                if (!items[selectedItem].rendering) {
-                    ctx.drawImage(image, items[selectedItem].spriteX, items[selectedItem].spriteY, items[selectedItem].width, items[selectedItem].height, -(this.pos.x + 200), this.pos.y + 190, 20 * items[selectedItem].scale, 20 * items[selectedItem].scale);
-                }
-                else {
-                    ctx.drawImage(image, items[selectedItem].spriteX, items[selectedItem].spriteY, items[selectedItem].width, items[selectedItem].height, -(this.pos.x + 200 + items[selectedItem].rendering.pos.x), this.pos.y + 190 + items[selectedItem].rendering.pos.y, 20 * items[selectedItem].scale, 20 * items[selectedItem].scale);
-                }
+                drawX = -(drawX);
+                ctx.drawImage(image, items[selectedItem].spriteX, items[selectedItem].spriteY, items[selectedItem].width, items[selectedItem].height, drawX, drawY, scale, scale);
                 ctx.restore();
             }
         }
@@ -1933,7 +1931,7 @@ class Player {
                             const selectedSlot = this.data.inventory[3][this.data.selectedSlot - 1];
                             if (selectedSlot !== null) {
                                 if (itemFunctions[selectedSlot].attack) {
-                                    itemFunctions[selectedSlot].attack();
+                                    itemFunctions[selectedSlot].attack(obj);
                                 }
                             }
                         }
@@ -1975,7 +1973,7 @@ class Player {
                                 const selectedSlot = this.data.inventory[3][this.data.selectedSlot - 1];
                                 if (selectedSlot !== null) {
                                     if (itemFunctions[selectedSlot].attack) {
-                                        itemFunctions[selectedSlot].attack();
+                                        itemFunctions[selectedSlot].attack(obj);
                                     }
                                 }
                             }
@@ -2894,8 +2892,14 @@ async function initialise() {
                 alert(`World loading error!`);
                 throw new Error(`World loading error!`);
             }
-            const instance = new ElemClass(...element.args);
-            worlds[world.name].elements.push(instance);
+            if (ElemClass === NPC && element.args[7] !== null) {
+                const instance = new ElemClass(element.args[0], element.args[1], element.args[2], element.args[3], element.args[4], element.args[5], element.args[6], new quest(element.args[7][0], element.args[7][1], element.args[7][2], element.args[7][3]), element.args[8]);
+                worlds[world.name].elements.push(instance);
+            }
+            else {
+                const instance = new ElemClass(...element.args);
+                worlds[world.name].elements.push(instance);
+            }
         });
     });
 }
@@ -3079,7 +3083,7 @@ function changeWorld(world) {
     player.showHealthbar();
 }
 // declare player
-const player = new Player(650, 420);
+const player = new Player(CANVAS_WIDTH * 0.4, 420);
 player.showHealthbar();
 const menu = new menuClass();
 // initialise && push layers

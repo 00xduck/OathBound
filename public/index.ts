@@ -63,7 +63,7 @@ type ItemData = {
     type: string
     slot?: string
     protection?: number
-    rendering?: { pos: { x: number, y: number }, isMirrored: boolean }
+    rendering?: { pos: { x: number, y: number, x2: number }, isMirrored: boolean, scale: number }
 }
 
 type effectTypeBase = {
@@ -2344,23 +2344,24 @@ class Player implements entity {
 
         // draw selectedItem
         const selectedItem = this.data.inventory[3][this.data.selectedSlot - 1]
+
         if (selectedItem !== null) {
             const image = new Image()
             image.src = `img/items/${items[selectedItem].src}`
-            if (this.data.Xdirec === 1) {
-                if (!items[selectedItem].rendering) {
-                    ctx!.drawImage(image, items[selectedItem].spriteX, items[selectedItem].spriteY, items[selectedItem].width, items[selectedItem].height, this.pos.x + 245, this.pos.y + 190, 20 * items[selectedItem].scale, 20 * items[selectedItem].scale)
-                } else {
-                    ctx!.drawImage(image, items[selectedItem].spriteX, items[selectedItem].spriteY, items[selectedItem].width, items[selectedItem].height, this.pos.x + 245 + -items[selectedItem].rendering.pos.x, this.pos.y + 190 + items[selectedItem].rendering.pos.y, 20 * items[selectedItem].scale, 20 * items[selectedItem].scale)
-                }
+            let drawX = items[selectedItem].rendering ? (this.data.Xdirec === 1 ? this.pos.x + 245 + items[selectedItem].rendering.pos.x : (this.pos.x + 200 + items[selectedItem].rendering.pos.x2 ? items[selectedItem].rendering.pos.x2 : items[selectedItem].rendering.pos.x)) : (this.data.Xdirec === 1 ? this.pos.x + 245 : (this.pos.x + 200))
+            const drawY = items[selectedItem].rendering ? this.pos.y + 190 + items[selectedItem].rendering.pos.y : this.pos.y + 190
+            const scale = items[selectedItem].rendering ? 20 * items[selectedItem].rendering.scale : 20 * items[selectedItem].scale
+            let isMirrored = this.data.Xdirec === 2
+            if (items[selectedItem].rendering) {
+                isMirrored = items[selectedItem].rendering.isMirrored && this.data.Xdirec === 1
+            }
+            if (!isMirrored) {
+                ctx!.drawImage(image, items[selectedItem].spriteX, items[selectedItem].spriteY, items[selectedItem].width, items[selectedItem].height, drawX, drawY, scale, scale)
             } else {
                 ctx!.save()
                 ctx!.scale(-1, 1)
-                if (!items[selectedItem].rendering) {
-                    ctx!.drawImage(image, items[selectedItem].spriteX, items[selectedItem].spriteY, items[selectedItem].width, items[selectedItem].height, -(this.pos.x + 200), this.pos.y + 190, 20 * items[selectedItem].scale, 20 * items[selectedItem].scale)
-                } else {
-                    ctx!.drawImage(image, items[selectedItem].spriteX, items[selectedItem].spriteY, items[selectedItem].width, items[selectedItem].height, -(this.pos.x + 200 + items[selectedItem].rendering.pos.x), this.pos.y + 190 + items[selectedItem].rendering.pos.y, 20 * items[selectedItem].scale, 20 * items[selectedItem].scale)
-                }
+                drawX = -(drawX)
+                ctx!.drawImage(image, items[selectedItem].spriteX, items[selectedItem].spriteY, items[selectedItem].width, items[selectedItem].height, drawX, drawY, scale, scale)
                 ctx!.restore()
             }
         }
@@ -2450,7 +2451,7 @@ class Player implements entity {
                             const selectedSlot = this.data.inventory[3][this.data.selectedSlot - 1]
                             if (selectedSlot !== null) {
                                 if ((itemFunctions as any)[selectedSlot].attack) {
-                                    (itemFunctions as any)[selectedSlot].attack()
+                                    (itemFunctions as any)[selectedSlot].attack(obj)
                                 }
                             }
                         }
@@ -2487,7 +2488,7 @@ class Player implements entity {
                                 const selectedSlot = this.data.inventory[3][this.data.selectedSlot - 1]
                                 if (selectedSlot !== null) {
                                     if ((itemFunctions as any)[selectedSlot].attack) {
-                                        (itemFunctions as any)[selectedSlot].attack()
+                                        (itemFunctions as any)[selectedSlot].attack(obj)
                                     }
                                 }
                             }
@@ -3455,8 +3456,14 @@ async function initialise() {
                 throw new Error(`World loading error!`);
             }
 
-            const instance = new ElemClass(...element.args);
-            worlds[world.name as any].elements.push(instance);
+            if (ElemClass === NPC && element.args[7] !== null) {
+                const instance = new ElemClass(element.args[0], element.args[1], element.args[2], element.args[3], element.args[4], element.args[5], element.args[6], new quest(element.args[7][0], element.args[7][1], element.args[7][2], element.args[7][3]), element.args[8]);
+                worlds[world.name as any].elements.push(instance);
+            } else {
+                const instance = new ElemClass(...element.args);
+                worlds[world.name as any].elements.push(instance);
+            }
+
         });
     });
 }
@@ -3627,7 +3634,7 @@ function update(): void {
 }
 
 // world logic
-type worldElementNames = /* 'bush_fruit' | */ 'enemy' | 'invisWall' | 'barrel' | 'crate' | 'player' | 'house_1' | 'house' | 'door_1' | 'teleporter' | 'trader' | 'wall_2' | 'wall_1' | 'goblin' | 'nightBorn' | 'skeleton' | 'tree_1' | 'tree_2' | 'rocks_1' | 'bush_1' | 'bush_2' | 'bush_3' | 'plant_1' | 'statue_1' | 'chest' | 'NPC'
+type worldElementNames = 'enemy' | 'invisWall' | 'barrel' | 'crate' | 'player' | 'house_1' | 'house' | 'door_1' | 'teleporter' | 'trader' | 'wall_2' | 'wall_1' | 'goblin' | 'nightBorn' | 'skeleton' | 'tree_1' | 'tree_2' | 'rocks_1' | 'bush_1' | 'bush_2' | 'bush_3' | 'plant_1' | 'statue_1' | 'chest' | 'NPC'
 
 type worldName = keyof typeof worlds
 let currentWorld: worldName = 'jungle'
@@ -3654,7 +3661,7 @@ function changeWorld(world: worldName) {
     player.showHealthbar()
 }
 // declare player
-const player = new Player(650, 420)
+const player = new Player(CANVAS_WIDTH * 0.4, 420)
 player.showHealthbar()
 const menu = new menuClass()
 

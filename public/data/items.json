@@ -616,7 +616,15 @@
         "attackRange": 150,
         "attackCooldown": 1000,
         "description": "Make your enemies your next buffet",
-        "type": "weapon"
+        "type": "weapon",
+        "rendering": {
+            "pos": {
+                "x": 0,
+                "y": 0
+            },
+            "isMirrored": true,
+            "scale": 3
+        }
     },
     "holy_longsword": {
         "spriteX": 128,
@@ -631,7 +639,15 @@
         "attackRange": 150,
         "attackCooldown": 1000,
         "description": "With the power of heaven!",
-        "type": "weapon"
+        "type": "weapon",
+        "rendering": {
+            "pos": {
+                "x": 0,
+                "y": 0
+            },
+            "isMirrored": true,
+            "scale": 3
+        }
     },
     "poisoned_staff": {
         "spriteX": 64,
@@ -646,7 +662,15 @@
         "attackRange": 150,
         "attackCooldown": 1000,
         "description": "Don't hit yourself!",
-        "type": "weapon"
+        "type": "weapon",
+        "rendering": {
+            "pos": {
+                "x": 0,
+                "y": 0
+            },
+            "isMirrored": true,
+            "scale": 3
+        }
     },
     "supernova": {
         "spriteX": 0,
@@ -661,7 +685,15 @@
         "attackRange": 150,
         "attackCooldown": 2000,
         "description": "Uhmm",
-        "type": "weapon"
+        "type": "weapon",
+        "rendering": {
+            "pos": {
+                "x": 0,
+                "y": 0
+            },
+            "isMirrored": true,
+            "scale": 3
+        }
     },
     "null": {
         "spriteX": 96,
@@ -676,7 +708,16 @@
         "attackRange": 150,
         "attackCooldown": 2000,
         "description": "Only death will win!",
-        "type": "weapon"
+        "type": "weapon",
+        "rendering": {
+            "pos": {
+                "x": 55,
+                "y": -20,
+                "x2": 820
+            },
+            "isMirrored": true,
+            "scale": 3
+        }
     },
     "steel_robe": {
         "spriteX": 320,
@@ -978,7 +1019,7 @@
         "attackDamage": 1,
         "src": "items_sheet.png",
         "onUse": "",
-        "clearsAfterUse": false,
+        "clearsAfterUse": true,
         "attackRange": 150,
         "attackCooldown": 1000,
         "description": "",
