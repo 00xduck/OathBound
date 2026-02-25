@@ -47,6 +47,17 @@ The story is also a core part of the game, but its development is very early and
 ## Contributing
 This repository is currently not open for external contributors, but reporting of errors or new ideas are appreciated and creating pull requests
 is not prohibited eventhough a merge is unlikely.
+### Screenshots
+<div style="margin-left: 200px">
+<img src="/docs/gameplayFootage_1.png" width="500"></div>
+<hr>
+<div>
+<img src="/docs/gameplayFootage_2.png" width="500"></div>
+<hr>
+<div>
+<img src="/docs/gameplayFootage_3.png" width="500">
+</div>
+
 ## Credits
 ### Assets
 - **[luizmelo](https://luizmelo.itch.io)**
@@ -61,16 +72,6 @@ is not prohibited eventhough a merge is unlikely.
 
 **_If I forgot you please reach out to me_**
 
-### Screenshots
-<div style="margin-left: 200px">
-<img src="/docs/gameplayFootage_1.png" width="500"></div>
-<hr>
-<div>
-<img src="/docs/gameplayFootage_2.png" width="500"></div>
-<hr>
-<div>
-<img src="/docs/gameplayFootage_3.png" width="500">
-</div>
 
 ---
 **Created by [**_LUMA STUDIOS*_**](https://github.com/Schevell/LUMA-Studios)**
