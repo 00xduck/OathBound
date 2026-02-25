@@ -1527,7 +1527,7 @@
                 "class": "teleporter",
                 "args": [
                     {
-                        "x": -4700,
+                        "x": -5500,
                         "y": 11
                     },
                     {
@@ -1558,6 +1558,90 @@
                     },
                     "house",
                     0
+                ]
+            },
+            {
+                "class": "NPC",
+                "args": [
+                    {
+                        "x": -4500,
+                        "y": 560
+                    },
+                    {
+                        "pathToImage": "/img/passiveEntities/farmer_02.png",
+                        "spriteWidth": 32,
+                        "spriteHeight": 32,
+                        "frameAmount": 5,
+                        "scale": 0.4,
+                        "hitbox": {
+                            "offsetX": -40,
+                            "offsetY": 0,
+                            "width": 250,
+                            "height": 150
+                        }
+                    },
+                    "NPC",
+                    {
+                        "first": [
+                            "Are you Elric?",
+                            "The king wants you to speak with him!"
+                        ],
+                        "second": [
+                            "He said it was urgent!"
+                        ],
+                        "questCompleted": [
+                            "What did he talk about?"
+                        ]
+                    },
+                    "stranger",
+                    [],
+                    5,
+                    [
+                        "talk",
+                        [
+                            5111
+                        ],
+                        "Find and talk with the king!",
+                        []
+                    ],
+                    [
+                        {
+                            "action": "destroy",
+                            "ids": [
+                                5112
+                            ],
+                            "dim": "jungle"
+                        }
+                    ]
+                ]
+            },
+            {
+                "class": "block",
+                "args": [
+                    {
+                        "x": -4800,
+                        "y": 0
+                    },
+                    {
+                        "pathToImage": "",
+                        "spriteWidth": 1,
+                        "spriteHeight": 1,
+                        "scale": 1,
+                        "hitbox": {
+                            "offsetX": 0,
+                            "offsetY": 0,
+                            "width": 100,
+                            "height": 2000
+                        }
+                    },
+                    null,
+                    {
+                        "isBlocking": true,
+                        "removeItem": null,
+                        "text": ""
+                    },
+                    "invisWall",
+                    5112
                 ]
             }
         ]
@@ -2402,6 +2486,207 @@
             "spriteWidth": 2000,
             "spriteHeight": 1546
         },
-        "elements": []
+        "elements": [
+            {
+                "class": "NPC",
+                "args": [
+                    {
+                        "x": -200,
+                        "y": 560
+                    },
+                    {
+                        "pathToImage": "/img/passiveEntities/captain.png",
+                        "spriteWidth": 32,
+                        "spriteHeight": 32,
+                        "frameAmount": 4,
+                        "scale": 0.4,
+                        "hitbox": {
+                            "offsetX": -40,
+                            "offsetY": 0,
+                            "width": 250,
+                            "height": 150
+                        }
+                    },
+                    "NPC",
+                    {
+                        "first": [
+                            "The blacksmith has really out done himself!"
+                        ],
+                        "second": [
+                            "This is the finest iron!"
+                        ]
+                    },
+                    "idk",
+                    [],
+                    5,
+                    null,
+                    null
+                ]
+            },
+            {
+                "class": "NPC",
+                "args": [
+                    {
+                        "x": -1700,
+                        "y": 560
+                    },
+                    {
+                        "pathToImage": "/img/passiveEntities/minstrel.png",
+                        "spriteWidth": 34,
+                        "spriteHeight": 34,
+                        "frameAmount": 4,
+                        "scale": 0.4,
+                        "hitbox": {
+                            "offsetX": -40,
+                            "offsetY": 0,
+                            "width": 250,
+                            "height": 150
+                        }
+                    },
+                    "NPC",
+                    {
+                        "first": [
+                            "Want to hear a joke?"
+                        ],
+                        "second": [
+                            "The goblin became a gardener",
+                            "Every plant survived - out of fear."
+                        ]
+                    },
+                    "idk",
+                    [],
+                    5,
+                    null,
+                    null
+                ]
+            },
+            {
+                "class": "NPC",
+                "args": [
+                    {
+                        "x": -2100,
+                        "y": 560
+                    },
+                    {
+                        "pathToImage": "/img/passiveEntities/king.png",
+                        "spriteWidth": 34,
+                        "spriteHeight": 34,
+                        "frameAmount": 4,
+                        "scale": 0.4,
+                        "hitbox": {
+                            "offsetX": -40,
+                            "offsetY": 0,
+                            "width": 250,
+                            "height": 150
+                        }
+                    },
+                    "NPC",
+                    {
+                        "first": [],
+                        "second": []
+                    },
+                    "stranger",
+                    [],
+                    5111,
+                    null,
+                    null
+                ]
+            },
+            {
+                "class": "teleporter",
+                "args": [
+                    {
+                        "x": 300,
+                        "y": 505
+                    },
+                    {
+                        "pathToImage": "/img/blocks/door_1.png",
+                        "spriteWidth": 189,
+                        "spriteHeight": 281,
+                        "scale": 0.5,
+                        "hitbox": {
+                            "offsetX": 0,
+                            "offsetY": 0,
+                            "width": 100,
+                            "height": 100
+                        }
+                    },
+                    {
+                        "cooldown": 25,
+                        "healthBarScale": 1,
+                        "interactCooldown": 200
+                    },
+                    {
+                        "isBlocking": false,
+                        "removeItem": null
+                    },
+                    {
+                        "dim": "jungle",
+                        "x": 650,
+                        "y": 420
+                    },
+                    "door_1",
+                    0
+                ]
+            },
+            {
+                "class": "block",
+                "args": [
+                    {
+                        "x": 1000,
+                        "y": 0
+                    },
+                    {
+                        "pathToImage": "",
+                        "spriteWidth": 1,
+                        "spriteHeight": 1,
+                        "scale": 1,
+                        "hitbox": {
+                            "offsetX": 0,
+                            "offsetY": 0,
+                            "width": 100,
+                            "height": 2000
+                        }
+                    },
+                    null,
+                    {
+                        "isBlocking": true,
+                        "removeItem": null,
+                        "text": ""
+                    },
+                    "invisWall",
+                    5112
+                ]
+            },
+            {
+                "class": "block",
+                "args": [
+                    {
+                        "x": -2500,
+                        "y": 0
+                    },
+                    {
+                        "pathToImage": "",
+                        "spriteWidth": 1,
+                        "spriteHeight": 1,
+                        "scale": 1,
+                        "hitbox": {
+                            "offsetX": 0,
+                            "offsetY": 0,
+                            "width": 100,
+                            "height": 2000
+                        }
+                    },
+                    null,
+                    {
+                        "isBlocking": true,
+                        "removeItem": null,
+                        "text": ""
+                    },
+                    "invisWall",
+                    5112
+                ]
+            }
+        ]
     }
 }

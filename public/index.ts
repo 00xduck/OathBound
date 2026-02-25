@@ -275,7 +275,6 @@ const itemFunctions = {
     }
 }
 
-
 type InventorySlot = item | null
 type Inventory = InventorySlot[][]
 
@@ -491,6 +490,7 @@ class menuClass {
         audio: { name: string, settings: { name: string, state: boolean }[] }
         video: { name: string, settings: { name: string, state: boolean }[] }
         dev: { name: string, settings: { name: string, state: boolean }[] }
+        accessibility: { name: string, settings: { name: string, state: boolean }[] }
     }
     constructor() {
         this.states = {
@@ -518,9 +518,16 @@ class menuClass {
                     { name: 'Inf Damage', state: false },
                     { name: 'No Aggro', state: false },
                     { name: 'Hitboxes', state: false },
+                    { name: 'Speed', state: false },
                 ]
 
             },
+            accessibility: {
+                name: 'accessibility',
+                settings: [
+                    { name: 'labels', state: true }
+                ]
+            }
         }
     }
 
@@ -696,6 +703,7 @@ class quest {
             activeQuests.splice(index, 1)
         }
         isQuestUIupdated = false
+        this.completed = true
     }
 }
 
@@ -1015,7 +1023,7 @@ class healthbar implements nonWorldElems {
             drawHealth = 100
             drawMaxHealth = 100
         }
-        if (this.entity instanceof block) {
+        if (this.entity instanceof block || this.entity instanceof teleporter) {
             ctx!.fillStyle = backgroundColor
             ctx!.fillRect(CANVAS_WIDTH * 0.85, 200, 200, 40)
             ctx!.fillStyle = overColor
@@ -1088,7 +1096,7 @@ class chest implements container {
         this.init()
     }
     update() {
-        if (checkCollision({ hitbox: this.hitbox, pos: this.pos }, { hitbox: player.hitbox, pos: player.pos }) && !player.data.onCooldown && player.data.onGround) {
+        if (checkCollision({ hitbox: this.hitbox, pos: this.pos }, { hitbox: player.hitbox, pos: player.pos }) && !player.data.onCooldown && player.data.onGround && menu.checkSetting('labels')) {
             if (!this.showedText) {
                 this.showedText = true
                 displayInfo('Press "R" to interact')
@@ -1283,7 +1291,7 @@ class block implements blocks {
             if (!this.data.spawnedHealthbar) {
                 let remover: number[] = []
                 nonWorldElems.forEach((elem, i) => {
-                    if (elem instanceof healthbar && elem.entity instanceof block) {
+                    if (elem instanceof healthbar && (elem.entity instanceof block || elem.entity instanceof teleporter)) {
                         elem.entity.data.spawnedHealthbar = false
                         elem.entity.data.health = 0
                         remover.push(i)
@@ -1422,9 +1430,22 @@ class teleporter implements blocks {
     }
     interact() {
         if (!this.data.spawnedHealthbar && !this.onCooldown) {
+            let remover: number[] = []
+            nonWorldElems.forEach((elem, i) => {
+                if (elem instanceof healthbar && (elem.entity instanceof block || elem.entity instanceof teleporter)) {
+                    elem.entity.data.spawnedHealthbar = false
+                    elem.entity.data.health = 0
+                    remover.push(i)
+                }
+            })
+
+            remover.forEach(i => {
+                nonWorldElems.splice(i, 1)
+            })
             nonWorldElems.push(new healthbar(this))
             this.data.spawnedHealthbar = true
         }
+
 
         if (keys['KeyR']) {
             this.data.health += 1
@@ -1555,7 +1576,7 @@ abstract class Entity {
 
         })
 
-        if (this.type.interactable) {
+        if (this.type.interactable && menu.checkSetting('labels')) {
             if (checkCollision({ hitbox: player.hitbox, pos: player.pos }, { hitbox: this.hitbox, pos: this.pos }) && !player.data.onCooldown && player.data.onGround) {
                 if (!this.data.showedText) {
                     displayInfo('Press "R" to interact')
@@ -2038,6 +2059,7 @@ class NPC extends Entity implements entity {
     present: PresentItem[]
     hasGivenPresent: boolean
     quest: quest | null
+    questCompleted: boolean
     story: { action: actionType, ids: number[], dim: worldName, extra?: any }[] | null
     constructor(pos: { x: number, y: number }, sprite: { pathToImage: string, spriteWidth: number, spriteHeight: number, frameAmount: number, scale: number, hitbox: { offsetX: number, offsetY: number, width: number, height: number } }, worldElem: worldElementNames, conversation: { first: string[], second?: string[], questCompleted?: string[] }, name: string, present: PresentItem[], id: number, quest: quest | null, story: { action: actionType, ids: number[], dim: worldName, extra?: any }[] | null) {
         let image = new Image()
@@ -2068,6 +2090,7 @@ class NPC extends Entity implements entity {
         this.hasGivenPresent = false
         this.quest = quest
         this.story = story
+        this.questCompleted = false
         this.init()
     }
     endConversation() {
@@ -3509,9 +3532,13 @@ function update(): void {
             if (player.sprite.currentState !== 'run' && player.data.onGround) {
                 player.changeState('run');
             }
-            // Beispiel: gameSpeed und levelPos zeitbasiert machen
-            gameSpeed = player.data.speed;
-            levelPos += player.data.speed;
+            if (menu.checkSetting('Speed')) {
+                gameSpeed = 100
+                levelPos += 100;
+            } else {
+                gameSpeed = player.data.speed
+                levelPos += player.data.speed;
+            }
             player.data.Xdirec = 1;
             player.data.isMoving = true;
         }
@@ -3538,8 +3565,13 @@ function update(): void {
                 player.changeState('run');
             }
             // Beispiel: gameSpeed und levelPos zeitbasiert machen
-            gameSpeed = -player.data.speed;
-            levelPos -= player.data.speed;
+            if (menu.checkSetting('Speed')) {
+                gameSpeed = -100
+                levelPos -= 100;
+            } else {
+                gameSpeed = -player.data.speed
+                levelPos -= player.data.speed;
+            }
             player.data.Xdirec = 2;
             player.data.isMoving = true;
         }

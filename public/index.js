@@ -304,8 +304,15 @@ class menuClass {
                     { name: 'Inf Damage', state: false },
                     { name: 'No Aggro', state: false },
                     { name: 'Hitboxes', state: false },
+                    { name: 'Speed', state: false },
                 ]
             },
+            accessibility: {
+                name: 'accessibility',
+                settings: [
+                    { name: 'labels', state: true }
+                ]
+            }
         };
     }
     toggleMenu() {
@@ -459,6 +466,7 @@ class quest {
             activeQuests.splice(index, 1);
         }
         isQuestUIupdated = false;
+        this.completed = true;
     }
 }
 // classes for objects in the game
@@ -709,7 +717,7 @@ class healthbar {
             drawHealth = 100;
             drawMaxHealth = 100;
         }
-        if (this.entity instanceof block) {
+        if (this.entity instanceof block || this.entity instanceof teleporter) {
             ctx.fillStyle = backgroundColor;
             ctx.fillRect(CANVAS_WIDTH * 0.85, 200, 200, 40);
             ctx.fillStyle = overColor;
@@ -764,7 +772,7 @@ class chest {
         this.init();
     }
     update() {
-        if (checkCollision({ hitbox: this.hitbox, pos: this.pos }, { hitbox: player.hitbox, pos: player.pos }) && !player.data.onCooldown && player.data.onGround) {
+        if (checkCollision({ hitbox: this.hitbox, pos: this.pos }, { hitbox: player.hitbox, pos: player.pos }) && !player.data.onCooldown && player.data.onGround && menu.checkSetting('labels')) {
             if (!this.showedText) {
                 this.showedText = true;
                 displayInfo('Press "R" to interact');
@@ -926,7 +934,7 @@ class block {
             if (!this.data.spawnedHealthbar) {
                 let remover = [];
                 nonWorldElems.forEach((elem, i) => {
-                    if (elem instanceof healthbar && elem.entity instanceof block) {
+                    if (elem instanceof healthbar && (elem.entity instanceof block || elem.entity instanceof teleporter)) {
                         elem.entity.data.spawnedHealthbar = false;
                         elem.entity.data.health = 0;
                         remover.push(i);
@@ -1050,6 +1058,17 @@ class teleporter {
     interact() {
         var _a;
         if (!this.data.spawnedHealthbar && !this.onCooldown) {
+            let remover = [];
+            nonWorldElems.forEach((elem, i) => {
+                if (elem instanceof healthbar && (elem.entity instanceof block || elem.entity instanceof teleporter)) {
+                    elem.entity.data.spawnedHealthbar = false;
+                    elem.entity.data.health = 0;
+                    remover.push(i);
+                }
+            });
+            remover.forEach(i => {
+                nonWorldElems.splice(i, 1);
+            });
             nonWorldElems.push(new healthbar(this));
             this.data.spawnedHealthbar = true;
         }
@@ -1164,7 +1183,7 @@ class Entity {
                 }
             }
         });
-        if (this.type.interactable) {
+        if (this.type.interactable && menu.checkSetting('labels')) {
             if (checkCollision({ hitbox: player.hitbox, pos: player.pos }, { hitbox: this.hitbox, pos: this.pos }) && !player.data.onCooldown && player.data.onGround) {
                 if (!this.data.showedText) {
                     displayInfo('Press "R" to interact');
@@ -1594,6 +1613,7 @@ class NPC extends Entity {
         this.hasGivenPresent = false;
         this.quest = quest;
         this.story = story;
+        this.questCompleted = false;
         this.init();
     }
     endConversation() {
@@ -2942,9 +2962,14 @@ function update() {
             if (player.sprite.currentState !== 'run' && player.data.onGround) {
                 player.changeState('run');
             }
-            // Beispiel: gameSpeed und levelPos zeitbasiert machen
-            gameSpeed = player.data.speed;
-            levelPos += player.data.speed;
+            if (menu.checkSetting('Speed')) {
+                gameSpeed = 100;
+                levelPos += 100;
+            }
+            else {
+                gameSpeed = player.data.speed;
+                levelPos += player.data.speed;
+            }
             player.data.Xdirec = 1;
             player.data.isMoving = true;
         }
@@ -2973,8 +2998,14 @@ function update() {
                 player.changeState('run');
             }
             // Beispiel: gameSpeed und levelPos zeitbasiert machen
-            gameSpeed = -player.data.speed;
-            levelPos -= player.data.speed;
+            if (menu.checkSetting('Speed')) {
+                gameSpeed = -100;
+                levelPos -= 100;
+            }
+            else {
+                gameSpeed = -player.data.speed;
+                levelPos -= player.data.speed;
+            }
             player.data.Xdirec = 2;
             player.data.isMoving = true;
         }
