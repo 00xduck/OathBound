@@ -15,10 +15,12 @@
         "type": "weapon",
         "rendering": {
             "pos": {
-                "x": 15,
-                "y": -25
+                "x": 0,
+                "y": -20,
+                "x2": 750
             },
-            "isMirrored": false
+            "isMirrored": false,
+            "scale": 3
         }
     },
     "stone_sword": {
@@ -37,10 +39,12 @@
         "type": "weapon",
         "rendering": {
             "pos": {
-                "x": 15,
-                "y": -25
+                "x": 0,
+                "y": -20,
+                "x2": 750
             },
-            "isMirrored": false
+            "isMirrored": false,
+            "scale": 3
         }
     },
     "iron_sword": {
@@ -59,10 +63,12 @@
         "type": "weapon",
         "rendering": {
             "pos": {
-                "x": 15,
-                "y": -25
+                "x": 0,
+                "y": -20,
+                "x2": 750
             },
-            "isMirrored": false
+            "isMirrored": false,
+            "scale": 3
         }
     },
     "gold_sword": {
@@ -81,10 +87,12 @@
         "type": "weapon",
         "rendering": {
             "pos": {
-                "x": 15,
-                "y": -25
+                "x": 0,
+                "y": -20,
+                "x2": 750
             },
-            "isMirrored": false
+            "isMirrored": false,
+            "scale": 3
         }
     },
     "copper_sword": {
@@ -103,10 +111,12 @@
         "type": "weapon",
         "rendering": {
             "pos": {
-                "x": 15,
-                "y": -25
+                "x": 0,
+                "y": -20,
+                "x2": 750
             },
-            "isMirrored": false
+            "isMirrored": false,
+            "scale": 3
         }
     },
     "brocken_sword": {
@@ -125,10 +135,12 @@
         "type": "weapon",
         "rendering": {
             "pos": {
-                "x": 15,
-                "y": -25
+                "x": 0,
+                "y": -20,
+                "x2": 750
             },
-            "isMirrored": false
+            "isMirrored": false,
+            "scale": 3
         }
     },
     "wood_rapier": {
@@ -147,10 +159,12 @@
         "type": "weapon",
         "rendering": {
             "pos": {
-                "x": 15,
-                "y": -25
+                "x": 0,
+                "y": -20,
+                "x2": 750
             },
-            "isMirrored": false
+            "isMirrored": false,
+            "scale": 3
         }
     },
     "stone_rapier": {
@@ -169,10 +183,12 @@
         "type": "weapon",
         "rendering": {
             "pos": {
-                "x": 15,
-                "y": -25
+                "x": 0,
+                "y": -20,
+                "x2": 750
             },
-            "isMirrored": false
+            "isMirrored": false,
+            "scale": 3
         }
     },
     "iron_rapier": {
@@ -191,10 +207,12 @@
         "type": "weapon",
         "rendering": {
             "pos": {
-                "x": 15,
-                "y": -25
+                "x": 0,
+                "y": -20,
+                "x2": 750
             },
-            "isMirrored": false
+            "isMirrored": false,
+            "scale": 3
         }
     },
     "gold_rapier": {
@@ -213,10 +231,12 @@
         "type": "weapon",
         "rendering": {
             "pos": {
-                "x": 15,
-                "y": -25
+                "x": 0,
+                "y": -20,
+                "x2": 750
             },
-            "isMirrored": false
+            "isMirrored": false,
+            "scale": 3
         }
     },
     "copper_rapier": {
@@ -235,10 +255,12 @@
         "type": "weapon",
         "rendering": {
             "pos": {
-                "x": 15,
-                "y": -25
+                "x": 0,
+                "y": -20,
+                "x2": 750
             },
-            "isMirrored": false
+            "isMirrored": false,
+            "scale": 3
         }
     },
     "wood_sickle": {
@@ -257,10 +279,12 @@
         "type": "weapon",
         "rendering": {
             "pos": {
-                "x": 15,
-                "y": -25
+                "x": 0,
+                "y": -20,
+                "x2": 750
             },
-            "isMirrored": false
+            "isMirrored": false,
+            "scale": 3
         }
     },
     "stone_sickle": {
@@ -279,10 +303,12 @@
         "type": "weapon",
         "rendering": {
             "pos": {
-                "x": 15,
-                "y": -25
+                "x": 0,
+                "y": -20,
+                "x2": 750
             },
-            "isMirrored": false
+            "isMirrored": false,
+            "scale": 3
         }
     },
     "iron_sickle": {
@@ -301,10 +327,12 @@
         "type": "weapon",
         "rendering": {
             "pos": {
-                "x": 15,
-                "y": -25
+                "x": 0,
+                "y": -20,
+                "x2": 750
             },
-            "isMirrored": false
+            "isMirrored": false,
+            "scale": 3
         }
     },
     "gold_sickle": {
@@ -323,10 +351,12 @@
         "type": "weapon",
         "rendering": {
             "pos": {
-                "x": 15,
-                "y": -25
+                "x": 0,
+                "y": -20,
+                "x2": 750
             },
-            "isMirrored": false
+            "isMirrored": false,
+            "scale": 3
         }
     },
     "copper_sickle": {
@@ -345,10 +375,12 @@
         "type": "weapon",
         "rendering": {
             "pos": {
-                "x": 15,
-                "y": -25
+                "x": 0,
+                "y": -20,
+                "x2": 750
             },
-            "isMirrored": false
+            "isMirrored": false,
+            "scale": 3
         }
     },
     "beer": {
@@ -713,7 +745,7 @@
             "pos": {
                 "x": 55,
                 "y": -20,
-                "x2": 800
+                "x2": 640
             },
             "isMirrored": true,
             "scale": 3

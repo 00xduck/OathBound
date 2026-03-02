@@ -30,11 +30,14 @@
         <div class="effect-icons-div">
         </div>
 
-        <div class="inventory-div center display-none">
-        </div>
-        <div class="crafting-div display-none">
+        <div class="center-true flex-between">      
+            <div class="crafting-div display-none margin-right-32">
+            </div>  
 
+            <div class="inventory-div display-none">
+            </div>
         </div>
+
 
         <div class="container display-none">
             <div class="slots-div" id="slot-div-container"></div>
@@ -68,6 +71,17 @@
         <div class="settingsDiv center display-none" id="settings">
         </div>
 
+        <div class="loading-screen display-none" id="loadingScreen">
+            <div class="flex-center">
+                <h1 class="headline">Oathbound</h1>
+            </div>
+            <div class="flex-center">
+                <progress value="0" max="100" class="loadingBar" id="loadingBar"></progress>
+            </div>
+            <div class="flex-center">
+                <h1 style="color: black;" id="loadingInfo"></h1>
+            </div>
+        </div>
 
     </div>
 

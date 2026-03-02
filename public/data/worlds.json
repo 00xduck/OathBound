@@ -2582,13 +2582,36 @@
                     },
                     "NPC",
                     {
-                        "first": [],
-                        "second": []
+                        "first": [
+                            "I have been expecting you, old friend!",
+                            "Ohh I forgot. You don't remember me, don't you?",
+                            "Long ago, you made an oath to protect the kingdom!",
+                            "But the goblins captured you and erased your memory!",
+                            "Sadly enough the goblins have become too powerfull",
+                            "So the only way to defeat them is ...                                   to destroy them from the inside!",
+                            "Good luck, my friend!"
+                        ],
+                        "second": [
+                            "Now go!"
+                        ]
                     },
                     "stranger",
                     [],
                     5111,
-                    null,
+                    [
+                        "give",
+                        [
+                            5111
+                        ],
+                        "Give me a stick",
+                        [],
+                        [
+                            {
+                                "item": "stick",
+                                "amount": 1
+                            }
+                        ]
+                    ],
                     null
                 ]
             },

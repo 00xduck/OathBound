@@ -14,6 +14,7 @@ let gameFrame = 0 // counter for the frames
 const staggerFrames = 7 // amount of ticks between each frame of animation
 const globalGravity = 60 // gravity affecting the player
 const groundY = 580 // is the y-coordinate of the ground
+let isLoading = true
 
 let fps = 0 // current fps
 let frameCount = 0
@@ -403,6 +404,7 @@ document.querySelector('#game')!.addEventListener('contextmenu', e => e.preventD
 
 
 canvas.addEventListener('mousedown', event => {
+    if (isLoading) return
     if (event.button === 2 && !player.data.onInventory) {
         player.useItem()
     }
@@ -412,6 +414,7 @@ canvas.addEventListener('mousedown', event => {
     }
 })
 addEventListener('keyup', event => {
+    if (isLoading) return
     if (!player.data.onInventory) {
         keys[event.code] = false
         player.changeState('idle')
@@ -419,6 +422,7 @@ addEventListener('keyup', event => {
     }
 })
 addEventListener('keydown', event => {
+    if (isLoading) return
     if (!player.data.onInventory && !player.data.onTradingMenu && !player.data.onSecondaryInventory && player.data.canMove) keys[event.code] = true
 
     if (event.code === 'KeyR' && !player.data.isMoving) {
@@ -456,6 +460,7 @@ addEventListener('keydown', event => {
 
 let scrollCount = 0
 window.addEventListener('wheel', (e) => {
+    if (isLoading) return
     if (scrollCount % 300) {
         if (e.deltaY > 0) {
             if (player.data.selectedSlot < 5) {
@@ -475,10 +480,10 @@ window.addEventListener('wheel', (e) => {
 })
 
 // quest logic and events
-let currentEvents: { event: event, entity: entity }[] = []
+let currentEvents: { event: event, entity: entity, extra?: any }[] = []
 let activeQuests: quest[] = []
 
-type event = 'kill' | 'talk' | 'walk'
+type event = 'kill' | 'talk' | 'walk' | 'give'
 
 class menuClass {
     states: {
@@ -519,6 +524,7 @@ class menuClass {
                     { name: 'No Aggro', state: false },
                     { name: 'Hitboxes', state: false },
                     { name: 'Speed', state: false },
+                    { name: 'Insta Skip', state: false },
                 ]
 
             },
@@ -655,7 +661,8 @@ class quest {
     text: string
     gift: { item: item, amount: number }[]
     completed: boolean
-    constructor(event: event, entities: number[], text: string, gift: { item: item, amount: number }[]) {
+    items?: { item: item, amount: number }[]
+    constructor(event: event, entities: number[], text: string, gift: { item: item, amount: number }[], items?: { item: item, amount: number }[]) {
         this.event = event
         this.text = text
         this.gift = gift
@@ -664,6 +671,7 @@ class quest {
         entities.forEach(entity => {
             this.entities.push({ entity: entity, completed: false })
         })
+        /* this.items = items */
     }
 
     update() {
@@ -674,6 +682,17 @@ class quest {
                         entity.completed = true
                     }
                 })
+                /*                 console.log(this.event);
+                                if (this.event === 'give') {
+                                    console.log('give');
+                                    if (event.extra) {
+                                        console.log(event.extra);
+                                        if (this.items === event.extra) {
+                                            this.completed = true
+                                            return this.completed
+                                        }
+                                    }
+                                } */
             }
         })
         let questCompleted = true
@@ -683,6 +702,7 @@ class quest {
                 this.completed = false
             }
         })
+
 
         return questCompleted
     }
@@ -1233,7 +1253,7 @@ class block implements blocks {
     update() {
         if (this.interactData) {
             if (checkCollision({ hitbox: this.hitbox, pos: this.pos }, { hitbox: player.hitbox, pos: player.pos }) && !player.data.onCooldown && player.data.onGround) {
-                if (!this.data.showedText) {
+                if (!this.data.showedText && menu.checkSetting('labels')) {
                     this.data.showedText = true
                     /* if (!this.wasCollected && this.isInfinite) displayInfo('Hold "R" to interact') */
                 }
@@ -1400,7 +1420,7 @@ class teleporter implements blocks {
     }
     update() {
         if (checkCollision({ hitbox: this.hitbox, pos: this.pos }, { hitbox: player.hitbox, pos: player.pos }) && !player.data.onCooldown && player.data.onGround) {
-            if (!this.data.showedText) {
+            if (!this.data.showedText && menu.checkSetting('labels')) {
                 this.data.showedText = true
                 if (!this.data.wasCollected) displayInfo('Hold "R" to interact')
             }
@@ -1576,9 +1596,9 @@ abstract class Entity {
 
         })
 
-        if (this.type.interactable && menu.checkSetting('labels')) {
+        if (this.type.interactable) {
             if (checkCollision({ hitbox: player.hitbox, pos: player.pos }, { hitbox: this.hitbox, pos: this.pos }) && !player.data.onCooldown && player.data.onGround) {
-                if (!this.data.showedText) {
+                if (!this.data.showedText && menu.checkSetting('labels')) {
                     displayInfo('Press "R" to interact')
                     this.data.showedText = true
                 }
@@ -2094,25 +2114,50 @@ class NPC extends Entity implements entity {
         this.init()
     }
     endConversation() {
-        if (this.hasGivenPresent) return
-        this.present.forEach(item => {
-            player.addItem(item.item, item.amount)
-        })
-        this.hasGivenPresent = true
-        if (this.quest) {
+        /*         if (this.quest?.items && this.hasGivenPresent) {
+                    let hasAllItems = true
+                    this.quest.items.forEach(item => {
+                        let amount = 0
+                        for (let y = 0; y < player.data.inventory.length; y++) {
+                            for (let x = 0; x < player.data.inventory[y].length; x++) {
+                                if (player.data.inventory[y][x] === item.item) amount++
+                            }
+                        }
+                        if (amount < item.amount) hasAllItems = false
+                    })
+                    if (hasAllItems) currentEvents.push({ event: 'give', entity: this, extra: this.quest.items })
+                } */
+
+        if (this.quest && !this.hasGivenPresent) {
             activeQuests.push(this.quest)
             isQuestUIupdated = false
         }
 
-        if (this.story) {
+        if (this.story && !this.hasGivenPresent) {
             this.story.forEach(elem => {
                 if (elem.action === 'destroy') {
                     removeWorldElements(elem.ids, ['id'], elem.dim)
                 } else if (elem.action === 'spawn') {
-                    spawnElements(elem.extra, elem.dim)
+                    let elemsArray: container[] | entity[] | block[] = []
+
+                    elem.extra.forEach((element: any) => {
+                        console.log(element.class);
+                        elemsArray.push(new elemRegistry[element.class](...element.args))
+                    });
+
+                    spawnElements(elemsArray, elem.dim)
                 }
             })
         }
+
+        if (!this.hasGivenPresent) {
+            this.present.forEach(item => {
+                player.addItem(item.item, item.amount)
+            })
+            this.hasGivenPresent = true
+        }
+
+
     }
 
     speak(): void {
@@ -2375,9 +2420,15 @@ class Player implements entity {
             const drawY = items[selectedItem].rendering ? this.pos.y + 190 + items[selectedItem].rendering.pos.y : this.pos.y + 190
             const scale = items[selectedItem].rendering ? 20 * items[selectedItem].rendering.scale : 20 * items[selectedItem].scale
             let isMirrored = this.data.Xdirec === 2
-            if (items[selectedItem].rendering) {
-                isMirrored = items[selectedItem].rendering.isMirrored && this.data.Xdirec === 1
+
+            if (items[selectedItem].rendering && items[selectedItem].rendering.isMirrored) {
+                if (isMirrored) {
+                    isMirrored = false
+                } else {
+                    isMirrored = true
+                }
             }
+
             if (!isMirrored) {
                 ctx!.drawImage(image, items[selectedItem].spriteX, items[selectedItem].spriteY, items[selectedItem].width, items[selectedItem].height, drawX, drawY, scale, scale)
             } else {
@@ -2695,6 +2746,10 @@ function checkCollision(element1: { hitbox: { offsetX: number, offsetY: number, 
         aBottom > bTop
     )
 }
+
+function sleep(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms))
+}
 // inventory logic
 function openInventory() {
     player.data.onInventory = true
@@ -2750,14 +2805,14 @@ function advanceConversation(NPC: entity): void {
     }
 
 
-    if (NPC.conversationCounter! >= currentConversation!.length) {
+    if (NPC.conversationCounter! >= currentConversation!.length || menu.checkSetting('Insta Skip')) {
         const speakDiv = document.querySelector('#speakWrapper');
         speakDiv?.classList.add('display-none')
         NPC.conversationCounter = 0
         player.data.canMove = true
         NPC.isSpeaking = false
-        if (!NPC.endConversation) return
-        NPC.endConversation()
+        if (NPC.endConversation)
+            NPC.endConversation()
         return
     }
 
@@ -3416,25 +3471,50 @@ function checkForRecipes(): { output: item | null; isValid: boolean } {
     return { output: null, isValid: false }
 }
 
+const elemRegistry: Record<string, new (...args: any[]) => any> = {
+    block: block,
+    NPC: NPC,
+    goblin: goblin,
+    skeleton: skeleton,
+    nightBorn: nightBorn,
+    chest: chest,
+    trader: trader,
+    teleporter: teleporter,
+    enemy: enemy,
+};
+
 async function initialise() {
     // import data
+    const loadingInfo = document.querySelector('#loadingInfo');
+    const loadingBar = document.querySelector('#loadingBar') as HTMLProgressElement
+
+    console.info('Fetching recipes...');
+    loadingInfo!.innerHTML = 'Fetching recipes...'
     await fetch('./data/recipes.json')
         .then(res => res.json())
         .then(data => {
             recipes = data
         });
+    loadingBar!.value += 10
 
+    console.info('Fetching effects...');
+    loadingInfo!.innerHTML = 'Fetching effects...'
     await fetch('./data/effects.json')
         .then(res => res.json())
         .then(data => {
             effects = data
         });
+    loadingBar!.value += 10
 
+    console.info('Fetching items...');
+    loadingInfo!.innerHTML = 'Fetching items...'
     await fetch('./data/items.json')
         .then(res => res.json())
         .then(data => {
             items = data
         });
+
+    loadingBar!.value += 10
 
     interface WorldData {
         name: string
@@ -3446,22 +3526,13 @@ async function initialise() {
         class: string;
         args: any[];
     }
-
+    console.info('Fetching worlds...');
+    loadingInfo!.innerHTML = 'Fetching worlds...'
     const intermediatWorld: Record<string, WorldData> = await fetch('./data/worlds.json')
         .then(r => r.json());
 
-    const elemRegistry: Record<string, new (...args: any[]) => any> = {
-        block: block,
-        NPC: NPC,
-        goblin: goblin,
-        skeleton: skeleton,
-        nightBorn: nightBorn,
-        chest: chest,
-        trader: trader,
-        teleporter: teleporter,
-        enemy: enemy,
-    };
-
+    console.info('Formatting worlds...');
+    loadingInfo!.innerHTML = 'Formatting worlds...'
     Object.values(intermediatWorld).forEach((world: WorldData) => {
         if (!worlds[world.name]) {
             worlds[world.name] = { background: { imgs: [], spriteWidth: 0, spriteHeight: 0 }, elements: [] };
@@ -3480,7 +3551,7 @@ async function initialise() {
             }
 
             if (ElemClass === NPC && element.args[7] !== null) {
-                const instance = new ElemClass(element.args[0], element.args[1], element.args[2], element.args[3], element.args[4], element.args[5], element.args[6], new quest(element.args[7][0], element.args[7][1], element.args[7][2], element.args[7][3]), element.args[8]);
+                const instance = new ElemClass(element.args[0], element.args[1], element.args[2], element.args[3], element.args[4], element.args[5], element.args[6], new quest(element.args[7][0], element.args[7][1], element.args[7][2], element.args[7][3], element.args[7][4]), element.args[8]);
                 worlds[world.name as any].elements.push(instance);
             } else {
                 const instance = new ElemClass(...element.args);
@@ -3488,7 +3559,11 @@ async function initialise() {
             }
 
         });
-    });
+    })
+    loadingBar!.value += 40
+
+    console.info('Finished initialisation');
+    loadingInfo!.innerHTML = 'Finished initialisation'
 }
 
 function update(): void {
@@ -3699,10 +3774,22 @@ const menu = new menuClass()
 
 // initialise && push layers
 async function start() {
+    const loadingInfo = document.querySelector('#loadingInfo');
+    const loadingScreen = document.querySelector('#loadingScreen');
+    loadingScreen?.classList.remove('display-none')
+    const loadingBar = document.querySelector('#loadingBar') as HTMLProgressElement
     await updateHotbar()
+    console.info('Initialising...');
     await initialise()
 
+    loadingBar!.value += 20
+
     await changeWorld('jungle')
+    loadingBar!.value += 10
+    loadingInfo!.innerHTML = 'Starting!'
+    await sleep(120)
+    loadingScreen?.classList.add('display-none')
+    isLoading = false
     await update()
 }
 
