@@ -1643,6 +1643,387 @@
                     "invisWall",
                     5112
                 ]
+            },
+            {
+                "class": "NPC",
+                "args": [
+                    {
+                        "x": -6800,
+                        "y": 555
+                    },
+                    {
+                        "pathToImage": "/img/passiveEntities/farmer_01.png",
+                        "spriteWidth": 32,
+                        "spriteHeight": 32,
+                        "frameAmount": 5,
+                        "scale": 0.4,
+                        "hitbox": {
+                            "offsetX": -40,
+                            "offsetY": 0,
+                            "width": 250,
+                            "height": 150
+                        }
+                    },
+                    "NPC",
+                    {
+                        "first": [
+                            "You need a way to go to the goblin kingdom?",
+                            "Hahaha... good joke!",
+                            "You're not joking?",
+                            "Uhmm my horse is way to precious for this type of job!"
+                        ],
+                        "second": [
+                            "Uh… fine!",
+                            "But only for one gold ingot, haha!",
+                            "(He definetly can't afford that...)",
+                            "Someone of your prestige can definetly pay up, right?",
+                            "(I won't be seeing him again!)"
+                        ]
+                    },
+                    "elder",
+                    [],
+                    -2,
+                    null,
+                    null
+                ]
+            },
+            {
+                "class": "block",
+                "args": [
+                    {
+                        "x": -7100,
+                        "y": 450
+                    },
+                    {
+                        "pathToImage": "/img/blocks/door_1.png",
+                        "spriteWidth": 189,
+                        "spriteHeight": 281,
+                        "scale": 1,
+                        "hitbox": {
+                            "offsetX": 0,
+                            "offsetY": 0,
+                            "width": 190,
+                            "height": 300
+                        }
+                    },
+                    null,
+                    {
+                        "isBlocking": true,
+                        "removeItem": "gold_ingot"
+                    },
+                    "door_1",
+                    0
+                ]
+            },
+            {
+                "class": "NPC",
+                "args": [
+                    {
+                        "x": -7500,
+                        "y": 555
+                    },
+                    {
+                        "pathToImage": "/img/passiveEntities/horse.png",
+                        "spriteWidth": 32,
+                        "spriteHeight": 32,
+                        "frameAmount": 7,
+                        "scale": 0.4,
+                        "hitbox": {
+                            "offsetX": -40,
+                            "offsetY": 0,
+                            "width": 250,
+                            "height": 150
+                        }
+                    },
+                    "NPC",
+                    {
+                        "first": []
+                    },
+                    "elder",
+                    [],
+                    -2,
+                    null,
+                    null
+                ]
+            },
+            {
+                "class": "teleporter",
+                "args": [
+                    {
+                        "x": -7500,
+                        "y": 505
+                    },
+                    {
+                        "pathToImage": "",
+                        "spriteWidth": 189,
+                        "spriteHeight": 281,
+                        "scale": 0.5,
+                        "hitbox": {
+                            "offsetX": 0,
+                            "offsetY": 0,
+                            "width": 220,
+                            "height": 1000
+                        }
+                    },
+                    {
+                        "cooldown": 25,
+                        "healthBarScale": 1,
+                        "interactCooldown": 200
+                    },
+                    {
+                        "isBlocking": false,
+                        "removeItem": null
+                    },
+                    {
+                        "dim": "mountain",
+                        "x": 650,
+                        "y": 420
+                    },
+                    "door_1",
+                    0
+                ]
+            },
+            {
+                "class": "block",
+                "args": [
+                    {
+                        "x": -6500,
+                        "y": 370
+                    },
+                    {
+                        "pathToImage": "/img/blocks/tree_1.png",
+                        "spriteWidth": 65,
+                        "spriteHeight": 60,
+                        "scale": 6,
+                        "hitbox": {
+                            "offsetX": 0,
+                            "offsetY": 0,
+                            "width": 300,
+                            "height": 400
+                        }
+                    },
+                    {
+                        "cooldown": 100,
+                        "output": [
+                            {
+                                "amount": 1,
+                                "item": "stick"
+                            }
+                        ],
+                        "isInfinite": true,
+                        "healthBarScale": 2.5
+                    },
+                    {
+                        "isBlocking": false,
+                        "removeItem": null
+                    },
+                    "tree_1",
+                    0
+                ]
+            },
+            {
+                "class": "NPC",
+                "args": [
+                    {
+                        "x": -6100,
+                        "y": 555
+                    },
+                    {
+                        "pathToImage": "/img/passiveEntities/dog.png",
+                        "spriteWidth": 32,
+                        "spriteHeight": 32,
+                        "frameAmount": 4,
+                        "scale": 0.4,
+                        "hitbox": {
+                            "offsetX": -40,
+                            "offsetY": 0,
+                            "width": 250,
+                            "height": 150
+                        }
+                    },
+                    "NPC",
+                    {
+                        "first": [
+                            "Woof woof!"
+                        ]
+                    },
+                    "elder",
+                    [],
+                    -2,
+                    null,
+                    null
+                ]
+            },
+            {
+                "class": "block",
+                "args": [
+                    {
+                        "x": -5400,
+                        "y": 0
+                    },
+                    {
+                        "pathToImage": "",
+                        "spriteWidth": 1,
+                        "spriteHeight": 1,
+                        "scale": 1,
+                        "hitbox": {
+                            "offsetX": 0,
+                            "offsetY": 0,
+                            "width": 100,
+                            "height": 2000
+                        }
+                    },
+                    null,
+                    {
+                        "isBlocking": true,
+                        "removeItem": null,
+                        "text": ""
+                    },
+                    "invisWall",
+                    5112
+                ]
+            },
+            {
+                "class": "NPC",
+                "args": [
+                    {
+                        "x": -5600,
+                        "y": 555
+                    },
+                    {
+                        "pathToImage": "/img/passiveEntities/guard.png",
+                        "spriteWidth": 32,
+                        "spriteHeight": 32,
+                        "frameAmount": 4,
+                        "scale": 0.4,
+                        "hitbox": {
+                            "offsetX": -40,
+                            "offsetY": 0,
+                            "width": 250,
+                            "height": 150
+                        }
+                    },
+                    "NPC",
+                    {
+                        "first": [
+                            "A way to the goblin kingdom, ey?",
+                            "Mate, I wouldn't wanna ask why one would set out on such cruel journey",
+                            "Well, I can't help you, sorry"
+                        ],
+                        "second": [
+                            "Wait, there's a farmer, who is selling his steed!"
+                        ]
+                    },
+                    "elder",
+                    [],
+                    -2,
+                    null,
+                    null
+                ]
+            },
+            {
+                "class": "block",
+                "args": [
+                    {
+                        "x": -5900,
+                        "y": 610
+                    },
+                    {
+                        "pathToImage": "/img/blocks/bush_2.png",
+                        "spriteWidth": 101,
+                        "spriteHeight": 40,
+                        "scale": 2.4,
+                        "hitbox": {
+                            "offsetX": 0,
+                            "offsetY": 0,
+                            "width": 230,
+                            "height": 100
+                        }
+                    },
+                    null,
+                    {
+                        "isBlocking": false,
+                        "removeItem": null
+                    },
+                    "bush_2",
+                    0
+                ]
+            },
+            {
+                "class": "block",
+                "args": [
+                    {
+                        "x": -4700,
+                        "y": 370
+                    },
+                    {
+                        "pathToImage": "/img/blocks/tree_1.png",
+                        "spriteWidth": 65,
+                        "spriteHeight": 60,
+                        "scale": 6,
+                        "hitbox": {
+                            "offsetX": 0,
+                            "offsetY": 0,
+                            "width": 300,
+                            "height": 400
+                        }
+                    },
+                    {
+                        "cooldown": 100,
+                        "output": [
+                            {
+                                "amount": 1,
+                                "item": "stick"
+                            }
+                        ],
+                        "isInfinite": true,
+                        "healthBarScale": 2.5
+                    },
+                    {
+                        "isBlocking": false,
+                        "removeItem": null
+                    },
+                    "tree_1",
+                    0
+                ]
+            },
+            {
+                "class": "block",
+                "args": [
+                    {
+                        "x": -4300,
+                        "y": 560
+                    },
+                    {
+                        "pathToImage": "/img/blocks/plant_1.png",
+                        "spriteWidth": 34,
+                        "spriteHeight": 61,
+                        "scale": 2.4,
+                        "hitbox": {
+                            "offsetX": 0,
+                            "offsetY": 0,
+                            "width": 100,
+                            "height": 160
+                        }
+                    },
+                    {
+                        "cooldown": 50,
+                        "output": [
+                            {
+                                "amount": 1,
+                                "item": "string"
+                            }
+                        ],
+                        "isInfinite": false,
+                        "healthBarScale": 1
+                    },
+                    {
+                        "isBlocking": false,
+                        "removeItem": null
+                    },
+                    "plant_1",
+                    0
+                ]
             }
         ]
     },
