@@ -1775,7 +1775,7 @@
                         "removeItem": null
                     },
                     {
-                        "dim": "mountain",
+                        "dim": "goblin_kingdom",
                         "x": 650,
                         "y": 420
                     },
@@ -1880,7 +1880,7 @@
                         "text": ""
                     },
                     "invisWall",
-                    5112
+                    5114
                 ]
             },
             {
@@ -2993,7 +2993,15 @@
                             }
                         ]
                     ],
-                    null
+                    [
+                        {
+                            "action": "destroy",
+                            "ids": [
+                                5114
+                            ],
+                            "dim": "jungle"
+                        }
+                    ]
                 ]
             },
             {
@@ -3059,7 +3067,7 @@
                         "text": ""
                     },
                     "invisWall",
-                    5112
+                    0
                 ]
             },
             {
@@ -3088,7 +3096,89 @@
                         "text": ""
                     },
                     "invisWall",
-                    5112
+                    0
+                ]
+            }
+        ]
+    },
+    "goblin_kingdom": {
+        "name": "goblin_kingdom",
+        "background": {
+            "imgs": [
+                "plx-1-goblin.png",
+                "plx-2-goblin.png",
+                "plx-3-goblin.png"
+            ],
+            "spriteWidth": 2400,
+            "spriteHeight": 700
+        },
+        "elements": [
+            {
+                "class": "NPC",
+                "args": [
+                    {
+                        "x": 500,
+                        "y": 555
+                    },
+                    {
+                        "pathToImage": "/img/passiveEntities/horse.png",
+                        "spriteWidth": 32,
+                        "spriteHeight": 32,
+                        "frameAmount": 7,
+                        "scale": 0.4,
+                        "hitbox": {
+                            "offsetX": -40,
+                            "offsetY": 0,
+                            "width": 250,
+                            "height": 150
+                        }
+                    },
+                    "NPC",
+                    {
+                        "first": []
+                    },
+                    "elder",
+                    [],
+                    -2,
+                    null,
+                    null
+                ]
+            },
+            {
+                "class": "teleporter",
+                "args": [
+                    {
+                        "x": 500,
+                        "y": 505
+                    },
+                    {
+                        "pathToImage": "",
+                        "spriteWidth": 189,
+                        "spriteHeight": 281,
+                        "scale": 0.5,
+                        "hitbox": {
+                            "offsetX": 0,
+                            "offsetY": 0,
+                            "width": 220,
+                            "height": 1000
+                        }
+                    },
+                    {
+                        "cooldown": 25,
+                        "healthBarScale": 1,
+                        "interactCooldown": 200
+                    },
+                    {
+                        "isBlocking": false,
+                        "removeItem": null
+                    },
+                    {
+                        "dim": "jungle",
+                        "x": 650,
+                        "y": 420
+                    },
+                    "door_1",
+                    0
                 ]
             }
         ]

@@ -17,7 +17,7 @@
             "pos": {
                 "x": 0,
                 "y": -20,
-                "x2": 750
+                "x2": 0
             },
             "isMirrored": false,
             "scale": 3
@@ -41,7 +41,7 @@
             "pos": {
                 "x": 0,
                 "y": -20,
-                "x2": 750
+                "x2": 0
             },
             "isMirrored": false,
             "scale": 3
@@ -65,7 +65,7 @@
             "pos": {
                 "x": 0,
                 "y": -20,
-                "x2": 750
+                "x2": 0
             },
             "isMirrored": false,
             "scale": 3
@@ -89,7 +89,7 @@
             "pos": {
                 "x": 0,
                 "y": -20,
-                "x2": 750
+                "x2": 0
             },
             "isMirrored": false,
             "scale": 3
@@ -113,7 +113,7 @@
             "pos": {
                 "x": 0,
                 "y": -20,
-                "x2": 750
+                "x2": 0
             },
             "isMirrored": false,
             "scale": 3
@@ -137,7 +137,7 @@
             "pos": {
                 "x": 0,
                 "y": -20,
-                "x2": 750
+                "x2": 0
             },
             "isMirrored": false,
             "scale": 3
@@ -161,7 +161,7 @@
             "pos": {
                 "x": 0,
                 "y": -20,
-                "x2": 750
+                "x2": 0
             },
             "isMirrored": false,
             "scale": 3
@@ -185,7 +185,7 @@
             "pos": {
                 "x": 0,
                 "y": -20,
-                "x2": 750
+                "x2": 0
             },
             "isMirrored": false,
             "scale": 3
@@ -209,7 +209,7 @@
             "pos": {
                 "x": 0,
                 "y": -20,
-                "x2": 750
+                "x2": 0
             },
             "isMirrored": false,
             "scale": 3
@@ -233,7 +233,7 @@
             "pos": {
                 "x": 0,
                 "y": -20,
-                "x2": 750
+                "x2": 0
             },
             "isMirrored": false,
             "scale": 3
@@ -257,7 +257,7 @@
             "pos": {
                 "x": 0,
                 "y": -20,
-                "x2": 750
+                "x2": 0
             },
             "isMirrored": false,
             "scale": 3
@@ -281,7 +281,7 @@
             "pos": {
                 "x": 0,
                 "y": -20,
-                "x2": 750
+                "x2": 0
             },
             "isMirrored": false,
             "scale": 3
@@ -305,7 +305,7 @@
             "pos": {
                 "x": 0,
                 "y": -20,
-                "x2": 750
+                "x2": 0
             },
             "isMirrored": false,
             "scale": 3
@@ -329,7 +329,7 @@
             "pos": {
                 "x": 0,
                 "y": -20,
-                "x2": 750
+                "x2": 0
             },
             "isMirrored": false,
             "scale": 3
@@ -353,7 +353,7 @@
             "pos": {
                 "x": 0,
                 "y": -20,
-                "x2": 750
+                "x2": 0
             },
             "isMirrored": false,
             "scale": 3
@@ -377,7 +377,7 @@
             "pos": {
                 "x": 0,
                 "y": -20,
-                "x2": 750
+                "x2": 0
             },
             "isMirrored": false,
             "scale": 3
@@ -402,7 +402,8 @@
                 "x": 0,
                 "y": 10
             },
-            "isMirrored": false
+            "isMirrored": false,
+            "scale": 1.5
         }
     },
     "heal_potion": {
@@ -418,7 +419,15 @@
         "attackRange": 150,
         "attackCooldown": 1000,
         "description": "Side effects may include winning",
-        "type": "food"
+        "type": "food",
+        "rendering": {
+            "pos": {
+                "x": 0,
+                "y": 15
+            },
+            "isMirrored": false,
+            "scale": 1.5
+        }
     },
     "big_heal_potion": {
         "spriteX": 0,
@@ -433,7 +442,15 @@
         "attackRange": 150,
         "attackCooldown": 1000,
         "description": "For injuries labeled \"fatal\"",
-        "type": "food"
+        "type": "food",
+        "rendering": {
+            "pos": {
+                "x": 0,
+                "y": 15
+            },
+            "isMirrored": false,
+            "scale": 1.5
+        }
     },
     "coin": {
         "spriteX": 0,
@@ -448,7 +465,15 @@
         "attackRange": 150,
         "attackCooldown": 1000,
         "description": "Can be used to trade",
-        "type": "item"
+        "type": "item",
+        "rendering": {
+            "pos": {
+                "x": 0,
+                "y": 15
+            },
+            "isMirrored": false,
+            "scale": 1.5
+        }
     },
     "pappbanditem": {
         "spriteX": 0,
@@ -470,7 +495,7 @@
         "spriteY": 0,
         "height": 64,
         "width": 64,
-        "scale": 0.75,
+        "scale": 0.5,
         "attackDamage": 1,
         "src": "armor.png",
         "onUse": "",
@@ -480,7 +505,15 @@
         "description": "A shiny helmet!",
         "type": "armor",
         "slot": "helmet",
-        "protection": 10
+        "protection": 10,
+        "rendering": {
+            "pos": {
+                "x": 0,
+                "y": 15
+            },
+            "isMirrored": false,
+            "scale": 2
+        }
     },
     "iron_chestplate_tier_1": {
         "spriteX": 384,
@@ -497,7 +530,15 @@
         "description": "Tier One",
         "type": "armor",
         "slot": "chestplate",
-        "protection": 15
+        "protection": 15,
+        "rendering": {
+            "pos": {
+                "x": 0,
+                "y": 15
+            },
+            "isMirrored": false,
+            "scale": 2
+        }
     },
     "iron_chestplate_tier_2": {
         "spriteX": 448,
@@ -514,7 +555,15 @@
         "description": "Tier Two",
         "type": "armor",
         "slot": "chestplate",
-        "protection": 20
+        "protection": 20,
+        "rendering": {
+            "pos": {
+                "x": 0,
+                "y": 15
+            },
+            "isMirrored": false,
+            "scale": 2
+        }
     },
     "iron_chestplate_tier_3": {
         "spriteX": 512,
@@ -531,7 +580,15 @@
         "description": "Tier Three",
         "type": "armor",
         "slot": "chestplate",
-        "protection": 25
+        "protection": 25,
+        "rendering": {
+            "pos": {
+                "x": 0,
+                "y": 15
+            },
+            "isMirrored": false,
+            "scale": 2
+        }
     },
     "hardened_boots": {
         "spriteX": 128,
@@ -548,7 +605,15 @@
         "description": "",
         "type": "armor",
         "slot": "boots",
-        "protection": 7.5
+        "protection": 7.5,
+        "rendering": {
+            "pos": {
+                "x": 0,
+                "y": 15
+            },
+            "isMirrored": false,
+            "scale": 2
+        }
     },
     "gold_crown": {
         "spriteX": 256,
@@ -565,7 +630,15 @@
         "description": "",
         "type": "armor",
         "slot": "helmet",
-        "protection": 7.5
+        "protection": 7.5,
+        "rendering": {
+            "pos": {
+                "x": 0,
+                "y": 15
+            },
+            "isMirrored": false,
+            "scale": 2
+        }
     },
     "leather_hood": {
         "spriteX": 512,
@@ -582,7 +655,15 @@
         "description": "",
         "type": "armor",
         "slot": "helmet",
-        "protection": 5
+        "protection": 5,
+        "rendering": {
+            "pos": {
+                "x": 0,
+                "y": 15
+            },
+            "isMirrored": false,
+            "scale": 2
+        }
     },
     "leather_boots": {
         "spriteX": 0,
@@ -599,7 +680,15 @@
         "description": "",
         "type": "armor",
         "slot": "boots",
-        "protection": 5
+        "protection": 5,
+        "rendering": {
+            "pos": {
+                "x": 0,
+                "y": 15
+            },
+            "isMirrored": false,
+            "scale": 2
+        }
     },
     "berserker_helmet": {
         "spriteX": 64,
@@ -616,7 +705,15 @@
         "description": "Horns don't add much protection, do they?",
         "type": "armor",
         "slot": "helmet",
-        "protection": 12.5
+        "protection": 12.5,
+        "rendering": {
+            "pos": {
+                "x": 0,
+                "y": 15
+            },
+            "isMirrored": false,
+            "scale": 2
+        }
     },
     "knights_helm": {
         "spriteX": 448,
@@ -633,7 +730,15 @@
         "description": "Forged for the masses of the army!",
         "type": "armor",
         "slot": "helmet",
-        "protection": 15
+        "protection": 15,
+        "rendering": {
+            "pos": {
+                "x": 0,
+                "y": 15
+            },
+            "isMirrored": false,
+            "scale": 2
+        }
     },
     "flaming_saber": {
         "spriteX": 0,
@@ -651,8 +756,9 @@
         "type": "weapon",
         "rendering": {
             "pos": {
-                "x": 0,
-                "y": 0
+                "x": 60,
+                "y": -20,
+                "x2": -60
             },
             "isMirrored": true,
             "scale": 3
@@ -674,8 +780,9 @@
         "type": "weapon",
         "rendering": {
             "pos": {
-                "x": 0,
-                "y": 0
+                "x": 60,
+                "y": -20,
+                "x2": -60
             },
             "isMirrored": true,
             "scale": 3
@@ -697,8 +804,9 @@
         "type": "weapon",
         "rendering": {
             "pos": {
-                "x": 0,
-                "y": 0
+                "x": 60,
+                "y": -20,
+                "x2": -60
             },
             "isMirrored": true,
             "scale": 3
@@ -720,8 +828,9 @@
         "type": "weapon",
         "rendering": {
             "pos": {
-                "x": 0,
-                "y": 0
+                "x": 60,
+                "y": -20,
+                "x2": -60
             },
             "isMirrored": true,
             "scale": 3
@@ -743,9 +852,9 @@
         "type": "weapon",
         "rendering": {
             "pos": {
-                "x": 55,
+                "x": 60,
                 "y": -20,
-                "x2": 640
+                "x2": -60
             },
             "isMirrored": true,
             "scale": 3
@@ -766,7 +875,15 @@
         "description": "Classy armor",
         "type": "armor",
         "slot": "chestplate",
-        "protection": 20
+        "protection": 20,
+        "rendering": {
+            "pos": {
+                "x": 0,
+                "y": 15
+            },
+            "isMirrored": false,
+            "scale": 2
+        }
     },
     "iron_boots": {
         "spriteX": 192,
@@ -783,7 +900,15 @@
         "description": "",
         "type": "armor",
         "slot": "boots",
-        "protection": 9
+        "protection": 9,
+        "rendering": {
+            "pos": {
+                "x": 0,
+                "y": 15
+            },
+            "isMirrored": false,
+            "scale": 2
+        }
     },
     "peasants_robe": {
         "spriteX": 384,
@@ -800,7 +925,15 @@
         "description": "Muddy and teared",
         "type": "armor",
         "slot": "chestplate",
-        "protection": 10
+        "protection": 10,
+        "rendering": {
+            "pos": {
+                "x": 0,
+                "y": 15
+            },
+            "isMirrored": false,
+            "scale": 2
+        }
     },
     "regeneration_potion": {
         "spriteX": 0,
@@ -815,7 +948,15 @@
         "attackRange": 150,
         "attackCooldown": 1000,
         "description": "",
-        "type": "food"
+        "type": "food",
+        "rendering": {
+            "pos": {
+                "x": 0,
+                "y": 15
+            },
+            "isMirrored": false,
+            "scale": 2
+        }
     },
     "big_regeneration_potion": {
         "spriteX": 0,
@@ -830,7 +971,15 @@
         "attackRange": 150,
         "attackCooldown": 1000,
         "description": "Side effects may include winning",
-        "type": "food"
+        "type": "food",
+        "rendering": {
+            "pos": {
+                "x": 0,
+                "y": 15
+            },
+            "isMirrored": false,
+            "scale": 2
+        }
     },
     "icing_rapier": {
         "spriteX": 32,
@@ -845,7 +994,16 @@
         "attackRange": 150,
         "attackCooldown": 2000,
         "description": "Uhmm",
-        "type": "weapon"
+        "type": "weapon",
+        "rendering": {
+            "pos": {
+                "x": 60,
+                "y": -20,
+                "x2": -60
+            },
+            "isMirrored": true,
+            "scale": 3
+        }
     },
     "healthboost_potion": {
         "spriteX": 0,
@@ -860,7 +1018,15 @@
         "attackRange": 150,
         "attackCooldown": 1000,
         "description": "",
-        "type": "food"
+        "type": "food",
+        "rendering": {
+            "pos": {
+                "x": 0,
+                "y": 15
+            },
+            "isMirrored": false,
+            "scale": 2
+        }
     },
     "lightning_potion": {
         "spriteX": 0,
@@ -875,7 +1041,15 @@
         "attackRange": 150,
         "attackCooldown": 1000,
         "description": "feel the power of Zeus",
-        "type": "food"
+        "type": "food",
+        "rendering": {
+            "pos": {
+                "x": 0,
+                "y": 15
+            },
+            "isMirrored": false,
+            "scale": 2
+        }
     },
     "mushroom": {
         "spriteX": 240,
@@ -890,7 +1064,15 @@
         "attackRange": 150,
         "attackCooldown": 1000,
         "description": "A bit squishy in the mouth",
-        "type": "food"
+        "type": "food",
+        "rendering": {
+            "pos": {
+                "x": 0,
+                "y": 15
+            },
+            "isMirrored": false,
+            "scale": 2
+        }
     },
     "stick": {
         "spriteX": 368,
@@ -905,7 +1087,15 @@
         "attackRange": 150,
         "attackCooldown": 1000,
         "description": "",
-        "type": "item"
+        "type": "item",
+        "rendering": {
+            "pos": {
+                "x": 0,
+                "y": 15
+            },
+            "isMirrored": false,
+            "scale": 2
+        }
     },
     "iron_ingot": {
         "spriteX": 256,
@@ -920,7 +1110,15 @@
         "attackRange": 150,
         "attackCooldown": 1000,
         "description": "",
-        "type": "item"
+        "type": "item",
+        "rendering": {
+            "pos": {
+                "x": 0,
+                "y": 15
+            },
+            "isMirrored": false,
+            "scale": 2
+        }
     },
     "gold_ingot": {
         "spriteX": 272,
@@ -935,7 +1133,15 @@
         "attackRange": 150,
         "attackCooldown": 1000,
         "description": "",
-        "type": "item"
+        "type": "item",
+        "rendering": {
+            "pos": {
+                "x": 0,
+                "y": 15
+            },
+            "isMirrored": false,
+            "scale": 2
+        }
     },
     "copper_ingot": {
         "spriteX": 240,
@@ -950,7 +1156,15 @@
         "attackRange": 150,
         "attackCooldown": 1000,
         "description": "",
-        "type": "item"
+        "type": "item",
+        "rendering": {
+            "pos": {
+                "x": 0,
+                "y": 15
+            },
+            "isMirrored": false,
+            "scale": 2
+        }
     },
     "leather": {
         "spriteX": 144,
@@ -965,7 +1179,15 @@
         "attackRange": 150,
         "attackCooldown": 1000,
         "description": "Moo!",
-        "type": "item"
+        "type": "item",
+        "rendering": {
+            "pos": {
+                "x": 0,
+                "y": 15
+            },
+            "isMirrored": false,
+            "scale": 2
+        }
     },
     "string": {
         "spriteX": 352,
@@ -980,7 +1202,15 @@
         "attackRange": 150,
         "attackCooldown": 1000,
         "description": "",
-        "type": "item"
+        "type": "item",
+        "rendering": {
+            "pos": {
+                "x": 0,
+                "y": 15
+            },
+            "isMirrored": false,
+            "scale": 2
+        }
     },
     "stone": {
         "spriteX": 368,
@@ -995,7 +1225,15 @@
         "attackRange": 150,
         "attackCooldown": 1000,
         "description": "A big rock",
-        "type": "item"
+        "type": "item",
+        "rendering": {
+            "pos": {
+                "x": 0,
+                "y": 15
+            },
+            "isMirrored": false,
+            "scale": 2
+        }
     },
     "silver_ingot": {
         "spriteX": 320,
@@ -1010,7 +1248,15 @@
         "attackRange": 150,
         "attackCooldown": 1000,
         "description": "",
-        "type": "item"
+        "type": "item",
+        "rendering": {
+            "pos": {
+                "x": 0,
+                "y": 15
+            },
+            "isMirrored": false,
+            "scale": 2
+        }
     },
     "cloth": {
         "spriteX": 352,
@@ -1025,7 +1271,15 @@
         "attackRange": 150,
         "attackCooldown": 1000,
         "description": "Made in China",
-        "type": "item"
+        "type": "item",
+        "rendering": {
+            "pos": {
+                "x": 0,
+                "y": 15
+            },
+            "isMirrored": false,
+            "scale": 2
+        }
     },
     "horn": {
         "spriteX": 176,
@@ -1040,7 +1294,15 @@
         "attackRange": 150,
         "attackCooldown": 1000,
         "description": "Goat weapon",
-        "type": "item"
+        "type": "item",
+        "rendering": {
+            "pos": {
+                "x": 0,
+                "y": 15
+            },
+            "isMirrored": false,
+            "scale": 2
+        }
     },
     "fruit": {
         "spriteX": 48,
@@ -1055,7 +1317,15 @@
         "attackRange": 150,
         "attackCooldown": 1000,
         "description": "",
-        "type": "item"
+        "type": "item",
+        "rendering": {
+            "pos": {
+                "x": 0,
+                "y": 15
+            },
+            "isMirrored": false,
+            "scale": 2
+        }
     },
     "key": {
         "spriteX": 384,
@@ -1070,7 +1340,15 @@
         "attackRange": 150,
         "attackCooldown": 1000,
         "description": "Might unlock something",
-        "type": "item"
+        "type": "item",
+        "rendering": {
+            "pos": {
+                "x": 0,
+                "y": 15
+            },
+            "isMirrored": false,
+            "scale": 2
+        }
     },
     "coffee": {
         "spriteX": 400,
@@ -1085,6 +1363,14 @@
         "attackRange": 150,
         "attackCooldown": 1000,
         "description": "Are you now awake?",
-        "type": "food"
+        "type": "food",
+        "rendering": {
+            "pos": {
+                "x": 0,
+                "y": 15
+            },
+            "isMirrored": false,
+            "scale": 2
+        }
     }
 }

@@ -222,7 +222,7 @@ header {
     height: 200px;
     width: 200px;
     max-width: 300px;
-    background-image: url(img/items/itemSlot.png);
+    background-image: url(img/icons/itemSlot.png);
     background-repeat: no-repeat;
     background-size: contain;
     display: flex;
@@ -243,7 +243,7 @@ header {
 }
 
 .inv-slot {
-    background-image: url("img/items/inventorySlot.png");
+    background-image: url("img/icons/inventorySlot.png");
     background-repeat: no-repeat;
     background-size: cover;
     width: 64px;
@@ -316,7 +316,7 @@ header {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-image: url(img/items/invBackground.png);
+    background-image: url(img/icons/invBackground.png);
     border-radius: 10px;
     padding: 32px;
 }
@@ -326,7 +326,7 @@ header {
     width: 75px;
     margin-top: 5px;
     margin: 16px;
-    background-image: url(img/items/arrows.png);
+    background-image: url(img/icons/arrows.png);
     background-position: 50%;
     background-size: 90%;
     background-repeat: no-repeat;
@@ -337,7 +337,7 @@ header {
     width: 75px;
     margin-top: 5px;
     margin: 16px;
-    background-image: url(img/items/confirm.png);
+    background-image: url(img/icons/confirm.png);
     background-position: 50%;
     background-size: 90%;
     background-repeat: no-repeat;

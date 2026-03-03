@@ -1098,7 +1098,7 @@ class chest implements container {
         this.isInit = false
         this.currentState = 'normal'
         this.img = new Image()
-        this.img.src = 'img/items/dropChest.png'
+        this.img.src = 'img/passiveEntities/dropChest.png'
         this.inventory = inventory
         this.spriteAnimations = {}
         this.animationStates = [
@@ -2416,7 +2416,7 @@ class Player implements entity {
         if (selectedItem !== null) {
             const image = new Image()
             image.src = `img/items/${items[selectedItem].src}`
-            let drawX = items[selectedItem].rendering ? (this.data.Xdirec === 1 ? this.pos.x + 245 + items[selectedItem].rendering.pos.x : (this.pos.x + 200 + items[selectedItem].rendering.pos.x2 ? items[selectedItem].rendering.pos.x2 : items[selectedItem].rendering.pos.x)) : (this.data.Xdirec === 1 ? this.pos.x + 245 : (this.pos.x + 200))
+            let drawX = items[selectedItem].rendering ? (this.data.Xdirec === 1 ? this.pos.x + 245 + items[selectedItem].rendering.pos.x : (this.pos.x + 200 + (items[selectedItem].rendering.pos.x2 ? items[selectedItem].rendering.pos.x2 : items[selectedItem].rendering.pos.x))) : (this.data.Xdirec === 1 ? this.pos.x + 245 : (this.pos.x + 200))
             const drawY = items[selectedItem].rendering ? this.pos.y + 190 + items[selectedItem].rendering.pos.y : this.pos.y + 190
             const scale = items[selectedItem].rendering ? 20 * items[selectedItem].rendering.scale : 20 * items[selectedItem].scale
             let isMirrored = this.data.Xdirec === 2
