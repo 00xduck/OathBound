@@ -776,7 +776,7 @@ class chest {
         this.isInit = false;
         this.currentState = 'normal';
         this.img = new Image();
-        this.img.src = 'img/items/dropChest.png';
+        this.img.src = 'img/passiveEntities/dropChest.png';
         this.inventory = inventory;
         this.spriteAnimations = {};
         this.animationStates = [

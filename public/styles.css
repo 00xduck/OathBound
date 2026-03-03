@@ -235,7 +235,7 @@ header {
 }
 
 .inventory-div {
-    background-image: url(img/items/invBackground.png);
+    background-image: url(img/icons/invBackground.png);
     border-radius: 10px;
     padding: 16px;
     display: flex;
@@ -285,7 +285,7 @@ header {
 #slot23,
 #slot33,
 #slot43 {
-    background-image: url(img/items/itemSlot.png);
+    background-image: url(img/icons/itemSlot.png);
 }
 
 .selected {
@@ -304,7 +304,7 @@ header {
     top: 2px;
     left: 50%;
     transform: translate(-50%);
-    background-image: url(img/items/invBackground.png);
+    background-image: url(img/icons/invBackground.png);
     border-radius: 10px;
     padding: 16px;
     display: flex;
