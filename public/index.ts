@@ -43,7 +43,7 @@ function playSound(sound: string) {
 }
 
 // interfaces && types
-type item = 'coffee' | 'key' | 'fruit' | 'horn' | 'cloth' | 'silver_ingot' | 'stone' | 'string' | 'leather' | 'hardened_boots' | 'copper_ingot' | 'gold_ingot' | 'iron_ingot' | 'stick' | 'mushroom' | 'lightning_potion' | 'healthboost_potion' | 'icing_rapier' | 'big_regeneration_potion' | 'regeneration_potion' | 'peasants_robe' | 'steel_robe' | 'null' | 'supernova' | 'poisoned_staff' | 'holy_longsword' | 'flaming_saber' | 'knights_helm' | 'berserker_helmet' | 'leather_boots' | 'leather_hood' | 'gold_crown' | 'iron_boots' | 'iron_chestplate_tier_3' | 'iron_chestplate_tier_2' | 'iron_chestplate_tier_1' | 'iron_helmet' | 'pappbanditem' | 'wood_sword' | 'brocken_sword' | 'stone_sword' | 'beer' | 'coin' | 'iron_sword' | 'gold_sword' | 'copper_sword' | 'heal_potion' | 'big_heal_potion' | 'wood_rapier' | 'stone_rapier' | 'iron_rapier' | 'gold_rapier' | 'copper_rapier' | 'wood_sickle' | 'stone_sickle' | 'iron_sickle' | 'gold_sickle' | 'copper_sickle'
+type item = 'goblin_mask' | 'coffee' | 'key' | 'fruit' | 'horn' | 'cloth' | 'silver_ingot' | 'stone' | 'string' | 'leather' | 'hardened_boots' | 'copper_ingot' | 'gold_ingot' | 'iron_ingot' | 'stick' | 'mushroom' | 'lightning_potion' | 'healthboost_potion' | 'icing_rapier' | 'big_regeneration_potion' | 'regeneration_potion' | 'peasants_robe' | 'steel_robe' | 'null' | 'supernova' | 'poisoned_staff' | 'holy_longsword' | 'flaming_saber' | 'knights_helm' | 'berserker_helmet' | 'leather_boots' | 'leather_hood' | 'gold_crown' | 'iron_boots' | 'iron_chestplate_tier_3' | 'iron_chestplate_tier_2' | 'iron_chestplate_tier_1' | 'iron_helmet' | 'pappbanditem' | 'wood_sword' | 'brocken_sword' | 'stone_sword' | 'beer' | 'coin' | 'iron_sword' | 'gold_sword' | 'copper_sword' | 'heal_potion' | 'big_heal_potion' | 'wood_rapier' | 'stone_rapier' | 'iron_rapier' | 'gold_rapier' | 'copper_rapier' | 'wood_sickle' | 'stone_sickle' | 'iron_sickle' | 'gold_sickle' | 'copper_sickle'
 type effect = 'speed' | 'stun' | 'burning' | 'regeneration' | 'ice' | 'strength' | 'electrocute' | 'healthboost' | 'deaths_curse' | 'poison'
 
 type ItemData = {
@@ -345,7 +345,7 @@ interface entity {
     addEffect(effect: effect, duration: number, factor: number): void
     removeEffect(index: number): void
     pos: { x: number, y: number }
-    data: { craftingInventory?: InventorySlot[][], armor?: InventorySlot[], inventory?: InventorySlot[][], Ydirec?: number, interactionFocus?: block | container | entity | null, showingText?: boolean, selectedSlot?: number, dragging?: string | null, interactionRange?: number, velocity_Y?: number, canMove?: boolean, onSecondaryInventory?: boolean, speed?: number, onGround?: boolean, onInventory?: boolean, onTradingMenu?: boolean, health: number; maxHealth: number; attackRange: number; attackDamage: number; drops: { amount: number; drop: item; chance: number; }[]; name: string; onCooldown: boolean; isDead: boolean; isMoving: boolean; showedText: boolean; Xdirec: number; seeRange: number; attackType?: { type: 'melee' | 'rangedCombat', projectile: projectile } };
+    data: { attackFocus?: entity | null, craftingInventory?: InventorySlot[][], armor?: InventorySlot[], inventory?: InventorySlot[][], Ydirec?: number, interactionFocus?: block | container | entity | null, showingText?: boolean, selectedSlot?: number, dragging?: string | null, interactionRange?: number, velocity_Y?: number, canMove?: boolean, onSecondaryInventory?: boolean, speed?: number, onGround?: boolean, onInventory?: boolean, onTradingMenu?: boolean, health: number; maxHealth: number; attackRange: number; attackDamage: number; drops: { amount: number; drop: item; chance: number; }[]; name: string; onCooldown: boolean; isDead: boolean; isMoving: boolean; showedText: boolean; Xdirec: number; seeRange: number; attackType?: { type: 'melee' | 'rangedCombat', projectile: projectile } };
     sprite: { img: HTMLImageElement, spriteWidth: number, spriteHeight: number, scale: number, animationStates: AnimationState[], spriteAnimations: Record<string, framesObj>, frames: number, frameLoc: number, currentState: string, healthBarScale?: number }
     type: typeObject // info about the type of entity/thing
     worldElem: worldElementNames
@@ -1504,12 +1504,13 @@ class teleporter implements blocks {
 abstract class Entity {
     pos: { x: number, y: number }
     sprite: { img: HTMLImageElement, spriteWidth: number, spriteHeight: number, scale: number, animationStates: AnimationState[], spriteAnimations: Record<string, framesObj>, frames: number, frameLoc: number, currentState: string }
-    data: { health: number, maxHealth: number, attackRange: number, attackDamage: number, drops: { amount: number, drop: item, chance: number }[], name: string, onCooldown: boolean, isDead: boolean, isMoving: boolean, showedText: boolean, Xdirec: number, seeRange: number }
+    data: { attackFocus: entity | null, health: number, maxHealth: number, attackRange: number, attackDamage: number, drops: { amount: number, drop: item, chance: number }[], name: string, onCooldown: boolean, isDead: boolean, isMoving: boolean, showedText: boolean, Xdirec: number, seeRange: number }
     effectData: { effects: effectType[], effectTicks: number, effectCounter: number }
     type: typeObject // info about the type of entity/thing
     worldElem: worldElementNames
     id: number
     hitbox: { offsetX: number, offsetY: number, width: number, height: number }
+
     constructor(pos: { x: number, y: number }, sprite: { img: HTMLImageElement, spriteWidth: number, spriteHeight: number, scale: number, animationStates: AnimationState[], hitbox: { offsetX: number, offsetY: number, width: number, height: number } }, data: { maxHealth: number, attackRange: number, attackDamage: number, drops: { amount: number, drop: item, chance: number }[], name: string }, type: typeObject, worldElem: worldElementNames, id: number) {
         this.pos = {
             x: pos.x,
@@ -1539,7 +1540,8 @@ abstract class Entity {
             isMoving: false,
             showedText: false,
             Xdirec: 2,
-            seeRange: 500
+            seeRange: 500,
+            attackFocus: null
         }
 
         this.effectData = {
@@ -1638,32 +1640,50 @@ abstract class Entity {
             isQuestUIupdated = false
             if (menu.checkSetting('Master Sound')) playSound('death')
         }
+
         if (!menu.checkSetting('No Aggro')) {
             const playerPosX = player.pos.x
             const distanceXToPlayer = Math.abs((playerPosX + (player.sprite.spriteWidth / 2) * player.sprite.scale) - (this.pos.x + (this.sprite.spriteWidth / 2) * this.sprite.scale))
             const playerDirec = this.pos.x - player.pos.x
+            const playerHiddenFromGoblins = player.data.armor[0] === 'goblin_mask' && this.data.name === 'goblin'
+            const playerAlreadyFocused = this.data.attackFocus === player
             if (distanceXToPlayer <= this.data.attackRange && !this.data.onCooldown && player.pos.y + this.data.attackRange >= this.pos.y && this.type.allignment === 'enemy') {
-                this.attack()
-                this.setCooldown(1500)
-            } else if (playerDirec > 0 && distanceXToPlayer <= this.data.attackRange * 2 && !this.data.onCooldown && player.pos.y + this.data.attackRange >= this.pos.y && this.type.allignment === 'enemy') {
-                this.attack()
-                this.setCooldown(1200)
-            } else if (distanceXToPlayer <= this.data.seeRange && !this.data.onCooldown && this.type.allignment === 'enemy') {
-                if (this.sprite.currentState !== 'run') this.changeState('run')
-                if (playerPosX > this.pos.x) {
-                    this.pos.x += 4
-                } else {
-                    this.pos.x -= 4
+                if (!playerHiddenFromGoblins || playerAlreadyFocused) {
+                    this.data.attackFocus = player
+                    this.attack()
+                    this.setCooldown(1500)
                 }
-                if (this.checkEffect('poison').wasFound) {
-                    this.data.health -= .1
+            } else if (playerDirec > 0 && distanceXToPlayer <= this.data.attackRange * 2 && !this.data.onCooldown && player.pos.y + this.data.attackRange >= this.pos.y && this.type.allignment === 'enemy') {
+                if (!playerHiddenFromGoblins || playerAlreadyFocused) {
+                    this.data.attackFocus = player
+                    this.attack()
+                    this.setCooldown(1200)
+                }
+            } else if (distanceXToPlayer <= this.data.seeRange && !this.data.onCooldown && this.type.allignment === 'enemy') {
+                if (!playerHiddenFromGoblins || playerAlreadyFocused) {
+                    this.data.attackFocus = player
+                    if (this.sprite.currentState !== 'run') this.changeState('run')
+                    if (playerPosX > this.pos.x) {
+                        this.pos.x += 4
+                    } else {
+                        this.pos.x -= 4
+                    }
+                    if (this.checkEffect('poison').wasFound) {
+                        this.data.health -= .1
+                    }
                 }
             } else {
                 if (this.sprite.currentState === 'run') this.changeState('idle')
-            }
-        }
 
-        this.effectData.effectTicks++
+                if (playerHiddenFromGoblins && !playerAlreadyFocused) {
+                    this.data.attackFocus = null
+                } else if (!playerHiddenFromGoblins) {
+                    this.data.attackFocus = null
+                }
+            }
+
+            this.effectData.effectTicks++
+        }
     }
 
     draw() {
@@ -2048,7 +2068,7 @@ class trader extends Entity implements entity {
                         name: 'idle',
                         frames: sprite.frameAmount
                     }
-                ], hitbox: { offsetX: 100, offsetY: 100, width: 100, height: 100 }
+                ], hitbox: { offsetX: 100, offsetY: 100, width: 200, height: 1000 }
             },
             {
                 maxHealth: 50, attackDamage: 15, attackRange: 50, drops: [{ amount: 1, drop: "stone", chance: 75 }], name: 'trader'

@@ -3180,6 +3180,230 @@
                     "door_1",
                     0
                 ]
+            },
+            {
+                "class": "block",
+                "args": [
+                    {
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "pathToImage": "",
+                        "spriteWidth": 1,
+                        "spriteHeight": 1,
+                        "scale": 1,
+                        "hitbox": {
+                            "offsetX": 0,
+                            "offsetY": 0,
+                            "width": 100,
+                            "height": 2000
+                        }
+                    },
+                    null,
+                    {
+                        "isBlocking": true,
+                        "removeItem": null,
+                        "text": ""
+                    },
+                    "invisWall",
+                    20
+                ]
+            },
+            {
+                "class": "trader",
+                "args": [
+                    {
+                        "x": 2600,
+                        "y": 300
+                    },
+                    {
+                        "img": "/img/passiveEntities/shop.png",
+                        "spriteWidth": 118,
+                        "spriteHeight": 98,
+                        "frameAmount": 1,
+                        "scale": 1
+                    },
+                    [
+                        [
+                            {
+                                "item": "coin",
+                                "amount": 1
+                            },
+                            {
+                                "item": "leather",
+                                "amount": 2
+                            }
+                        ],
+                        [
+                            {
+                                "item": "coin",
+                                "amount": 1
+                            },
+                            {
+                                "item": "mushroom",
+                                "amount": 1
+                            }
+                        ],
+                        [
+                            {
+                                "item": "stone",
+                                "amount": 5
+                            },
+                            {
+                                "item": "coin",
+                                "amount": 1
+                            }
+                        ]
+                    ],
+                    "NPC",
+                    true,
+                    0
+                ]
+            },
+            {
+                "class": "block",
+                "args": [
+                    {
+                        "x": 3000,
+                        "y": 180
+                    },
+                    {
+                        "pathToImage": "/img/blocks/tree_3.png",
+                        "spriteWidth": 46,
+                        "spriteHeight": 88,
+                        "scale": 6,
+                        "hitbox": {
+                            "offsetX": 0,
+                            "offsetY": 0,
+                            "width": 200,
+                            "height": 600
+                        }
+                    },
+                    {
+                        "cooldown": 100,
+                        "output": [
+                            {
+                                "amount": 1,
+                                "item": "stick"
+                            }
+                        ],
+                        "isInfinite": true,
+                        "healthBarScale": 2.5
+                    },
+                    {
+                        "isBlocking": false,
+                        "removeItem": null
+                    },
+                    "tree_1",
+                    0
+                ]
+            },
+            {
+                "class": "NPC",
+                "args": [
+                    {
+                        "x": 950,
+                        "y": 555
+                    },
+                    {
+                        "pathToImage": "/img/passiveEntities/guard.png",
+                        "spriteWidth": 32,
+                        "spriteHeight": 32,
+                        "frameAmount": 4,
+                        "scale": 0.4,
+                        "hitbox": {
+                            "offsetX": -40,
+                            "offsetY": 0,
+                            "width": 250,
+                            "height": 150
+                        }
+                    },
+                    "NPC",
+                    {
+                        "first": [
+                            "The king wants me to give this to you!"
+                        ],
+                        "second": [
+                            "The goblins can't see you with this mask!"
+                        ]
+                    },
+                    "elder",
+                    [
+                        {
+                            "item": "goblin_mask",
+                            "amount": 1
+                        }
+                    ],
+                    -2,
+                    null,
+                    null
+                ]
+            },
+            {
+                "class": "goblin",
+                "args": [
+                    2600,
+                    -1,
+                    "goblin",
+                    0
+                ]
+            },
+            {
+                "class": "goblin",
+                "args": [
+                    2800,
+                    -1,
+                    "goblin",
+                    0
+                ]
+            },
+            {
+                "class": "goblin",
+                "args": [
+                    3600,
+                    -1,
+                    "goblin",
+                    0
+                ]
+            },
+            {
+                "class": "block",
+                "args": [
+                    {
+                        "x": 3000,
+                        "y": 180
+                    },
+                    {
+                        "pathToImage": "/img/blocks/tree_3.png",
+                        "spriteWidth": 46,
+                        "spriteHeight": 88,
+                        "scale": 6,
+                        "hitbox": {
+                            "offsetX": 0,
+                            "offsetY": 0,
+                            "width": 200,
+                            "height": 600
+                        }
+                    },
+                    {
+                        "cooldown": 100,
+                        "output": [
+                            {
+                                "amount": 1,
+                                "item": "stick"
+                            }
+                        ],
+                        "isInfinite": true,
+                        "healthBarScale": 2.5
+                    },
+                    {
+                        "isBlocking": false,
+                        "removeItem": null
+                    },
+                    "tree_1",
+                    0
+                ]
             }
         ]
     }

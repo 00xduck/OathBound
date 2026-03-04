@@ -640,6 +640,31 @@
             "scale": 2
         }
     },
+    "goblin_mask": {
+        "spriteX": 0,
+        "spriteY": 0,
+        "height": 17,
+        "width": 17,
+        "scale": 2,
+        "attackDamage": 1,
+        "src": "goblin_mask.png",
+        "onUse": "",
+        "clearsAfterUse": false,
+        "attackRange": 150,
+        "attackCooldown": 1000,
+        "description": "Goblins can't see you with that mask",
+        "type": "armor",
+        "slot": "helmet",
+        "protection": 2.5,
+        "rendering": {
+            "pos": {
+                "x": 0,
+                "y": 15
+            },
+            "isMirrored": false,
+            "scale": 2
+        }
+    },
     "leather_hood": {
         "spriteX": 512,
         "spriteY": 0,

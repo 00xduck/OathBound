@@ -1157,7 +1157,8 @@ class Entity {
             isMoving: false,
             showedText: false,
             Xdirec: 2,
-            seeRange: 500
+            seeRange: 500,
+            attackFocus: null
         };
         this.effectData = {
             effects: [],
@@ -1251,33 +1252,50 @@ class Entity {
             const playerPosX = player.pos.x;
             const distanceXToPlayer = Math.abs((playerPosX + (player.sprite.spriteWidth / 2) * player.sprite.scale) - (this.pos.x + (this.sprite.spriteWidth / 2) * this.sprite.scale));
             const playerDirec = this.pos.x - player.pos.x;
+            const playerHiddenFromGoblins = player.data.armor[0] === 'goblin_mask' && this.data.name === 'goblin';
+            const playerAlreadyFocused = this.data.attackFocus === player;
             if (distanceXToPlayer <= this.data.attackRange && !this.data.onCooldown && player.pos.y + this.data.attackRange >= this.pos.y && this.type.allignment === 'enemy') {
-                this.attack();
-                this.setCooldown(1500);
+                if (!playerHiddenFromGoblins || playerAlreadyFocused) {
+                    this.data.attackFocus = player;
+                    this.attack();
+                    this.setCooldown(1500);
+                }
             }
             else if (playerDirec > 0 && distanceXToPlayer <= this.data.attackRange * 2 && !this.data.onCooldown && player.pos.y + this.data.attackRange >= this.pos.y && this.type.allignment === 'enemy') {
-                this.attack();
-                this.setCooldown(1200);
+                if (!playerHiddenFromGoblins || playerAlreadyFocused) {
+                    this.data.attackFocus = player;
+                    this.attack();
+                    this.setCooldown(1200);
+                }
             }
             else if (distanceXToPlayer <= this.data.seeRange && !this.data.onCooldown && this.type.allignment === 'enemy') {
-                if (this.sprite.currentState !== 'run')
-                    this.changeState('run');
-                if (playerPosX > this.pos.x) {
-                    this.pos.x += 4;
-                }
-                else {
-                    this.pos.x -= 4;
-                }
-                if (this.checkEffect('poison').wasFound) {
-                    this.data.health -= .1;
+                if (!playerHiddenFromGoblins || playerAlreadyFocused) {
+                    this.data.attackFocus = player;
+                    if (this.sprite.currentState !== 'run')
+                        this.changeState('run');
+                    if (playerPosX > this.pos.x) {
+                        this.pos.x += 4;
+                    }
+                    else {
+                        this.pos.x -= 4;
+                    }
+                    if (this.checkEffect('poison').wasFound) {
+                        this.data.health -= .1;
+                    }
                 }
             }
             else {
                 if (this.sprite.currentState === 'run')
                     this.changeState('idle');
+                if (playerHiddenFromGoblins && !playerAlreadyFocused) {
+                    this.data.attackFocus = null;
+                }
+                else if (!playerHiddenFromGoblins) {
+                    this.data.attackFocus = null;
+                }
             }
+            this.effectData.effectTicks++;
         }
-        this.effectData.effectTicks++;
     }
     draw() {
         if (menu.checkSetting('Hitboxes')) {
@@ -1599,7 +1617,7 @@ class trader extends Entity {
                     name: 'idle',
                     frames: sprite.frameAmount
                 }
-            ], hitbox: { offsetX: 100, offsetY: 100, width: 100, height: 100 }
+            ], hitbox: { offsetX: 100, offsetY: 100, width: 200, height: 1000 }
         }, {
             maxHealth: 50, attackDamage: 15, attackRange: 50, drops: [{ amount: 1, drop: "stone", chance: 75 }], name: 'trader'
         }, {
