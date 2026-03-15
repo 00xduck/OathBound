@@ -3968,6 +3968,9 @@
                         ],
                         "second": [
                             "A BIG STICK"
+                        ],
+                        "questCompleted": [
+                            "Damn, thanks for that stick man"
                         ]
                     },
                     "goblin",
@@ -3975,14 +3978,15 @@
                     0,
                     [
                         "give",
+                        [],
+                        "My mom is kinda stickless!",
+                        [],
                         [
                             {
                                 "item": "stick",
                                 "amount": 1
                             }
-                        ],
-                        "My mom is kinda stickless!",
-                        []
+                        ]
                     ],
                     null
                 ]

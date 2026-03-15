@@ -475,9 +475,10 @@ class quest {
         entities.forEach(entity => {
             this.entities.push({ entity: entity, completed: false });
         });
-        /* this.items = items */
+        this.items = items;
     }
     update() {
+        let giveEventCompleted = false;
         currentEvents.forEach(event => {
             if (event.event === this.event) {
                 this.entities.forEach(entity => {
@@ -485,19 +486,20 @@ class quest {
                         entity.completed = true;
                     }
                 });
-                console.log(this.event);
                 if (this.event === 'give') {
-                    console.log('give');
                     if (event.extra) {
-                        console.log(event.extra);
                         if (this.items === event.extra) {
+                            console.log('?');
                             this.completed = true;
-                            return this.completed;
+                            giveEventCompleted = true;
                         }
                     }
                 }
             }
         });
+        if (giveEventCompleted) {
+            return true;
+        }
         let questCompleted = true;
         this.entities.forEach(entity => {
             if (!entity.completed) {
@@ -505,6 +507,9 @@ class quest {
                 this.completed = false;
             }
         });
+        if (this.event === 'give') {
+            questCompleted = false;
+        }
         return questCompleted;
     }
     finish() {
@@ -1695,25 +1700,7 @@ class NPC extends Entity {
         this.init();
     }
     endConversation() {
-        var _a;
         console.log('h');
-        if (((_a = this.quest) === null || _a === void 0 ? void 0 : _a.items) && this.hasGivenPresent) {
-            console.log('checking');
-            let hasAllItems = true;
-            this.quest.items.forEach(item => {
-                let amount = 0;
-                for (let y = 0; y < player.data.inventory.length; y++) {
-                    for (let x = 0; x < player.data.inventory[y].length; x++) {
-                        if (player.data.inventory[y][x] === item.item)
-                            amount++;
-                    }
-                }
-                if (amount < item.amount)
-                    hasAllItems = false;
-            });
-            if (hasAllItems)
-                currentEvents.push({ event: 'give', entity: this, extra: this.quest.items });
-        }
         if (this.quest && !this.hasGivenPresent) {
             activeQuests.push(this.quest);
             isQuestUIupdated = false;
@@ -1741,9 +1728,28 @@ class NPC extends Entity {
         }
     }
     speak() {
+        var _a;
         const speakDiv = document.querySelector('#speakWrapper');
         speakDiv === null || speakDiv === void 0 ? void 0 : speakDiv.classList.remove('display-none');
         player.data.canMove = false;
+        if (((_a = this.quest) === null || _a === void 0 ? void 0 : _a.items) && this.hasGivenPresent) {
+            console.log('checking');
+            let hasAllItems = true;
+            this.quest.items.forEach(item => {
+                let amount = 0;
+                for (let y = 0; y < player.data.inventory.length; y++) {
+                    for (let x = 0; x < player.data.inventory[y].length; x++) {
+                        if (player.data.inventory[y][x] === item.item)
+                            amount++;
+                    }
+                }
+                if (amount < item.amount)
+                    hasAllItems = false;
+            });
+            if (hasAllItems) {
+                currentEvents.push({ event: 'give', entity: this, extra: this.quest.items });
+            }
+        }
         currentEvents.push({ event: 'talk', entity: this });
         isQuestUIupdated = false;
         advanceConversation(this);
@@ -3207,6 +3213,7 @@ function update() {
         activeQuests.forEach(quest => {
             var _a;
             const questCompleted = quest.update(); // update quest && check if it is completed
+            console.log(questCompleted);
             questDiv.innerHTML += `<hr class="background-color-black"><div><h2>${quest.text}</h2></div>`;
             let amountOfCompleted = 0;
             quest.entities.forEach(entity => {
