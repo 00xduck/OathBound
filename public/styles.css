@@ -147,7 +147,7 @@ header {
     padding: 16px;
     border-radius: 5px;
     background-color: rgba(0, 0, 0, 0.75);
-    width: 200px;
+    width: 300px;
 }
 
 @keyframes cardHover {
@@ -330,6 +330,21 @@ header {
     background-position: 50%;
     background-size: 90%;
     background-repeat: no-repeat;
+}
+
+input {
+    padding: 5px;
+    border-radius: 15px;
+    border: none;
+    font-size: 20px;
+    color: black;
+}
+
+.gradientBtn {
+    background: linear-gradient(gray, white);
+    border-radius: 25px;
+    padding: 10px;
+    color: black;
 }
 
 .confirm-btn {

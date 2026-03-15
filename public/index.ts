@@ -422,7 +422,10 @@ addEventListener('keyup', event => {
     }
 })
 addEventListener('keydown', event => {
-    if (isLoading) return
+    if (event.code === 'Escape') {
+        menu.toggleMenu()
+    }
+    if (isLoading || !(document.querySelector('#menu')?.classList.contains('display-none'))) return
     if (!player.data.onInventory && !player.data.onTradingMenu && !player.data.onSecondaryInventory && player.data.canMove) keys[event.code] = true
 
     if (event.code === 'KeyR' && !player.data.isMoving) {
@@ -449,9 +452,7 @@ addEventListener('keydown', event => {
         player.jump()
     }
 
-    if (event.code === 'Escape') {
-        menu.toggleMenu()
-    }
+
 
     if (!player.data.onInventory && event.code.slice(0, 5) === 'Digit' && (parseInt(event.code.slice(5, 6)) < 6)) {
         changeSelectedSlot(parseInt(event.code.slice(5, 6)))
@@ -497,6 +498,7 @@ class menuClass {
         dev: { name: string, settings: { name: string, state: boolean }[] }
         accessibility: { name: string, settings: { name: string, state: boolean }[] }
     }
+    commands: any
     constructor() {
         this.states = {
             menu: false,
@@ -533,6 +535,23 @@ class menuClass {
                 settings: [
                     { name: 'labels', state: true }
                 ]
+            }
+        }
+
+        this.commands = {
+            heal: (arg: string) => { player.heal(Number(arg)) },
+            effect: (arg: effect) => { player.addEffect(arg, 1000, 1) },
+            give: (arg: item) => { player.addItem(arg, 1) },
+            damage: (arg: string) => { player.takeHit(Number(arg)) },
+            summon: (arg: string) => {
+                if (!elemRegistry[arg] || (arg !== 'skeleton' && arg !== 'goblin')) {
+                    displayInfo(`Unknown or Unsummonable entity`)
+                    return
+                }
+
+                const entity = new elemRegistry[arg](player.pos.x, StaticPositions.OnGround, arg, 0)
+
+                worlds[currentWorld].elements.push(entity)
             }
         }
     }
@@ -611,9 +630,10 @@ class menuClass {
                     btn?.classList.add('setting-false')
                 }
             })
-
+            if (setting === 'dev') {
+                div!.innerHTML += `<div class="flex-center margin-top-16"><input id="command" placeholder="command..." type="text"><button class="gradientBtn btn-small margin-left-16" onclick="menu.runCommand()">Send</button></div>`
+            }
             div!.innerHTML += `<div class="flex-between margin-top-32"><button onclick="menu.toggleMenu()" class="btn-small background-color-gray">Close</button><button onclick="menu.toggleSettingsScreen()" class="btn-small background-color-gray">Back</button></div>`
-
         }
     }
 
@@ -653,6 +673,23 @@ class menuClass {
 
         return false
     }
+    runCommand() {
+        const input = (document.querySelector('#command')! as HTMLInputElement).value;
+        (document.querySelector('#command')! as HTMLInputElement).value = ''
+
+        const command = input.split(/-(.+)/)
+
+        if (!menu.commands[command[0].split(" ")[0] as any]) {
+            displayInfo(`Unknown Command: ${command}`)
+            return;
+        }
+
+        if (command[1] !== '') {
+            menu.commands[command[0].split(" ")[0] as any](command[1])
+        } else {
+            menu.commands[command[0].split(" ")[0] as any]()
+        }
+    }
 }
 
 class quest {
@@ -682,17 +719,17 @@ class quest {
                         entity.completed = true
                     }
                 })
-                /*                 console.log(this.event);
-                                if (this.event === 'give') {
-                                    console.log('give');
-                                    if (event.extra) {
-                                        console.log(event.extra);
-                                        if (this.items === event.extra) {
-                                            this.completed = true
-                                            return this.completed
-                                        }
-                                    }
-                                } */
+                console.log(this.event);
+                if (this.event === 'give') {
+                    console.log('give');
+                    if (event.extra) {
+                        console.log(event.extra);
+                        if (this.items === event.extra) {
+                            this.completed = true
+                            return this.completed
+                        }
+                    }
+                }
             }
         })
         let questCompleted = true
@@ -1348,6 +1385,9 @@ class block implements blocks {
                 this.blocking.isBlocking = false
                 this.blocking.removeItem = null
                 player.data.inventory[3][player.data.selectedSlot - 1] = null
+                if (this.id === 5432) {
+                    player.story.freedNate = true
+                }
                 updateHotbar()
             } else {
                 displayInfo(`Use a ${this.blocking.removeItem} `)
@@ -1503,7 +1543,7 @@ class teleporter implements blocks {
 // enemy classes
 abstract class Entity {
     pos: { x: number, y: number }
-    sprite: { img: HTMLImageElement, spriteWidth: number, spriteHeight: number, scale: number, animationStates: AnimationState[], spriteAnimations: Record<string, framesObj>, frames: number, frameLoc: number, currentState: string }
+    sprite: { img: HTMLImageElement, spriteWidth: number, spriteHeight: number, scale: number, animationStates: AnimationState[], spriteAnimations: Record<string, framesObj>, frames: number, frameLoc: number, currentState: string, invertOrientation?: boolean }
     data: { attackFocus: entity | null, health: number, maxHealth: number, attackRange: number, attackDamage: number, drops: { amount: number, drop: item, chance: number }[], name: string, onCooldown: boolean, isDead: boolean, isMoving: boolean, showedText: boolean, Xdirec: number, seeRange: number }
     effectData: { effects: effectType[], effectTicks: number, effectCounter: number }
     type: typeObject // info about the type of entity/thing
@@ -1511,7 +1551,7 @@ abstract class Entity {
     id: number
     hitbox: { offsetX: number, offsetY: number, width: number, height: number }
 
-    constructor(pos: { x: number, y: number }, sprite: { img: HTMLImageElement, spriteWidth: number, spriteHeight: number, scale: number, animationStates: AnimationState[], hitbox: { offsetX: number, offsetY: number, width: number, height: number } }, data: { maxHealth: number, attackRange: number, attackDamage: number, drops: { amount: number, drop: item, chance: number }[], name: string }, type: typeObject, worldElem: worldElementNames, id: number) {
+    constructor(pos: { x: number, y: number }, sprite: { img: HTMLImageElement, spriteWidth: number, spriteHeight: number, scale: number, animationStates: AnimationState[], hitbox: { offsetX: number, offsetY: number, width: number, height: number }, invertOrientation?: boolean }, data: { maxHealth: number, attackRange: number, attackDamage: number, drops: { amount: number, drop: item, chance: number }[], name: string }, type: typeObject, worldElem: worldElementNames, id: number) {
         this.pos = {
             x: pos.x,
             y: pos.y
@@ -1526,6 +1566,7 @@ abstract class Entity {
             frames: 0,
             frameLoc: 0,
             currentState: 'idle',
+            invertOrientation: sprite.invertOrientation
         }
 
         this.data = {
@@ -1646,21 +1687,21 @@ abstract class Entity {
             const distanceXToPlayer = Math.abs((playerPosX + (player.sprite.spriteWidth / 2) * player.sprite.scale) - (this.pos.x + (this.sprite.spriteWidth / 2) * this.sprite.scale))
             const playerDirec = this.pos.x - player.pos.x
             const playerHiddenFromGoblins = player.data.armor[0] === 'goblin_mask' && this.data.name === 'goblin'
-            const playerAlreadyFocused = this.data.attackFocus === player
+
             if (distanceXToPlayer <= this.data.attackRange && !this.data.onCooldown && player.pos.y + this.data.attackRange >= this.pos.y && this.type.allignment === 'enemy') {
-                if (!playerHiddenFromGoblins || playerAlreadyFocused) {
+                if (!playerHiddenFromGoblins || player.story.freedNate) {
                     this.data.attackFocus = player
                     this.attack()
                     this.setCooldown(1500)
                 }
             } else if (playerDirec > 0 && distanceXToPlayer <= this.data.attackRange * 2 && !this.data.onCooldown && player.pos.y + this.data.attackRange >= this.pos.y && this.type.allignment === 'enemy') {
-                if (!playerHiddenFromGoblins || playerAlreadyFocused) {
+                if (!playerHiddenFromGoblins || player.story.freedNate) {
                     this.data.attackFocus = player
                     this.attack()
                     this.setCooldown(1200)
                 }
             } else if (distanceXToPlayer <= this.data.seeRange && !this.data.onCooldown && this.type.allignment === 'enemy') {
-                if (!playerHiddenFromGoblins || playerAlreadyFocused) {
+                if (!playerHiddenFromGoblins || player.story.freedNate) {
                     this.data.attackFocus = player
                     if (this.sprite.currentState !== 'run') this.changeState('run')
                     if (playerPosX > this.pos.x) {
@@ -1671,15 +1712,13 @@ abstract class Entity {
                     if (this.checkEffect('poison').wasFound) {
                         this.data.health -= .1
                     }
+                } else {
+                    if (this.sprite.currentState === 'run') { this.changeState('idle') }
                 }
             } else {
-                if (this.sprite.currentState === 'run') this.changeState('idle')
+                if (this.sprite.currentState === 'run') { this.changeState('idle') }
 
-                if (playerHiddenFromGoblins && !playerAlreadyFocused) {
-                    this.data.attackFocus = null
-                } else if (!playerHiddenFromGoblins) {
-                    this.data.attackFocus = null
-                }
+                this.data.attackFocus = null
             }
 
             this.effectData.effectTicks++
@@ -1704,7 +1743,8 @@ abstract class Entity {
         let frameY = this.sprite.spriteAnimations[this.sprite.currentState].loc[this.sprite.frameLoc].y
 
         let orientation = (player.pos.x + player.sprite.spriteWidth / 2) - (this.pos.x + this.sprite.spriteWidth / 2)
-        if (this.data.name === 'elder') {
+
+        if (this.data.name === 'elder' || this.sprite.invertOrientation) {
             orientation = -orientation
         }
 
@@ -2101,9 +2141,11 @@ class NPC extends Entity implements entity {
     quest: quest | null
     questCompleted: boolean
     story: { action: actionType, ids: number[], dim: worldName, extra?: any }[] | null
-    constructor(pos: { x: number, y: number }, sprite: { pathToImage: string, spriteWidth: number, spriteHeight: number, frameAmount: number, scale: number, hitbox: { offsetX: number, offsetY: number, width: number, height: number } }, worldElem: worldElementNames, conversation: { first: string[], second?: string[], questCompleted?: string[] }, name: string, present: PresentItem[], id: number, quest: quest | null, story: { action: actionType, ids: number[], dim: worldName, extra?: any }[] | null) {
+    constructor(pos: { x: number, y: number }, sprite: { pathToImage: string, spriteWidth: number, spriteHeight: number, frameAmount: number, scale: number, hitbox: { offsetX: number, offsetY: number, width: number, height: number }, invertOrientation?: boolean }, worldElem: worldElementNames, conversation: { first: string[], second?: string[], questCompleted?: string[] }, name: string, present: PresentItem[], id: number, quest: quest | null, story: { action: actionType, ids: number[], dim: worldName, extra?: any }[] | null) {
         let image = new Image()
         image.src = sprite.pathToImage
+
+        let invertOrientation = sprite.invertOrientation
         // samurai: SW:96 SH: 96 
         if (pos.y === StaticPositions.OnGround) {
             pos.y = groundY - 400 * sprite.scale
@@ -2111,7 +2153,7 @@ class NPC extends Entity implements entity {
 
         super({ x: pos.x, y: pos.y },
             {
-                img: image, spriteWidth: sprite.spriteWidth, spriteHeight: sprite.spriteHeight, scale: sprite.scale, animationStates: [{ name: 'idle', frames: sprite.frameAmount }], hitbox: sprite.hitbox
+                img: image, spriteWidth: sprite.spriteWidth, spriteHeight: sprite.spriteHeight, scale: sprite.scale, animationStates: [{ name: 'idle', frames: sprite.frameAmount }], hitbox: sprite.hitbox, invertOrientation: invertOrientation
             },
             { maxHealth: 100, attackRange: 1, attackDamage: 1, drops: [], name: name },
             {
@@ -2134,19 +2176,19 @@ class NPC extends Entity implements entity {
         this.init()
     }
     endConversation() {
-        /*         if (this.quest?.items && this.hasGivenPresent) {
-                    let hasAllItems = true
-                    this.quest.items.forEach(item => {
-                        let amount = 0
-                        for (let y = 0; y < player.data.inventory.length; y++) {
-                            for (let x = 0; x < player.data.inventory[y].length; x++) {
-                                if (player.data.inventory[y][x] === item.item) amount++
-                            }
-                        }
-                        if (amount < item.amount) hasAllItems = false
-                    })
-                    if (hasAllItems) currentEvents.push({ event: 'give', entity: this, extra: this.quest.items })
-                } */
+        if (this.quest?.items && this.hasGivenPresent) {
+            let hasAllItems = true
+            this.quest.items.forEach(item => {
+                let amount = 0
+                for (let y = 0; y < player.data.inventory.length; y++) {
+                    for (let x = 0; x < player.data.inventory[y].length; x++) {
+                        if (player.data.inventory[y][x] === item.item) amount++
+                    }
+                }
+                if (amount < item.amount) hasAllItems = false
+            })
+            if (hasAllItems) currentEvents.push({ event: 'give', entity: this, extra: this.quest.items })
+        }
 
         if (this.quest && !this.hasGivenPresent) {
             activeQuests.push(this.quest)
@@ -2217,6 +2259,9 @@ class Player implements entity {
         spriteAnimations: Record<string, framesObj> // stores each animation as an object
         currentState: string // current animation
         scale: number
+    }
+    story: {
+        freedNate: boolean
     }
 
     effectData: { effects: effectType[]; effectTicks: number; effectCounter: number; };
@@ -2328,6 +2373,10 @@ class Player implements entity {
             isDead: false,
             seeRange: 0,
         }
+        this.story = {
+            freedNate: false
+        }
+
         this.hitbox = { offsetX: 195, offsetY: 170, width: 60, height: 110 }
         this.type = { isGround: true, name: 'player', allignment: 'friendly', moving: false, attackable: false, interactable: false }
         this.isInit = false
@@ -2344,13 +2393,13 @@ class Player implements entity {
             effect.duration--
 
             if (effect.duration <= 0) {
-                if ((effectFunctions as any)[effect.effect.name].end) {
+                if ((effectFunctions as any)[effect.effect.name] && (effectFunctions as any)[effect.effect.name].end) {
                     (effectFunctions as any)[effect.effect.name].end(this)
                 }
                 this.removeEffect(effect.index)
             }
             if (this.effectData.effectTicks % effect.effect.ticks === 0) {
-                if ((effectFunctions as any)[effect.effect.name].onTick) {
+                if ((effectFunctions as any)[effect.effect.name] && (effectFunctions as any)[effect.effect.name].onTick) {
                     (effectFunctions as any)[effect.effect.name].onTick(this)
                 }
             }
@@ -2544,7 +2593,7 @@ class Player implements entity {
                             obj.takeHit(attackDamage)
                             const selectedSlot = this.data.inventory[3][this.data.selectedSlot - 1]
                             if (selectedSlot !== null) {
-                                if ((itemFunctions as any)[selectedSlot].attack) {
+                                if ((itemFunctions as any)[selectedSlot] && (itemFunctions as any)[selectedSlot].attack) {
                                     (itemFunctions as any)[selectedSlot].attack(obj)
                                 }
                             }
@@ -2581,7 +2630,7 @@ class Player implements entity {
                                 obj.takeHit(attackDamage)
                                 const selectedSlot = this.data.inventory[3][this.data.selectedSlot - 1]
                                 if (selectedSlot !== null) {
-                                    if ((itemFunctions as any)[selectedSlot].attack) {
+                                    if ((itemFunctions as any)[selectedSlot] && (itemFunctions as any)[selectedSlot].attack) {
                                         (itemFunctions as any)[selectedSlot].attack(obj)
                                     }
                                 }
@@ -2611,7 +2660,7 @@ class Player implements entity {
         const currentItem = player.data.inventory[3][this.data.selectedSlot - 1]
         if (!currentItem) return
         if (items[player.data.inventory[3][this.data.selectedSlot - 1]!].clearsAfterUse) player.data.inventory[3][this.data.selectedSlot - 1] = null
-        if ((itemFunctions as any)[currentItem].use) {
+        if ((itemFunctions as any)[currentItem] && (itemFunctions as any)[currentItem].use) {
             (itemFunctions as any)[currentItem].use()
         }
         updateHotbar()
@@ -2679,8 +2728,9 @@ class Player implements entity {
             innerDiv?.appendChild(durationDiv)
             div?.appendChild(innerDiv)
         }
-        if ((effectFunctions as any)[effect].start)
+        if ((effectFunctions as any)[effect] && (effectFunctions as any)[effect].start) {
             (effectFunctions as any)[effect].start(this)
+        }
     }
 
     removeEffect(index: number) {
@@ -3764,11 +3814,19 @@ function update(): void {
 type worldElementNames = 'enemy' | 'invisWall' | 'barrel' | 'crate' | 'player' | 'house_1' | 'house' | 'door_1' | 'teleporter' | 'trader' | 'wall_2' | 'wall_1' | 'goblin' | 'nightBorn' | 'skeleton' | 'tree_1' | 'tree_2' | 'rocks_1' | 'bush_1' | 'bush_2' | 'bush_3' | 'plant_1' | 'statue_1' | 'chest' | 'NPC'
 
 type worldName = keyof typeof worlds
-let currentWorld: worldName = 'jungle'
+let currentWorld: worldName;
 type WorldElement = entity | blocks | container
 
 function changeWorld(world: worldName) {
     backgroundLayers = []
+
+    if (!worlds[world]) {
+        console.error(`World does not exist: ${world}`)
+        alert(`World error!`)
+        menu.save()
+        menu.quit()
+        return
+    }
 
     const spriteWidth = worlds[world].background.spriteWidth
     const spriteHeight = worlds[world].background.spriteHeight
@@ -3804,7 +3862,7 @@ async function start() {
 
     loadingBar!.value += 20
 
-    await changeWorld('jungle')
+    await changeWorld('goblin_kingdom')
     loadingBar!.value += 10
     loadingInfo!.innerHTML = 'Starting!'
     await sleep(120)

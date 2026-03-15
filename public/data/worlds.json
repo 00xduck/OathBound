@@ -3145,6 +3145,44 @@
                 ]
             },
             {
+                "class": "block",
+                "args": [
+                    {
+                        "x": 3000,
+                        "y": 180
+                    },
+                    {
+                        "pathToImage": "/img/blocks/tree_3.png",
+                        "spriteWidth": 46,
+                        "spriteHeight": 88,
+                        "scale": 6,
+                        "hitbox": {
+                            "offsetX": 0,
+                            "offsetY": 0,
+                            "width": 200,
+                            "height": 600
+                        }
+                    },
+                    {
+                        "cooldown": 100,
+                        "output": [
+                            {
+                                "amount": 1,
+                                "item": "stick"
+                            }
+                        ],
+                        "isInfinite": true,
+                        "healthBarScale": 2.5
+                    },
+                    {
+                        "isBlocking": false,
+                        "removeItem": null
+                    },
+                    "tree_1",
+                    0
+                ]
+            },
+            {
                 "class": "teleporter",
                 "args": [
                     {
@@ -3174,6 +3212,43 @@
                     },
                     {
                         "dim": "jungle",
+                        "x": 650,
+                        "y": 420
+                    },
+                    "door_1",
+                    0
+                ]
+            },
+            {
+                "class": "teleporter",
+                "args": [
+                    {
+                        "x": 3700,
+                        "y": 325
+                    },
+                    {
+                        "pathToImage": "/img/blocks/goblin_house_2.png",
+                        "spriteWidth": 408,
+                        "spriteHeight": 612,
+                        "scale": 1,
+                        "hitbox": {
+                            "offsetX": 0,
+                            "offsetY": 70,
+                            "width": 350,
+                            "height": 500
+                        }
+                    },
+                    {
+                        "cooldown": 25,
+                        "healthBarScale": 1,
+                        "interactCooldown": 200
+                    },
+                    {
+                        "isBlocking": false,
+                        "removeItem": null
+                    },
+                    {
+                        "dim": "house_4",
                         "x": 650,
                         "y": 420
                     },
@@ -3220,8 +3295,8 @@
                     {
                         "img": "/img/passiveEntities/shop.png",
                         "spriteWidth": 118,
-                        "spriteHeight": 98,
-                        "frameAmount": 1,
+                        "spriteHeight": 128,
+                        "frameAmount": 6,
                         "scale": 1
                     },
                     [
@@ -3265,6 +3340,71 @@
                 "class": "block",
                 "args": [
                     {
+                        "x": 2000,
+                        "y": 665
+                    },
+                    {
+                        "pathToImage": "img/blocks/rock_3.png",
+                        "spriteWidth": 45,
+                        "spriteHeight": 18,
+                        "scale": 2,
+                        "hitbox": {
+                            "offsetX": 0,
+                            "offsetY": 0,
+                            "width": 200,
+                            "height": 1000
+                        }
+                    },
+                    {
+                        "isBlocking": false,
+                        "removeItem": null,
+                        "text": ""
+                    },
+                    "rock",
+                    0
+                ]
+            },
+            {
+                "class": "teleporter",
+                "args": [
+                    {
+                        "x": 4300,
+                        "y": 355
+                    },
+                    {
+                        "pathToImage": "/img/blocks/goblin_house_4.png",
+                        "spriteWidth": 408,
+                        "spriteHeight": 612,
+                        "scale": 1,
+                        "hitbox": {
+                            "offsetX": 0,
+                            "offsetY": 70,
+                            "width": 350,
+                            "height": 500
+                        }
+                    },
+                    {
+                        "cooldown": 25,
+                        "healthBarScale": 1,
+                        "interactCooldown": 200
+                    },
+                    {
+                        "isBlocking": false,
+                        "removeItem": null
+                    },
+                    {
+                        "dim": "house_5",
+                        "x": 650,
+                        "y": 420
+                    },
+                    "door_1",
+                    0
+                ]
+            },
+            {
+                "class": "block",
+                "args": [
+                    {
                         "x": 3000,
                         "y": 180
                     },
@@ -3297,6 +3437,40 @@
                     },
                     "tree_1",
                     0
+                ]
+            },
+            {
+                "class": "NPC",
+                "args": [
+                    {
+                        "x": 3400,
+                        "y": 430
+                    },
+                    {
+                        "pathToImage": "/img/enemies/goblin.png",
+                        "spriteWidth": 150,
+                        "spriteHeight": 150,
+                        "frameAmount": 4,
+                        "scale": 1,
+                        "hitbox": {
+                            "offsetX": 150,
+                            "offsetY": 160,
+                            "width": 80,
+                            "height": 100
+                        },
+                        "invertOrientation": false
+                    },
+                    "NPC",
+                    {
+                        "first": [
+                            "I have never seen such a tall goblin!"
+                        ]
+                    },
+                    "goblin",
+                    [],
+                    0,
+                    null,
+                    null
                 ]
             },
             {
@@ -3366,42 +3540,403 @@
                     "goblin",
                     0
                 ]
+            }
+        ]
+    },
+    "house_4": {
+        "name": "house_4",
+        "background": {
+            "imgs": [
+                "plx-5-goblin_1.png",
+                "plx-4-goblin_1.png"
+            ],
+            "spriteWidth": 1500,
+            "spriteHeight": 1000
+        },
+        "elements": [
+            {
+                "class": "block",
+                "args": [
+                    {
+                        "x": -100,
+                        "y": 0
+                    },
+                    {
+                        "pathToImage": "",
+                        "spriteWidth": 1,
+                        "spriteHeight": 1,
+                        "scale": 1,
+                        "hitbox": {
+                            "offsetX": 0,
+                            "offsetY": 0,
+                            "width": 100,
+                            "height": 2000
+                        }
+                    },
+                    null,
+                    {
+                        "isBlocking": true,
+                        "removeItem": null,
+                        "text": ""
+                    },
+                    "invisWall",
+                    20
+                ]
             },
             {
                 "class": "block",
                 "args": [
                     {
-                        "x": 3000,
-                        "y": 180
+                        "x": 2500,
+                        "y": 0
                     },
                     {
-                        "pathToImage": "/img/blocks/tree_3.png",
-                        "spriteWidth": 46,
-                        "spriteHeight": 88,
-                        "scale": 6,
+                        "pathToImage": "",
+                        "spriteWidth": 1,
+                        "spriteHeight": 1,
+                        "scale": 1,
                         "hitbox": {
                             "offsetX": 0,
                             "offsetY": 0,
-                            "width": 200,
-                            "height": 600
+                            "width": 100,
+                            "height": 2000
+                        }
+                    },
+                    null,
+                    {
+                        "isBlocking": true,
+                        "removeItem": null,
+                        "text": ""
+                    },
+                    "invisWall",
+                    20
+                ]
+            },
+            {
+                "class": "NPC",
+                "args": [
+                    {
+                        "x": 1000,
+                        "y": 430
+                    },
+                    {
+                        "pathToImage": "/img/enemies/goblin.png",
+                        "spriteWidth": 150,
+                        "spriteHeight": 150,
+                        "frameAmount": 4,
+                        "scale": 1,
+                        "hitbox": {
+                            "offsetX": 150,
+                            "offsetY": 160,
+                            "width": 80,
+                            "height": 100
+                        },
+                        "invertOrientation": false
+                    },
+                    "NPC",
+                    {
+                        "first": [
+                            "Look I brought us a snack!",
+                            "Want to taste test?"
+                        ],
+                        "second": [
+                            "Go ahead - take a bite!"
+                        ]
+                    },
+                    "goblin",
+                    [],
+                    0,
+                    null,
+                    null
+                ]
+            },
+            {
+                "class": "NPC",
+                "args": [
+                    {
+                        "x": 1300,
+                        "y": 430
+                    },
+                    {
+                        "pathToImage": "/img/enemies/goblin.png",
+                        "spriteWidth": 150,
+                        "spriteHeight": 150,
+                        "frameAmount": 4,
+                        "scale": 1,
+                        "hitbox": {
+                            "offsetX": 150,
+                            "offsetY": 160,
+                            "width": 80,
+                            "height": 100
+                        }
+                    },
+                    "NPC",
+                    {
+                        "first": [
+                            "Don't you dare steal the keys!",
+                            "I remember every goblin, I see!"
+                        ],
+                        "second": [
+                            "Look who we have here!",
+                            "Nate the great!",
+                            "Great at getting caught! HAHAHA"
+                        ]
+                    },
+                    "goblin",
+                    [],
+                    0,
+                    null,
+                    null
+                ]
+            },
+            {
+                "class": "NPC",
+                "args": [
+                    {
+                        "x": 2000,
+                        "y": 430
+                    },
+                    {
+                        "pathToImage": "/img/passiveEntities/nate.png",
+                        "spriteWidth": 192,
+                        "spriteHeight": 128,
+                        "frameAmount": 4,
+                        "scale": 1,
+                        "hitbox": {
+                            "offsetX": -130,
+                            "offsetY": 160,
+                            "width": 300,
+                            "height": 100
+                        },
+                        "invertOrientation": false
+                    },
+                    "NPC",
+                    {
+                        "first": [
+                            "Wait, you're not a goblin?!",
+                            "Please, help me!",
+                            "The goblins will attack you however once you've freed me!"
+                        ],
+                        "second": [
+                            "I can escape on my own!",
+                            "Just try to find the king!"
+                        ]
+                    },
+                    "nate",
+                    [],
+                    0,
+                    null,
+                    null
+                ]
+            },
+            {
+                "class": "block",
+                "args": [
+                    {
+                        "x": 1970,
+                        "y": 450
+                    },
+                    {
+                        "pathToImage": "/img/blocks/door_1.png",
+                        "spriteWidth": 189,
+                        "spriteHeight": 281,
+                        "scale": 1,
+                        "hitbox": {
+                            "offsetX": 0,
+                            "offsetY": 0,
+                            "width": 190,
+                            "height": 300
+                        }
+                    },
+                    null,
+                    {
+                        "isBlocking": true,
+                        "removeItem": "key"
+                    },
+                    "door_1",
+                    5432
+                ]
+            },
+            {
+                "class": "chest",
+                "args": [
+                    1700,
+                    -1,
+                    [
+                        [
+                            null,
+                            null,
+                            null,
+                            null,
+                            null
+                        ],
+                        [
+                            null,
+                            "key",
+                            null,
+                            null,
+                            null
+                        ],
+                        [
+                            null,
+                            null,
+                            null,
+                            null,
+                            null
+                        ],
+                        [
+                            null,
+                            null,
+                            null,
+                            null,
+                            null
+                        ]
+                    ],
+                    "chest"
+                ]
+            },
+            {
+                "class": "teleporter",
+                "args": [
+                    {
+                        "x": 500,
+                        "y": 505
+                    },
+                    {
+                        "pathToImage": "/img/blocks/door_1.png",
+                        "spriteWidth": 189,
+                        "spriteHeight": 281,
+                        "scale": 0.5,
+                        "hitbox": {
+                            "offsetX": 0,
+                            "offsetY": 0,
+                            "width": 100,
+                            "height": 100
                         }
                     },
                     {
-                        "cooldown": 100,
-                        "output": [
-                            {
-                                "amount": 1,
-                                "item": "stick"
-                            }
-                        ],
-                        "isInfinite": true,
-                        "healthBarScale": 2.5
+                        "cooldown": 25,
+                        "healthBarScale": 1,
+                        "interactCooldown": 200
                     },
                     {
                         "isBlocking": false,
                         "removeItem": null
                     },
-                    "tree_1",
+                    {
+                        "dim": "goblin_kingdom",
+                        "x": 650,
+                        "y": 420
+                    },
+                    "door_1",
+                    0
+                ]
+            }
+        ]
+    },
+    "house_5": {
+        "name": "house_5",
+        "background": {
+            "imgs": [
+                "plx-5-goblin_1.png",
+                "plx-4-goblin_1.png"
+            ],
+            "spriteWidth": 1500,
+            "spriteHeight": 1000
+        },
+        "elements": [
+            {
+                "class": "block",
+                "args": [
+                    {
+                        "x": -100,
+                        "y": 0
+                    },
+                    {
+                        "pathToImage": "",
+                        "spriteWidth": 1,
+                        "spriteHeight": 1,
+                        "scale": 1,
+                        "hitbox": {
+                            "offsetX": 0,
+                            "offsetY": 0,
+                            "width": 100,
+                            "height": 2000
+                        }
+                    },
+                    null,
+                    {
+                        "isBlocking": true,
+                        "removeItem": null,
+                        "text": ""
+                    },
+                    "invisWall",
+                    20
+                ]
+            },
+            {
+                "class": "block",
+                "args": [
+                    {
+                        "x": 2500,
+                        "y": 0
+                    },
+                    {
+                        "pathToImage": "",
+                        "spriteWidth": 1,
+                        "spriteHeight": 1,
+                        "scale": 1,
+                        "hitbox": {
+                            "offsetX": 0,
+                            "offsetY": 0,
+                            "width": 100,
+                            "height": 2000
+                        }
+                    },
+                    null,
+                    {
+                        "isBlocking": true,
+                        "removeItem": null,
+                        "text": ""
+                    },
+                    "invisWall",
+                    20
+                ]
+            },
+            {
+                "class": "teleporter",
+                "args": [
+                    {
+                        "x": 500,
+                        "y": 505
+                    },
+                    {
+                        "pathToImage": "/img/blocks/door_1.png",
+                        "spriteWidth": 189,
+                        "spriteHeight": 281,
+                        "scale": 0.5,
+                        "hitbox": {
+                            "offsetX": 0,
+                            "offsetY": 0,
+                            "width": 100,
+                            "height": 100
+                        }
+                    },
+                    {
+                        "cooldown": 25,
+                        "healthBarScale": 1,
+                        "interactCooldown": 200
+                    },
+                    {
+                        "isBlocking": false,
+                        "removeItem": null
+                    },
+                    {
+                        "dim": "goblin_kingdom",
+                        "x": 650,
+                        "y": 420
+                    },
+                    "door_1",
                     0
                 ]
             }

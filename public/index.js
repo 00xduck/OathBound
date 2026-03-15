@@ -227,7 +227,11 @@ addEventListener('keyup', event => {
     }
 });
 addEventListener('keydown', event => {
-    if (isLoading)
+    var _a;
+    if (event.code === 'Escape') {
+        menu.toggleMenu();
+    }
+    if (isLoading || !((_a = document.querySelector('#menu')) === null || _a === void 0 ? void 0 : _a.classList.contains('display-none')))
         return;
     if (!player.data.onInventory && !player.data.onTradingMenu && !player.data.onSecondaryInventory && player.data.canMove)
         keys[event.code] = true;
@@ -251,9 +255,6 @@ addEventListener('keydown', event => {
     }
     if (event.code === 'Space' && !player.data.onInventory) {
         player.jump();
-    }
-    if (event.code === 'Escape') {
-        menu.toggleMenu();
     }
     if (!player.data.onInventory && event.code.slice(0, 5) === 'Digit' && (parseInt(event.code.slice(5, 6)) < 6)) {
         changeSelectedSlot(parseInt(event.code.slice(5, 6)));
@@ -322,6 +323,20 @@ class menuClass {
                 settings: [
                     { name: 'labels', state: true }
                 ]
+            }
+        };
+        this.commands = {
+            heal: (arg) => { player.heal(Number(arg)); },
+            effect: (arg) => { player.addEffect(arg, 1000, 1); },
+            give: (arg) => { player.addItem(arg, 1); },
+            damage: (arg) => { player.takeHit(Number(arg)); },
+            summon: (arg) => {
+                if (!elemRegistry[arg] || (arg !== 'skeleton' && arg !== 'goblin')) {
+                    displayInfo(`Unknown or Unsummonable entity`);
+                    return;
+                }
+                const entity = new elemRegistry[arg](player.pos.x, StaticPositions.OnGround, arg, 0);
+                worlds[currentWorld].elements.push(entity);
             }
         };
     }
@@ -394,6 +409,9 @@ class menuClass {
                     btn === null || btn === void 0 ? void 0 : btn.classList.add('setting-false');
                 }
             });
+            if (setting === 'dev') {
+                div.innerHTML += `<div class="flex-center margin-top-16"><input id="command" placeholder="command..." type="text"><button class="gradientBtn btn-small margin-left-16" onclick="menu.runCommand()">Send</button></div>`;
+            }
             div.innerHTML += `<div class="flex-between margin-top-32"><button onclick="menu.toggleMenu()" class="btn-small background-color-gray">Close</button><button onclick="menu.toggleSettingsScreen()" class="btn-small background-color-gray">Back</button></div>`;
         }
     }
@@ -430,6 +448,21 @@ class menuClass {
             }
         }
         return false;
+    }
+    runCommand() {
+        const input = document.querySelector('#command').value;
+        document.querySelector('#command').value = '';
+        const command = input.split(/-(.+)/);
+        if (!menu.commands[command[0].split(" ")[0]]) {
+            displayInfo(`Unknown Command: ${command}`);
+            return;
+        }
+        if (command[1] !== '') {
+            menu.commands[command[0].split(" ")[0]](command[1]);
+        }
+        else {
+            menu.commands[command[0].split(" ")[0]]();
+        }
     }
 }
 class quest {
@@ -993,6 +1026,9 @@ class block {
                 this.blocking.isBlocking = false;
                 this.blocking.removeItem = null;
                 player.data.inventory[3][player.data.selectedSlot - 1] = null;
+                if (this.id === 5432) {
+                    player.story.freedNate = true;
+                }
                 updateHotbar();
             }
             else {
@@ -1144,6 +1180,7 @@ class Entity {
             frames: 0,
             frameLoc: 0,
             currentState: 'idle',
+            invertOrientation: sprite.invertOrientation
         };
         this.data = {
             health: data.maxHealth,
@@ -1255,21 +1292,21 @@ class Entity {
             const playerHiddenFromGoblins = player.data.armor[0] === 'goblin_mask' && this.data.name === 'goblin';
             const playerAlreadyFocused = this.data.attackFocus === player;
             if (distanceXToPlayer <= this.data.attackRange && !this.data.onCooldown && player.pos.y + this.data.attackRange >= this.pos.y && this.type.allignment === 'enemy') {
-                if (!playerHiddenFromGoblins || playerAlreadyFocused) {
+                if (!playerHiddenFromGoblins || player.story.freedNate) {
                     this.data.attackFocus = player;
                     this.attack();
                     this.setCooldown(1500);
                 }
             }
             else if (playerDirec > 0 && distanceXToPlayer <= this.data.attackRange * 2 && !this.data.onCooldown && player.pos.y + this.data.attackRange >= this.pos.y && this.type.allignment === 'enemy') {
-                if (!playerHiddenFromGoblins || playerAlreadyFocused) {
+                if (!playerHiddenFromGoblins || player.story.freedNate) {
                     this.data.attackFocus = player;
                     this.attack();
                     this.setCooldown(1200);
                 }
             }
             else if (distanceXToPlayer <= this.data.seeRange && !this.data.onCooldown && this.type.allignment === 'enemy') {
-                if (!playerHiddenFromGoblins || playerAlreadyFocused) {
+                if (!playerHiddenFromGoblins || player.story.freedNate) {
                     this.data.attackFocus = player;
                     if (this.sprite.currentState !== 'run')
                         this.changeState('run');
@@ -1283,16 +1320,17 @@ class Entity {
                         this.data.health -= .1;
                     }
                 }
+                else {
+                    if (this.sprite.currentState === 'run') {
+                        this.changeState('idle');
+                    }
+                }
             }
             else {
-                if (this.sprite.currentState === 'run')
+                if (this.sprite.currentState === 'run') {
                     this.changeState('idle');
-                if (playerHiddenFromGoblins && !playerAlreadyFocused) {
-                    this.data.attackFocus = null;
                 }
-                else if (!playerHiddenFromGoblins) {
-                    this.data.attackFocus = null;
-                }
+                this.data.attackFocus = null;
             }
             this.effectData.effectTicks++;
         }
@@ -1308,7 +1346,7 @@ class Entity {
         let frameX = this.sprite.spriteAnimations[this.sprite.currentState].loc[this.sprite.frameLoc].x; // get current locations of the animation
         let frameY = this.sprite.spriteAnimations[this.sprite.currentState].loc[this.sprite.frameLoc].y;
         let orientation = (player.pos.x + player.sprite.spriteWidth / 2) - (this.pos.x + this.sprite.spriteWidth / 2);
-        if (this.data.name === 'elder') {
+        if (this.data.name === 'elder' || this.sprite.invertOrientation) {
             orientation = -orientation;
         }
         if (orientation <= 0 && !this.type.isNotTurning) {
@@ -1635,12 +1673,13 @@ class NPC extends Entity {
     constructor(pos, sprite, worldElem, conversation, name, present, id, quest, story) {
         let image = new Image();
         image.src = sprite.pathToImage;
+        let invertOrientation = sprite.invertOrientation;
         // samurai: SW:96 SH: 96 
         if (pos.y === StaticPositions.OnGround) {
             pos.y = groundY - 400 * sprite.scale;
         }
         super({ x: pos.x, y: pos.y }, {
-            img: image, spriteWidth: sprite.spriteWidth, spriteHeight: sprite.spriteHeight, scale: sprite.scale, animationStates: [{ name: 'idle', frames: sprite.frameAmount }], hitbox: sprite.hitbox
+            img: image, spriteWidth: sprite.spriteWidth, spriteHeight: sprite.spriteHeight, scale: sprite.scale, animationStates: [{ name: 'idle', frames: sprite.frameAmount }], hitbox: sprite.hitbox, invertOrientation: invertOrientation
         }, { maxHealth: 100, attackRange: 1, attackDamage: 1, drops: [], name: name }, {
             isGround: true /* is it a ground/flying troop */, name: 'NPC' /* name of the enemy */, allignment: 'passive' /* does it attack the player */, moving: true /* does it need to move while the player moves */, attackable: false, interactable: true
         }, worldElem, id);
@@ -1813,6 +1852,9 @@ class Player {
             isDead: false,
             seeRange: 0,
         };
+        this.story = {
+            freedNate: false
+        };
         this.hitbox = { offsetX: 195, offsetY: 170, width: 60, height: 110 };
         this.type = { isGround: true, name: 'player', allignment: 'friendly', moving: false, attackable: false, interactable: false };
         this.isInit = false;
@@ -1826,13 +1868,13 @@ class Player {
         this.effectData.effects.forEach(effect => {
             effect.duration--;
             if (effect.duration <= 0) {
-                if (effectFunctions[effect.effect.name].end) {
+                if (effectFunctions[effect.effect.name] && effectFunctions[effect.effect.name].end) {
                     effectFunctions[effect.effect.name].end(this);
                 }
                 this.removeEffect(effect.index);
             }
             if (this.effectData.effectTicks % effect.effect.ticks === 0) {
-                if (effectFunctions[effect.effect.name].onTick) {
+                if (effectFunctions[effect.effect.name] && effectFunctions[effect.effect.name].onTick) {
                     effectFunctions[effect.effect.name].onTick(this);
                 }
             }
@@ -2013,7 +2055,7 @@ class Player {
                             obj.takeHit(attackDamage);
                             const selectedSlot = this.data.inventory[3][this.data.selectedSlot - 1];
                             if (selectedSlot !== null) {
-                                if (itemFunctions[selectedSlot].attack) {
+                                if (itemFunctions[selectedSlot] && itemFunctions[selectedSlot].attack) {
                                     itemFunctions[selectedSlot].attack(obj);
                                 }
                             }
@@ -2055,7 +2097,7 @@ class Player {
                                 obj.takeHit(attackDamage);
                                 const selectedSlot = this.data.inventory[3][this.data.selectedSlot - 1];
                                 if (selectedSlot !== null) {
-                                    if (itemFunctions[selectedSlot].attack) {
+                                    if (itemFunctions[selectedSlot] && itemFunctions[selectedSlot].attack) {
                                         itemFunctions[selectedSlot].attack(obj);
                                     }
                                 }
@@ -2084,7 +2126,7 @@ class Player {
             return;
         if (items[player.data.inventory[3][this.data.selectedSlot - 1]].clearsAfterUse)
             player.data.inventory[3][this.data.selectedSlot - 1] = null;
-        if (itemFunctions[currentItem].use) {
+        if (itemFunctions[currentItem] && itemFunctions[currentItem].use) {
             itemFunctions[currentItem].use();
         }
         updateHotbar();
@@ -2147,8 +2189,9 @@ class Player {
             innerDiv === null || innerDiv === void 0 ? void 0 : innerDiv.appendChild(durationDiv);
             div === null || div === void 0 ? void 0 : div.appendChild(innerDiv);
         }
-        if (effectFunctions[effect].start)
+        if (effectFunctions[effect] && effectFunctions[effect].start) {
             effectFunctions[effect].start(this);
+        }
     }
     removeEffect(index) {
         for (let i = 0; i < this.effectData.effects.length; i++) {
@@ -3179,9 +3222,16 @@ function update() {
     gameFrame++;
     requestAnimationFrame(update);
 }
-let currentWorld = 'jungle';
+let currentWorld;
 function changeWorld(world) {
     backgroundLayers = [];
+    if (!worlds[world]) {
+        console.error(`World does not exist: ${world}`);
+        alert(`World error!`);
+        menu.save();
+        menu.quit();
+        return;
+    }
     const spriteWidth = worlds[world].background.spriteWidth;
     const spriteHeight = worlds[world].background.spriteHeight;
     const base_path = '/img/background/';
@@ -3210,7 +3260,7 @@ async function start() {
     console.info('Initialising...');
     await initialise();
     loadingBar.value += 20;
-    await changeWorld('jungle');
+    await changeWorld('goblin_kingdom');
     loadingBar.value += 10;
     loadingInfo.innerHTML = 'Starting!';
     await sleep(120);
