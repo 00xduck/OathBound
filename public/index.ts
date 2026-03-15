@@ -2176,7 +2176,9 @@ class NPC extends Entity implements entity {
         this.init()
     }
     endConversation() {
+        console.log('h');
         if (this.quest?.items && this.hasGivenPresent) {
+            console.log('checking');
             let hasAllItems = true
             this.quest.items.forEach(item => {
                 let amount = 0
@@ -2218,14 +2220,29 @@ class NPC extends Entity implements entity {
             })
             this.hasGivenPresent = true
         }
-
-
     }
 
     speak(): void {
         const speakDiv = document.querySelector('#speakWrapper');
         speakDiv?.classList.remove('display-none')
         player.data.canMove = false
+
+        if (this.quest?.items && this.hasGivenPresent) {
+            console.log('checking');
+            let hasAllItems = true
+            this.quest.items.forEach(item => {
+                let amount = 0
+                for (let y = 0; y < player.data.inventory.length; y++) {
+                    for (let x = 0; x < player.data.inventory[y].length; x++) {
+                        if (player.data.inventory[y][x] === item.item) amount++
+                    }
+                }
+                if (amount < item.amount) hasAllItems = false
+            })
+            if (hasAllItems) currentEvents.push({ event: 'give', entity: this, extra: this.quest.items })
+        }
+
+
         currentEvents.push({ event: 'talk', entity: this })
         isQuestUIupdated = false
         advanceConversation(this)

@@ -485,17 +485,17 @@ class quest {
                         entity.completed = true;
                     }
                 });
-                /*                 console.log(this.event);
-                                if (this.event === 'give') {
-                                    console.log('give');
-                                    if (event.extra) {
-                                        console.log(event.extra);
-                                        if (this.items === event.extra) {
-                                            this.completed = true
-                                            return this.completed
-                                        }
-                                    }
-                                } */
+                console.log(this.event);
+                if (this.event === 'give') {
+                    console.log('give');
+                    if (event.extra) {
+                        console.log(event.extra);
+                        if (this.items === event.extra) {
+                            this.completed = true;
+                            return this.completed;
+                        }
+                    }
+                }
             }
         });
         let questCompleted = true;
@@ -1290,7 +1290,6 @@ class Entity {
             const distanceXToPlayer = Math.abs((playerPosX + (player.sprite.spriteWidth / 2) * player.sprite.scale) - (this.pos.x + (this.sprite.spriteWidth / 2) * this.sprite.scale));
             const playerDirec = this.pos.x - player.pos.x;
             const playerHiddenFromGoblins = player.data.armor[0] === 'goblin_mask' && this.data.name === 'goblin';
-            const playerAlreadyFocused = this.data.attackFocus === player;
             if (distanceXToPlayer <= this.data.attackRange && !this.data.onCooldown && player.pos.y + this.data.attackRange >= this.pos.y && this.type.allignment === 'enemy') {
                 if (!playerHiddenFromGoblins || player.story.freedNate) {
                     this.data.attackFocus = player;
@@ -1696,19 +1695,25 @@ class NPC extends Entity {
         this.init();
     }
     endConversation() {
-        /*         if (this.quest?.items && this.hasGivenPresent) {
-                    let hasAllItems = true
-                    this.quest.items.forEach(item => {
-                        let amount = 0
-                        for (let y = 0; y < player.data.inventory.length; y++) {
-                            for (let x = 0; x < player.data.inventory[y].length; x++) {
-                                if (player.data.inventory[y][x] === item.item) amount++
-                            }
-                        }
-                        if (amount < item.amount) hasAllItems = false
-                    })
-                    if (hasAllItems) currentEvents.push({ event: 'give', entity: this, extra: this.quest.items })
-                } */
+        var _a;
+        console.log('h');
+        if (((_a = this.quest) === null || _a === void 0 ? void 0 : _a.items) && this.hasGivenPresent) {
+            console.log('checking');
+            let hasAllItems = true;
+            this.quest.items.forEach(item => {
+                let amount = 0;
+                for (let y = 0; y < player.data.inventory.length; y++) {
+                    for (let x = 0; x < player.data.inventory[y].length; x++) {
+                        if (player.data.inventory[y][x] === item.item)
+                            amount++;
+                    }
+                }
+                if (amount < item.amount)
+                    hasAllItems = false;
+            });
+            if (hasAllItems)
+                currentEvents.push({ event: 'give', entity: this, extra: this.quest.items });
+        }
         if (this.quest && !this.hasGivenPresent) {
             activeQuests.push(this.quest);
             isQuestUIupdated = false;

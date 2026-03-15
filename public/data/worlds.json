@@ -3939,6 +3939,53 @@
                     "door_1",
                     0
                 ]
+            },
+            {
+                "class": "NPC",
+                "args": [
+                    {
+                        "x": 1000,
+                        "y": 430
+                    },
+                    {
+                        "pathToImage": "/img/enemies/goblin.png",
+                        "spriteWidth": 150,
+                        "spriteHeight": 150,
+                        "frameAmount": 4,
+                        "scale": 1,
+                        "hitbox": {
+                            "offsetX": 150,
+                            "offsetY": 160,
+                            "width": 80,
+                            "height": 100
+                        },
+                        "invertOrientation": false
+                    },
+                    "NPC",
+                    {
+                        "first": [
+                            "I need a stick"
+                        ],
+                        "second": [
+                            "A BIG STICK"
+                        ]
+                    },
+                    "goblin",
+                    [],
+                    0,
+                    [
+                        "give",
+                        [
+                            {
+                                "item": "stick",
+                                "amount": 1
+                            }
+                        ],
+                        "My mom is kinda stickless!",
+                        []
+                    ],
+                    null
+                ]
             }
         ]
     }
