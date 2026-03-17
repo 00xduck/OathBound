@@ -35,8 +35,16 @@ let deadObjects = [];
 // level design values
 let levelPos = 0;
 // sound logic
-function playSound(sound) {
-    const audio = new Audio(`sound/${sound}.mp3`);
+const clickSound = new Audio('sound/blipSelect.mp3');
+function playSound(sound, volume) {
+    if (sound === 'blipSelect.mp3') {
+        clickSound.volume = volume;
+        clickSound.currentTime = 0;
+        clickSound.play();
+        return;
+    }
+    const audio = new Audio(`sound/${sound}`);
+    audio.volume = volume;
     audio.play();
 }
 let effects;
@@ -298,13 +306,14 @@ class menuClass {
             audio: {
                 name: 'audio',
                 settings: [
-                    { name: 'Master Sound', state: false }
+                    { name: 'Master Sound', state: false },
                 ]
             },
             video: {
                 name: 'video',
                 settings: [
-                    { name: 'Fullscreen', state: false }
+                    { name: 'Fullscreen', state: false },
+                    { name: 'FPS', state: true },
                 ]
             },
             dev: {
@@ -325,6 +334,10 @@ class menuClass {
                 ]
             }
         };
+        this.sounds = {
+            music: 100,
+            effects: 50
+        };
         this.commands = {
             heal: (arg) => { player.heal(Number(arg)); },
             effect: (arg) => { player.addEffect(arg, 1000, 1); },
@@ -337,6 +350,9 @@ class menuClass {
                 }
                 const entity = new elemRegistry[arg](player.pos.x, StaticPositions.OnGround, arg, 0);
                 worlds[currentWorld].elements.push(entity);
+            },
+            world: (arg) => {
+                changeWorld(arg);
             }
         };
     }
@@ -411,6 +427,9 @@ class menuClass {
             });
             if (setting === 'dev') {
                 div.innerHTML += `<div class="flex-center margin-top-16"><input id="command" placeholder="command..." type="text"><button class="gradientBtn btn-small margin-left-16" onclick="menu.runCommand()">Send</button></div>`;
+            }
+            else if (setting === 'audio') {
+                div.innerHTML += `<div class="flex-center margin-top-16"><h3>Music: </h3><input id="musicRange" value="menu.sounds.music" type="range" max="100" min="0" onchange="music.volume = Number(document.querySelector('#musicRange').value)/100; menu.sounds.music = Number(document.querySelector('#musicRange').value)"></div><div class="flex-center margin-top-16"><h3>Effects: </h3><input id="effectsRange" value="menu.sounds.effects" type="range" max="100" min="0" onchange="menu.sounds.effects = Number(document.querySelector('#effectsRange').value)"></div>`;
             }
             div.innerHTML += `<div class="flex-between margin-top-32"><button onclick="menu.toggleMenu()" class="btn-small background-color-gray">Close</button><button onclick="menu.toggleSettingsScreen()" class="btn-small background-color-gray">Back</button></div>`;
         }
@@ -489,7 +508,6 @@ class quest {
                 if (this.event === 'give') {
                     if (event.extra) {
                         if (this.items === event.extra) {
-                            console.log('?');
                             this.completed = true;
                             giveEventCompleted = true;
                         }
@@ -498,6 +516,8 @@ class quest {
             }
         });
         if (giveEventCompleted) {
+            if (this.items)
+                player.removeItems(this.items);
             return true;
         }
         let questCompleted = true;
@@ -1288,7 +1308,7 @@ class Entity {
             currentEvents.push({ event: 'kill', entity: this });
             isQuestUIupdated = false;
             if (menu.checkSetting('Master Sound'))
-                playSound('death');
+                playSound('death.mp3', menu.sounds.effects / 100);
         }
         if (!menu.checkSetting('No Aggro')) {
             const playerPosX = player.pos.x;
@@ -1700,7 +1720,6 @@ class NPC extends Entity {
         this.init();
     }
     endConversation() {
-        console.log('h');
         if (this.quest && !this.hasGivenPresent) {
             activeQuests.push(this.quest);
             isQuestUIupdated = false;
@@ -1733,7 +1752,6 @@ class NPC extends Entity {
         speakDiv === null || speakDiv === void 0 ? void 0 : speakDiv.classList.remove('display-none');
         player.data.canMove = false;
         if (((_a = this.quest) === null || _a === void 0 ? void 0 : _a.items) && this.hasGivenPresent) {
-            console.log('checking');
             let hasAllItems = true;
             this.quest.items.forEach(item => {
                 let amount = 0;
@@ -1749,6 +1767,9 @@ class NPC extends Entity {
             if (hasAllItems) {
                 currentEvents.push({ event: 'give', entity: this, extra: this.quest.items });
             }
+            activeQuests.forEach(quest => {
+                quest.update();
+            });
         }
         currentEvents.push({ event: 'talk', entity: this });
         isQuestUIupdated = false;
@@ -2036,7 +2057,7 @@ class Player {
             if (this.data.onGround) {
                 this.changeState(`attack1`); // change to attack state
                 if (menu.checkSetting('Master Sound'))
-                    playSound('slice');
+                    playSound('slice.mp3', menu.sounds.effects / 100);
                 if (player.data.inventory[3][this.data.selectedSlot - 1] !== null) {
                     this.setCooldown(items[player.data.inventory[3][this.data.selectedSlot - 1]].attackCooldown); // set a cooldown
                 }
@@ -2078,7 +2099,7 @@ class Player {
                 if (this.data.Ydirec !== 0) {
                     this.changeState(`attack3`); // change to attack state
                     if (menu.checkSetting('Master Sound'))
-                        playSound('slice');
+                        playSound('slice.mp3', menu.sounds.effects / 100);
                     if (player.data.inventory[3][this.data.selectedSlot - 1] !== null) {
                         this.setCooldown(items[player.data.inventory[3][this.data.selectedSlot - 1]].attackCooldown); // set a cooldown
                     }
@@ -2171,6 +2192,25 @@ class Player {
             displayInfo('Not enough space!');
         }
         updateHotbar();
+    }
+    removeItems(items) {
+        let success = true;
+        items.forEach(item => {
+            let counter = 0;
+            for (let y = 0; y < player.data.inventory.length; y++) {
+                for (let x = 0; x < player.data.inventory[y].length; x++) {
+                    if (player.data.inventory[y][x] === item.item) {
+                        counter++;
+                        player.data.inventory[y][x] = null;
+                    }
+                }
+            }
+            if (counter < item.amount) {
+                success = false;
+            }
+        });
+        updateHotbar();
+        return success;
     }
     addEffect(effect, duration, factor) {
         let foundDuplicate = false;
@@ -2432,6 +2472,8 @@ function renderInventory() {
                     e.stopPropagation();
                     player.data.dragging = e.target.parentElement.id;
                     (_a = document.querySelector('body')) === null || _a === void 0 ? void 0 : _a.classList.add('grab');
+                    if (menu.checkSetting('Master Sound'))
+                        playSound('blipSelect.mp3', menu.sounds.effects / 100);
                     if (player.data.inventory[y][x] !== null) {
                         if (items[player.data.inventory[y][x]].type === 'armor') {
                             playerDiv.innerHTML = `<h2>${player.data.inventory[y][x].replace(/_/g, ' ').toUpperCase()}</h2> <br><h3>Protection: ${items[player.data.inventory[y][x]].protection}%</h3>${items[player.data.inventory[y][x]].onUse !== '' ? '<br><h2>On use: ' + items[player.data.inventory[y][x]].onUse + '</h2>' : ''}<br><h2 style="font-weight: 200; font-family: cursive;">${items[player.data.inventory[y][x]].description} </h2>`;
@@ -2600,6 +2642,8 @@ function renderInventory() {
             var _a;
             e.preventDefault();
             (_a = document.querySelector('body')) === null || _a === void 0 ? void 0 : _a.classList.remove('grab');
+            if (menu.checkSetting('Master Sound'))
+                playSound('blipSelect.mp3', menu.sounds.effects / 100);
             if (!player.data.dragging)
                 return;
             const targetElement = e.target.closest('.inv-slot');
@@ -2640,6 +2684,8 @@ function renderInventory() {
             var _a;
             e.preventDefault();
             (_a = document.querySelector('body')) === null || _a === void 0 ? void 0 : _a.classList.remove('grab');
+            if (menu.checkSetting('Master Sound'))
+                playSound('blipSelect.mp3', menu.sounds.effects / 100);
             if (!player.data.dragging)
                 return;
             const targetElement = e.target.closest('.inv-slot');
@@ -2696,6 +2742,8 @@ function renderInventory() {
             var _a;
             e.preventDefault();
             (_a = document.querySelector('body')) === null || _a === void 0 ? void 0 : _a.classList.remove('grab');
+            if (menu.checkSetting('Master Sound'))
+                playSound('blipSelect.mp3', menu.sounds.effects / 100);
             if (!player.data.dragging)
                 return;
             const targetElement = e.target.closest('.inv-slot');
@@ -2779,6 +2827,8 @@ function renderSecondaryContainer(container) {
                     e.stopPropagation();
                     player.data.dragging = e.target.parentElement.id;
                     (_a = document.querySelector('body')) === null || _a === void 0 ? void 0 : _a.classList.add('grab');
+                    if (menu.checkSetting('Master Sound'))
+                        playSound('blipSelect.mp3', menu.sounds.effects / 100);
                     if (player.data.inventory[y][x] !== null) {
                         if (items[container.inventory[y][x]].type === 'armor') {
                             playerDiv.innerHTML = `<h2>${container.inventory[y][x].replace(/_/g, ' ').toUpperCase()}</h2> <br><h3>Protection: ${items[container.inventory[y][x]].protection}%</h3>${items[container.inventory[y][x]].onUse !== '' ? '<br><h2>On use: ' + items[container.inventory[y][x]].onUse + '</h2>' : ''}<br><h2 style="font-weight: 200; font-family: cursive;">${items[container.inventory[y][x]].description} </h2>`;
@@ -2826,6 +2876,8 @@ function renderSecondaryContainer(container) {
             e.preventDefault();
             if (!player.data.dragging)
                 return;
+            if (menu.checkSetting('Master Sound'))
+                playSound('blipSelect.mp3', menu.sounds.effects / 100);
             (_a = document.querySelector('body')) === null || _a === void 0 ? void 0 : _a.classList.remove('grab');
             // Slot, auf den das Item fallen soll
             const targetElement = e.target.closest('.inv-slot');
@@ -3070,7 +3122,19 @@ function update() {
         fps = frameCount;
         lastTime = now;
         frameCount = 0;
-        fpsDiv.innerHTML = `<h1>${fps} FPS</h1>`;
+        if (menu.checkSetting('FPS')) {
+            fpsDiv.classList.remove('display-none');
+            fpsDiv.innerHTML = `<h1>${fps} FPS</h1>`;
+        }
+        else {
+            fpsDiv.classList.add('display-none');
+        }
+    }
+    if (!menu.checkSetting('Master Sound')) {
+        music.pause();
+    }
+    else if (music.paused) {
+        music.play();
     }
     // player logic
     player.data.isMoving = false;
@@ -3262,6 +3326,8 @@ function changeWorld(world) {
 const player = new Player(CANVAS_WIDTH * 0.4, 420);
 player.showHealthbar();
 const menu = new menuClass();
+let music = new Audio();
+music.src = '/sound/music.ogg';
 // initialise && push layers
 async function start() {
     const loadingInfo = document.querySelector('#loadingInfo');
@@ -3272,12 +3338,14 @@ async function start() {
     console.info('Initialising...');
     await initialise();
     loadingBar.value += 20;
-    await changeWorld('goblin_kingdom');
+    await changeWorld('jungle');
     loadingBar.value += 10;
     loadingInfo.innerHTML = 'Starting!';
     await sleep(120);
     loadingScreen === null || loadingScreen === void 0 ? void 0 : loadingScreen.classList.add('display-none');
     isLoading = false;
+    music.volume = menu.sounds.music / 100;
+    music.loop = true;
     await update();
 }
 start();

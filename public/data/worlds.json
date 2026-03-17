@@ -3964,13 +3964,15 @@
                     "NPC",
                     {
                         "first": [
-                            "I need a stick"
+                            "I want to cook a soup!",
+                            "However I am missing some key ingredients.",
+                            "Please, I need a mushroom, some beer and a stick!"
                         ],
                         "second": [
-                            "A BIG STICK"
+                            "Please?"
                         ],
                         "questCompleted": [
-                            "Damn, thanks for that stick man"
+                            "Thanks, I can finally enjoy some good soup!"
                         ]
                     },
                     "goblin",
@@ -3979,11 +3981,28 @@
                     [
                         "give",
                         [],
-                        "My mom is kinda stickless!",
-                        [],
+                        "The soup requires: a mushroom, some beer and a stick",
+                        [
+                            {
+                                "item": "coin",
+                                "amount": 1
+                            },
+                            {
+                                "item": "big_regeneration_potion",
+                                "amount": 1
+                            }
+                        ],
                         [
                             {
                                 "item": "stick",
+                                "amount": 1
+                            },
+                            {
+                                "item": "beer",
+                                "amount": 1
+                            },
+                            {
+                                "item": "mushroom",
                                 "amount": 1
                             }
                         ]

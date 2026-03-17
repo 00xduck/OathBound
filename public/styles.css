@@ -105,6 +105,14 @@ header {
     gap: 0px;
 }
 
+input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 75%;
+    margin: 0;
+    padding: 0;
+}
+
 .logo1,
 .logo {
     width: 200px;
