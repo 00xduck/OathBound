@@ -71,6 +71,7 @@ is not prohibited eventhough a merge is unlikely.
 - **[xzany](https://xzany.itch.io/)**
 - **[zamcham](https://zamcham.itch.io/)**
 - **[gandalfhardcore](https://gandalfhardcore.itch.io/)**
+- **[ansimuz](https://ansimuz.itch.io/)**
 
 **_If I forgot you please reach out to me_**
 
