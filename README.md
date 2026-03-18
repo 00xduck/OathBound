@@ -54,7 +54,7 @@ is not prohibited eventhough a merge is unlikely.
 <img src="/docs/gameplayFootage_1.png" width="500"></div>
 <hr>
 <div>
-<img src="/docs/gameplayFootage_2.png" width="500"></div>
+<img src="/docs/gameplayFootage_4.jpeg" width="500"></div>
 <hr>
 <div>
 <img src="/docs/gameplayFootage_3.png" width="500">
