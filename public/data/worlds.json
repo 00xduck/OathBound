@@ -17,6 +17,44 @@
                 "class": "block",
                 "args": [
                     {
+                        "x": 900,
+                        "y": 620
+                    },
+                    {
+                        "pathToImage": "/img/blocks/crate.png",
+                        "spriteWidth": 44,
+                        "spriteHeight": 43,
+                        "scale": 2,
+                        "hitbox": {
+                            "offsetX": 0,
+                            "offsetY": 0,
+                            "width": 100,
+                            "height": 100
+                        }
+                    },
+                    {
+                        "cooldown": 75,
+                        "output": [
+                            {
+                                "item": "coin",
+                                "amount": 1
+                            }
+                        ],
+                        "isInfinite": false,
+                        "healthBarScale": 1
+                    },
+                    {
+                        "isBlocking": true,
+                        "removeItem": null
+                    },
+                    "crate",
+                    0
+                ]
+            },
+            {
+                "class": "block",
+                "args": [
+                    {
                         "x": 1800,
                         "y": 0
                     },
@@ -2979,20 +3017,7 @@
                     "stranger",
                     [],
                     5111,
-                    [
-                        "give",
-                        [
-                            5111
-                        ],
-                        "Give me a stick",
-                        [],
-                        [
-                            {
-                                "item": "stick",
-                                "amount": 1
-                            }
-                        ]
-                    ],
+                    null,
                     [
                         {
                             "action": "destroy",

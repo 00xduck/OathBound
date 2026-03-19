@@ -2305,7 +2305,7 @@ class Player implements entity {
     }
 
     effectData: { effects: effectType[]; effectTicks: number; effectCounter: number; };
-    data: { craftingInventory: InventorySlot[][], armor: InventorySlot[], inventory: InventorySlot[][], Ydirec: number, interactionFocus: block | container | entity | null, showingText: boolean, selectedSlot: number, dragging: string | null, interactionRange: number, velocity_Y: number, canMove: boolean, onSecondaryInventory: boolean, speed: number, onGround: boolean, onInventory: boolean, onTradingMenu: boolean, health: number; maxHealth: number; attackRange: number; attackDamage: number; drops: { amount: number; drop: item; chance: number; }[]; name: string; onCooldown: boolean; isDead: boolean; isMoving: boolean; showedText: boolean; Xdirec: number; seeRange: number; };
+    data: { isOnBlock: boolean, craftingInventory: InventorySlot[][], armor: InventorySlot[], inventory: InventorySlot[][], Ydirec: number, interactionFocus: block | container | entity | null, showingText: boolean, selectedSlot: number, dragging: string | null, interactionRange: number, velocity_Y: number, canMove: boolean, onSecondaryInventory: boolean, speed: number, onGround: boolean, onInventory: boolean, onTradingMenu: boolean, health: number; maxHealth: number; attackRange: number; attackDamage: number; drops: { amount: number; drop: item; chance: number; }[]; name: string; onCooldown: boolean; isDead: boolean; isMoving: boolean; showedText: boolean; Xdirec: number; seeRange: number; };
 
 
     lootDrop: { amount: number, drop: item, chance: number }[]
@@ -2380,6 +2380,7 @@ class Player implements entity {
 
         this.data = {
             onGround: true,
+            isOnBlock: false,
             onInventory: false,
             onTradingMenu: false,
             showedText: false,
@@ -2453,6 +2454,33 @@ class Player implements entity {
 
         })
 
+        let stillOnBlock = false
+
+        let onOtherBlock: { onBlock: boolean, block: null | block } = { onBlock: false, block: null }
+        worlds[currentWorld].elements.forEach(el => {
+            if (el instanceof block) {
+                if (checkCollision(
+                    { hitbox: { offsetX: el.hitbox.offsetX, offsetY: el.hitbox.offsetY, width: el.hitbox.width, height: el.hitbox.height + 20 }, pos: { x: el.pos.x, y: el.pos.y + 20 } },
+                    { hitbox: this.hitbox, pos: this.pos }
+                )) {
+                    stillOnBlock = true
+                }
+
+                if (el.blocking.isBlocking && checkCollision(
+                    { hitbox: el.hitbox, pos: el.pos },
+                    { hitbox: this.hitbox, pos: this.pos }
+                )) {
+                    onOtherBlock = { onBlock: true, block: el }
+                }
+            }
+        })
+
+        if (this.data.isOnBlock) {
+            player.data.isOnBlock = stillOnBlock
+        }
+        /* 
+                console.log(player.data.isOnBlock); */
+
 
         // check if player is jumping
         if (!this.data.onGround && !(gameFrame % staggerFrames)) {
@@ -2469,8 +2497,19 @@ class Player implements entity {
             if (this.data.velocity_Y <= 0) { // invert movement
                 this.data.Ydirec = 2
             }
+
+
+
             if (this.pos.y + this.sprite.spriteHeight >= groundY) { // check if player is on the ground
                 this.pos.y = groundY - this.sprite.spriteHeight
+                this.data.isOnBlock = false
+                this.data.onGround = true // reset values
+                this.data.velocity_Y = 0
+                this.data.Ydirec = 0
+                if (this.sprite.currentState !== 'attack3') this.changeState('idle')
+            } else if (onOtherBlock.onBlock) {
+                this.pos.y = (onOtherBlock.block!.pos.y + onOtherBlock.block!.hitbox.offsetY) - (player.hitbox.offsetY + player.hitbox.height);
+                this.data.isOnBlock = true
                 this.data.onGround = true // reset values
                 this.data.velocity_Y = 0
                 this.data.Ydirec = 0
@@ -2478,6 +2517,10 @@ class Player implements entity {
             } else {
                 this.data.onGround = false
             }
+        }
+        if (this.data.Ydirec === 0 && !(this.pos.y + this.sprite.spriteHeight >= groundY) && !this.data.isOnBlock) {
+            this.data.onGround = false
+            this.data.Ydirec = 2
         }
 
         this.sprite.frames++
@@ -2846,7 +2889,9 @@ function removeWorldElements(properties: any[], elementValue: string[], dim: wor
     });
 
     removeList.forEach(i => {
-        (worlds as any)[dim].elements.splice(i, 1)
+        if (!((worlds as any)[dim].elements[i].sprite.pathToImage === "/img/blocks/house_5.png")) {
+            (worlds as any)[dim].elements.splice(i, 1)
+        }
     })
 
     return removeList.length > 0
