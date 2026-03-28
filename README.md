@@ -17,7 +17,7 @@ Some features include:
 **OathBound's** gameplay is focused on learning and progression through collection of
 items, killing of enemies and completing quests.
 The story is also a core part of the game, but its development is very early and I am open for suggestions!
-## Future plans
+## Releasing
 I am planning on releasing **OathBound** on a few platforms. This will include a website, platforms like [CrazyGames](https://www.crazygames.com/) and an App!
 ## Controls
 - Walk forwards: `W` or `D`
