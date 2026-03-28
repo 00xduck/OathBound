@@ -11,8 +11,9 @@ const CANVAS_HEIGHT = canvas.height = 700
 // initial values
 let gameSpeed = 0 // game speed depending on the players movement
 let gameFrame = 0 // counter for the frames
+const MAX_FALL_SPEED = 8 // 
 const staggerFrames = 7 // amount of ticks between each frame of animation
-const globalGravity = 60 // gravity affecting the player
+const globalGravity = 8 // gravity affecting the player
 const groundY = 580 // is the y-coordinate of the ground
 let isLoading = true
 
@@ -883,7 +884,7 @@ class particle implements particles {
             this.pos.x = this.entity.pos.x + this.entity.sprite.spriteWidth
         }
         if (this.entity.type.name === 'goblin') {
-            this.pos.x += 30
+            this.pos.x -= 20
         }
 
         this.pos.y = this.entity.pos.y + this.entity.sprite.spriteHeight
@@ -1084,6 +1085,8 @@ class healthbar implements nonWorldElems {
             this.y -= 90
         } else if (this.entity.type.name === 'archer') {
             this.y -= 90
+        } else if (this.entity.type.name === 'goblin') {
+            this.x += 30
         }
     }
     draw() {
@@ -1369,6 +1372,8 @@ class block implements blocks {
                 this.hitbox.width,
                 this.hitbox.height
             )
+            ctx!.strokeStyle = "black"
+            ctx!.strokeRect(this.pos.x + this.hitbox.offsetX, this.pos.y + this.hitbox.offsetY, 5, 5)
             ctx!.restore()
         }
 
@@ -1769,6 +1774,8 @@ abstract class Entity {
                 this.hitbox.width,
                 this.hitbox.height
             )
+            ctx!.strokeStyle = "black"
+            ctx!.strokeRect(this.pos.x + this.hitbox.offsetX, this.pos.y + this.hitbox.offsetY, 5, 5)
             ctx!.restore()
         }
 
@@ -2305,7 +2312,7 @@ class Player implements entity {
     }
 
     effectData: { effects: effectType[]; effectTicks: number; effectCounter: number; };
-    data: { isOnBlock: boolean, craftingInventory: InventorySlot[][], armor: InventorySlot[], inventory: InventorySlot[][], Ydirec: number, interactionFocus: block | container | entity | null, showingText: boolean, selectedSlot: number, dragging: string | null, interactionRange: number, velocity_Y: number, canMove: boolean, onSecondaryInventory: boolean, speed: number, onGround: boolean, onInventory: boolean, onTradingMenu: boolean, health: number; maxHealth: number; attackRange: number; attackDamage: number; drops: { amount: number; drop: item; chance: number; }[]; name: string; onCooldown: boolean; isDead: boolean; isMoving: boolean; showedText: boolean; Xdirec: number; seeRange: number; };
+    data: { jumpHeight: number, jumpOrigin: number | null, onBlock: { isOnBlock: boolean, block: block | null }, craftingInventory: InventorySlot[][], armor: InventorySlot[], inventory: InventorySlot[][], Ydirec: number, interactionFocus: block | container | entity | null, showingText: boolean, selectedSlot: number, dragging: string | null, interactionRange: number, velocity_Y: number, canMove: boolean, onSecondaryInventory: boolean, speed: number, onGround: boolean, onInventory: boolean, onTradingMenu: boolean, health: number; maxHealth: number; attackRange: number; attackDamage: number; drops: { amount: number; drop: item; chance: number; }[]; name: string; onCooldown: boolean; isDead: boolean; isMoving: boolean; showedText: boolean; Xdirec: number; seeRange: number; };
 
 
     lootDrop: { amount: number, drop: item, chance: number }[]
@@ -2379,8 +2386,9 @@ class Player implements entity {
         }
 
         this.data = {
+            jumpOrigin: null,
             onGround: true,
-            isOnBlock: false,
+            onBlock: { isOnBlock: false, block: null },
             onInventory: false,
             onTradingMenu: false,
             showedText: false,
@@ -2391,6 +2399,7 @@ class Player implements entity {
             velocity_Y: 0,
             health: 100,
             maxHealth: 100,
+            jumpHeight: 200,
             interactionRange: 125,
             dragging: null,
             selectedSlot: 1,
@@ -2454,73 +2463,62 @@ class Player implements entity {
 
         })
 
-        let stillOnBlock = false
+        const foundBlock = worlds[currentWorld].elements.find(el => {
+            if (!(el instanceof block) || !el.blocking.isBlocking) return false
+            if (!checkCollision(
+                { hitbox: el.hitbox, pos: el.pos },
+                { hitbox: this.hitbox, pos: this.pos }
+            )) return false
 
-        let onOtherBlock: { onBlock: boolean, block: null | block } = { onBlock: false, block: null }
-        worlds[currentWorld].elements.forEach(el => {
-            if (el instanceof block) {
-                if (checkCollision(
-                    { hitbox: { offsetX: el.hitbox.offsetX, offsetY: el.hitbox.offsetY, width: el.hitbox.width, height: el.hitbox.height + 20 }, pos: { x: el.pos.x, y: el.pos.y + 20 } },
-                    { hitbox: this.hitbox, pos: this.pos }
-                )) {
-                    stillOnBlock = true
-                }
+            const playerBottom = this.pos.y + this.hitbox.offsetY + this.hitbox.height
+            const blockTop = el.pos.y + el.hitbox.offsetY
 
-                if (el.blocking.isBlocking && checkCollision(
-                    { hitbox: el.hitbox, pos: el.pos },
-                    { hitbox: this.hitbox, pos: this.pos }
-                )) {
-                    onOtherBlock = { onBlock: true, block: el }
-                }
-            }
-        })
+            return playerBottom <= blockTop + 20
+        }) as block | undefined
 
-        if (this.data.isOnBlock) {
-            player.data.isOnBlock = stillOnBlock
+        const onOtherBlock = {
+            onBlock: !!foundBlock,
+            block: foundBlock ?? null
         }
-        /* 
-                console.log(player.data.isOnBlock); */
 
+        this.data.onBlock = { isOnBlock: onOtherBlock.onBlock, block: onOtherBlock.block }
 
-        // check if player is jumping
-        if (!this.data.onGround && !(gameFrame % staggerFrames)) {
-            if (this.data.Ydirec === 1) { // if he is moving upward 
-                this.pos.y -= this.data.velocity_Y * globalGravity // calculate new y position
-                this.data.velocity_Y -= 0.2 // advance velocity
-                if (this.sprite.currentState !== 'attack3' && this.sprite.currentState !== 'jump') player.changeState('jump')
-            } else if (this.data.Ydirec === 2) {
-                this.pos.y += this.data.velocity_Y * globalGravity // calculate new y position
-                this.data.velocity_Y += 0.2 // advance velocity
-                if (this.sprite.currentState !== 'attack3' && this.sprite.currentState !== 'fall') player.changeState('fall')
+        if (this.data.onGround && !onOtherBlock.onBlock && this.bottom - 118 < groundY) {
+            this.data.onGround = false
+        }
+
+        if (!this.data.onGround) {
+            if (this.data.jumpOrigin && this.data.jumpOrigin - this.bottom >= this.data.jumpHeight && this.data.velocity_Y < 0) {
+                this.data.velocity_Y = 0
             }
 
-            if (this.data.velocity_Y <= 0) { // invert movement
-                this.data.Ydirec = 2
+            if (this.data.velocity_Y < 0) {
+                this.pos.y += this.data.velocity_Y * globalGravity
+                this.data.velocity_Y += 0.1
+
+                if (!(this.sprite.currentState === "attack3") && !(this.sprite.currentState === "jump")) this.changeState("jump")
+            } else {
+                this.pos.y += this.data.velocity_Y * globalGravity
+                this.data.velocity_Y += 0.1
+
+                if (!(this.sprite.currentState === "attack3") && !(this.sprite.currentState === "fall")) this.changeState("fall")
             }
-
-
-
-            if (this.pos.y + this.sprite.spriteHeight >= groundY) { // check if player is on the ground
+            if (this.bottom - 118 >= groundY && this.data.velocity_Y > 0) { // check if player is on the ground
                 this.pos.y = groundY - this.sprite.spriteHeight
-                this.data.isOnBlock = false
+                player.data.onBlock = { isOnBlock: false, block: null }
                 this.data.onGround = true // reset values
                 this.data.velocity_Y = 0
-                this.data.Ydirec = 0
+                this.data.jumpOrigin = null
                 if (this.sprite.currentState !== 'attack3') this.changeState('idle')
-            } else if (onOtherBlock.onBlock) {
-                this.pos.y = (onOtherBlock.block!.pos.y + onOtherBlock.block!.hitbox.offsetY) - (player.hitbox.offsetY + player.hitbox.height);
-                this.data.isOnBlock = true
+            } else if (onOtherBlock.onBlock && this.data.velocity_Y > 0) {
+                this.pos.y = ((onOtherBlock.block!.pos.y + onOtherBlock.block!.hitbox.offsetY) - (player.hitbox.offsetY + player.hitbox.height)) + 1;
                 this.data.onGround = true // reset values
                 this.data.velocity_Y = 0
-                this.data.Ydirec = 0
+                this.data.jumpOrigin = null
                 if (this.sprite.currentState !== 'attack3') this.changeState('idle')
             } else {
                 this.data.onGround = false
             }
-        }
-        if (this.data.Ydirec === 0 && !(this.pos.y + this.sprite.spriteHeight >= groundY) && !this.data.isOnBlock) {
-            this.data.onGround = false
-            this.data.Ydirec = 2
         }
 
         this.sprite.frames++
@@ -2547,6 +2545,8 @@ class Player implements entity {
                 this.hitbox.width,
                 this.hitbox.height
             )
+            ctx!.strokeStyle = "black"
+            ctx!.strokeRect(this.pos.x + this.hitbox.offsetX, this.pos.y + this.hitbox.offsetY, 5, 5)
             ctx!.restore()
         }
 
@@ -2684,52 +2684,52 @@ class Player implements entity {
                     })
                 }, 300)
             } else {
-                if (this.data.Ydirec !== 0) {
-                    this.changeState(`attack3`) // change to attack state
-                    if (menu.checkSetting('Master Sound')) playSound('slice.mp3', menu.sounds.effects / 100)
-                    if (player.data.inventory[3][this.data.selectedSlot - 1] !== null) {
-                        this.setCooldown(items[player.data.inventory[3][this.data.selectedSlot - 1]!].attackCooldown) // set a cooldown
-                    } else {
-                        this.setCooldown(1500)
-                    }
 
-                    setTimeout(() => {
-                        worlds[currentWorld].elements.forEach(obj => { // get each entity in range of the attack
-                            if (!(obj instanceof Entity)) return
-                            let attackRange = 100
-                            const item = this.data.inventory[3][this.data.selectedSlot - 1]
-                            if (item !== null) {
-                                attackRange = items[item].attackRange
-                            }
-                            if (checkCollision({ hitbox: { offsetY: 0 + this.hitbox.offsetY, offsetX: this.data.Xdirec === 1 ? this.hitbox.offsetX + this.hitbox.width : this.hitbox.offsetX - attackRange, width: attackRange, height: this.hitbox.height }, pos: this.pos }, { hitbox: obj.hitbox, pos: obj.pos }) && obj.type.attackable) { // Xdirec === 1 --> rechts Xdirec === 2 --> Links
-                                let attackDamage = (this.data.inventory[3][this.data.selectedSlot - 1] ? items[this.data.inventory[3][this.data.selectedSlot - 1]!].attackDamage : 1)
-                                if (menu.checkSetting('Inf Damage')) attackDamage = 10000
-                                if (this.checkEffect('strength').wasFound) {
-                                    attackDamage += (this.checkEffect('strength').effect?.factor! / 2) * 6
-                                }
-                                if (this.checkEffect('electrocute').wasFound) {
-                                    obj.addEffect('stun', 200, 1)
-                                }
-                                obj.takeHit(attackDamage)
-                                const selectedSlot = this.data.inventory[3][this.data.selectedSlot - 1]
-                                if (selectedSlot !== null) {
-                                    if ((itemFunctions as any)[selectedSlot] && (itemFunctions as any)[selectedSlot].attack) {
-                                        (itemFunctions as any)[selectedSlot].attack(obj)
-                                    }
-                                }
-                            }
-                        })
-                    }, 300)
+                this.changeState(`attack3`) // change to attack state
+                if (menu.checkSetting('Master Sound')) playSound('slice.mp3', menu.sounds.effects / 100)
+                if (player.data.inventory[3][this.data.selectedSlot - 1] !== null) {
+                    this.setCooldown(items[player.data.inventory[3][this.data.selectedSlot - 1]!].attackCooldown) // set a cooldown
+                } else {
+                    this.setCooldown(1500)
                 }
+
+                setTimeout(() => {
+                    worlds[currentWorld].elements.forEach(obj => { // get each entity in range of the attack
+                        if (!(obj instanceof Entity)) return
+                        let attackRange = 100
+                        const item = this.data.inventory[3][this.data.selectedSlot - 1]
+                        if (item !== null) {
+                            attackRange = items[item].attackRange
+                        }
+                        if (checkCollision({ hitbox: { offsetY: 0 + this.hitbox.offsetY, offsetX: this.data.Xdirec === 1 ? this.hitbox.offsetX + this.hitbox.width : this.hitbox.offsetX - attackRange, width: attackRange, height: this.hitbox.height }, pos: this.pos }, { hitbox: obj.hitbox, pos: obj.pos }) && obj.type.attackable) { // Xdirec === 1 --> rechts Xdirec === 2 --> Links
+                            let attackDamage = (this.data.inventory[3][this.data.selectedSlot - 1] ? items[this.data.inventory[3][this.data.selectedSlot - 1]!].attackDamage : 1)
+                            if (menu.checkSetting('Inf Damage')) attackDamage = 10000
+                            if (this.checkEffect('strength').wasFound) {
+                                attackDamage += (this.checkEffect('strength').effect?.factor! / 2) * 6
+                            }
+                            if (this.checkEffect('electrocute').wasFound) {
+                                obj.addEffect('stun', 200, 1)
+                            }
+                            obj.takeHit(attackDamage)
+                            const selectedSlot = this.data.inventory[3][this.data.selectedSlot - 1]
+                            if (selectedSlot !== null) {
+                                if ((itemFunctions as any)[selectedSlot] && (itemFunctions as any)[selectedSlot].attack) {
+                                    (itemFunctions as any)[selectedSlot].attack(obj)
+                                }
+                            }
+                        }
+                    })
+                }, 300)
+
             }
         }
     }
 
     jump(): void {
         if (!player.data.onCooldown && player.data.onGround) {
+            player.data.jumpOrigin = this.bottom
             player.data.onGround = false
-            player.data.velocity_Y = 1
-            player.data.Ydirec = 1
+            player.data.velocity_Y = -2
         }
     }
 
@@ -2874,6 +2874,10 @@ class Player implements entity {
             x: this.pos.x + this.hitbox.offsetX + this.hitbox.width / 2,
             y: this.pos.y + this.hitbox.offsetY + this.hitbox.height / 2
         }
+    }
+
+    get bottom() {
+        return (this.pos.y + this.hitbox.offsetY + this.hitbox.height)
     }
 }
 //
@@ -3781,10 +3785,12 @@ function update(): void {
     // player logic
     player.data.isMoving = false;
     let isBlocked = false;
+    player.update();
+
     // check for keydown/up inputs
     if ((keys['KeyD'] || keys['KeyW']) && !player.data.onInventory && !player.data.onTradingMenu && !player.data.onSecondaryInventory) {
         // check for obstacles
-        if (!menu.checkSetting('No Clip')) {
+        if (!menu.checkSetting('No Clip') && !player.data.onBlock.isOnBlock) {
             worlds[currentWorld].elements.forEach(elem => {
                 if (elem instanceof block && elem.blocking.isBlocking) {
                     if (checkCollision({ hitbox: elem.hitbox, pos: elem.pos }, { hitbox: player.hitbox, pos: player.pos })) {
@@ -3816,7 +3822,7 @@ function update(): void {
         }
     } else if ((keys['KeyA'] || keys['KeyS']) && !player.data.onInventory && !player.data.onTradingMenu && !player.data.onSecondaryInventory) {
         // check for obstacles
-        if (!menu.checkSetting('No Clip')) {
+        if (!menu.checkSetting('No Clip') && !player.data.onBlock.isOnBlock) {
             worlds[currentWorld].elements.forEach(elem => {
                 if (elem instanceof block && elem.blocking.isBlocking) {
                     if (checkCollision({ hitbox: elem.hitbox, pos: elem.pos }, { hitbox: player.hitbox, pos: player.pos })) {
@@ -3893,7 +3899,6 @@ function update(): void {
         elem.draw();
     });
 
-    player.update();
     player.draw();
 
     particles.forEach(particle => {
