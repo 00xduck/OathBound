@@ -1,5 +1,5 @@
 # OathBound
-### Latest Version: 0.4.0 (Alpha)
+### Latest Version: 0.5.0 (Alpha)
 ## About
 **OathBound** is a singleplayer pixel-art side-scroller progression-based story game currently in development.
 It is a semi open world game with intentional limitations.
@@ -29,16 +29,8 @@ I am planning on releasing **OathBound** on a few platforms. This will include a
 - Interact: `R`
 - Use Item: `Right Click`
 ## Installation
-1. download [node.js](https://nodejs.org/en/download)
-2. download a [release of OathBound](https://github.com/00xduck/OathBound/releases)
-3. go to the folder/directory in the command prompt `cd 'C:/path/to/the/folder'`
-4. install TypeScript `npm install -g typescript`
-5. install express:
-   `npm install express@5.1.0`
-6. build the Javascript file & start server:
-   `npm run buildStart`
-
-[Tutorial Video](https://www.dropbox.com/scl/fi/78yv12i677p32v5zjrwr0/oathbound-instructions.mp4?rlkey=wiezwsuwdajbn8w1qiu16we8p&st=omj3rmyf&dl=0)
+1. download a [setup for OathBound](https://github.com/00xduck/OathBound/releases) (v0.5.0)
+2. follow the setup instructions
 ## Tech Stack
 - HTML5
 - CSS
