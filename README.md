@@ -31,7 +31,7 @@ I am planning on releasing **OathBound** on a few platforms. This will include a
 - Drop item: `Q`
 - Close UI/open main Menu: `Escape`
 ## Installation
-1. download a [setup for OathBound](https://github.com/00xduck/OathBound/releases) (v0.5.0 and above)
+1. download a [setup for OathBound](https://github.com/00xduck/OathBound/releases) (v0.5.0 or above)
 2. follow the setup instructions
 ## Tech Stack
 - HTML5
