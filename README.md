@@ -29,7 +29,7 @@ I am planning on releasing **OathBound** on a few platforms. This will include a
 - Interact: `R`
 - Use Item: `Right Click`
 ## Installation
-1. download a [setup for OathBound](https://github.com/00xduck/OathBound/releases) (v0.5.0)
+1. download a [setup for OathBound](https://github.com/00xduck/OathBound/releases) (v0.5.0 and above)
 2. follow the setup instructions
 ## Tech Stack
 - HTML5
