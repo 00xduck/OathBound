@@ -24,7 +24,7 @@ I am planning on releasing **OathBound** on a few platforms. This will include a
 - Walk backwards: `S` or `A`
 - Jump: `Space`
 - Attack: `Left Click`
-- Jump Attack: `Space` and `Left Click`
+- Jump Attack: `Space + Left Click`
 - Open/Close Inventory: `E`
 - Interact: `R`
 - Use Item: `Right Click`
