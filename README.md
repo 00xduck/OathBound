@@ -39,7 +39,7 @@ I am planning on releasing **OathBound** on a few platforms. This will include a
 - TS
 - JS
 - Node.js
-- Express
+- Electron
 ## Contributing
 This repository is currently not open for external contributors, but reporting of errors or new ideas are appreciated and creating pull requests
 is not prohibited eventhough a merge is unlikely.
