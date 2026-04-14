@@ -1,18 +1,52 @@
 {
   "name": "oathbound",
-  "version": "0.3.3",
+  "version": "0.5.3",
   "description": "pixel-art side-scroller progression-based story game",
   "main": "main.js",
   "scripts": {
-    "buildStart": "npm run build && npm run start",
     "build": "cd public && tsc",
-    "start": "node --watch main.js"
+    "buildStart": "npm run build && npm run start",
+    "start": "electron .",
+    "dist": "electron-builder"
+  },
+  "build": {
+    "appId": "oathbound",
+    "productName": "OathBound",
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "logo.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    },
+    "files": [
+      "**/*",
+      "!node_modules/.cache"
+    ],
+    "directories": {
+      "output": "dist"
+    }
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "module",
+  "type": "commonjs",
+  "devDependencies": {
+    "electron": "^41.0.4",
+    "electron-builder": "^26.8.1"
+  },
   "dependencies": {
-    "express": "^5.2.1"
+    "discord-rpc": "^4.0.1",
+    "electron-store": "^8.2.0"
   }
 }

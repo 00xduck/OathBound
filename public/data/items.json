@@ -1397,5 +1397,437 @@
             "isMirrored": false,
             "scale": 2
         }
+    },
+    "iron_staff": {
+        "spriteX": 320,
+        "spriteY": 5952,
+        "height": 64,
+        "width": 64,
+        "scale": 1,
+        "attackDamage": 5,
+        "src": "itemsSheet.png",
+        "onUse": "",
+        "clearsAfterUse": false,
+        "attackRange": 150,
+        "attackCooldown": 2000,
+        "description": "Sorcery is only as strong as the wielder!",
+        "type": "wand",
+        "rendering": {
+            "pos": {
+                "x": 5,
+                "y": -10,
+                "x2": 5
+            },
+            "isMirrored": false,
+            "scale": 3
+        }
+    },
+    "ice_gem": {
+        "spriteX": 0,
+        "spriteY": 0,
+        "height": 27,
+        "width": 23,
+        "scale": 1,
+        "attackDamage": 2,
+        "src": "ice_gem.png",
+        "onUse": "",
+        "clearsAfterUse": false,
+        "attackRange": 150,
+        "attackCooldown": 2000,
+        "description": "It has a freezing aura!",
+        "type": "item",
+        "rendering": {
+            "pos": {
+                "x": 5,
+                "y": 20,
+                "x2": 5
+            },
+            "isMirrored": false,
+            "scale": 1
+        },
+        "animation": {
+            "frames": 10,
+            "length": 1
+        }
+    },
+    "earth_gem": {
+        "spriteX": 0,
+        "spriteY": 0,
+        "height": 25,
+        "width": 21,
+        "scale": 1,
+        "attackDamage": 2,
+        "src": "earth_gem.png",
+        "onUse": "",
+        "clearsAfterUse": false,
+        "attackRange": 150,
+        "attackCooldown": 2000,
+        "description": "The earth shatters in its presence!",
+        "type": "item",
+        "rendering": {
+            "pos": {
+                "x": 5,
+                "y": 20,
+                "x2": 5
+            },
+            "isMirrored": false,
+            "scale": 1
+        },
+        "animation": {
+            "frames": 10,
+            "length": 1
+        }
+    },
+    "void_gem": {
+        "spriteX": 0,
+        "spriteY": 0,
+        "height": 25,
+        "width": 21,
+        "scale": 1,
+        "attackDamage": 2,
+        "src": "void_gem.png",
+        "onUse": "",
+        "clearsAfterUse": false,
+        "attackRange": 150,
+        "attackCooldown": 2000,
+        "description": "Void leaks from its core!",
+        "type": "item",
+        "rendering": {
+            "pos": {
+                "x": 5,
+                "y": 20,
+                "x2": 5
+            },
+            "isMirrored": false,
+            "scale": 1
+        },
+        "animation": {
+            "frames": 16,
+            "length": 1
+        }
+    },
+    "fire_gem": {
+        "spriteX": 0,
+        "spriteY": 0,
+        "height": 28,
+        "width": 28,
+        "scale": 1,
+        "attackDamage": 2,
+        "src": "fire_gem.png",
+        "onUse": "",
+        "clearsAfterUse": false,
+        "attackRange": 150,
+        "attackCooldown": 2000,
+        "description": "The sun's core!",
+        "type": "item",
+        "rendering": {
+            "pos": {
+                "x": 5,
+                "y": 20,
+                "x2": 5
+            },
+            "isMirrored": false,
+            "scale": 1
+        },
+        "animation": {
+            "frames": 11,
+            "length": 1
+        }
+    },
+    "lightning_gem": {
+        "spriteX": 0,
+        "spriteY": 0,
+        "height": 26,
+        "width": 24,
+        "scale": 1,
+        "attackDamage": 2,
+        "src": "lightning_gem.png",
+        "onUse": "",
+        "clearsAfterUse": false,
+        "attackRange": 150,
+        "attackCooldown": 2000,
+        "description": "Unleash Zeus' Power!",
+        "type": "item",
+        "rendering": {
+            "pos": {
+                "x": 5,
+                "y": 20,
+                "x2": 5
+            },
+            "isMirrored": false,
+            "scale": 1
+        },
+        "animation": {
+            "frames": 10,
+            "length": 1
+        }
+    },
+    "blood_gem": {
+        "spriteX": 0,
+        "spriteY": 0,
+        "height": 26,
+        "width": 27,
+        "scale": 1,
+        "attackDamage": 2,
+        "src": "blood_gem.png",
+        "onUse": "",
+        "clearsAfterUse": false,
+        "attackRange": 150,
+        "attackCooldown": 2000,
+        "description": "This seems scary...",
+        "type": "item",
+        "rendering": {
+            "pos": {
+                "x": 5,
+                "y": 20,
+                "x2": 5
+            },
+            "isMirrored": false,
+            "scale": 1
+        },
+        "animation": {
+            "frames": 10,
+            "length": 1
+        }
+    },
+    "blank_scroll": {
+        "spriteX": 0,
+        "spriteY": 0,
+        "height": 16,
+        "width": 16,
+        "scale": 4,
+        "attackDamage": 2,
+        "src": "scrollsSheet.png",
+        "onUse": "",
+        "clearsAfterUse": false,
+        "attackRange": 150,
+        "attackCooldown": 2000,
+        "description": "Just a piece of paper?",
+        "type": "item",
+        "rendering": {
+            "pos": {
+                "x": -5,
+                "y": 10,
+                "x2": 10
+            },
+            "isMirrored": false,
+            "scale": 3
+        }
+    },
+    "ice_scroll": {
+        "spriteX": 128,
+        "spriteY": 48,
+        "height": 16,
+        "width": 16,
+        "scale": 4,
+        "attackDamage": 2,
+        "src": "scrollsSheet.png",
+        "onUse": "",
+        "clearsAfterUse": false,
+        "attackRange": 150,
+        "attackCooldown": 2000,
+        "description": "Hard as ice!",
+        "type": "magic",
+        "rendering": {
+            "pos": {
+                "x": -5,
+                "y": 10,
+                "x2": 10
+            },
+            "isMirrored": false,
+            "scale": 3
+        }
+    },
+    "earth_scroll": {
+        "spriteX": 80,
+        "spriteY": 112,
+        "height": 16,
+        "width": 16,
+        "scale": 4,
+        "attackDamage": 2,
+        "src": "scrollsSheet.png",
+        "onUse": "",
+        "clearsAfterUse": false,
+        "attackRange": 150,
+        "attackCooldown": 2000,
+        "description": "",
+        "type": "magic",
+        "rendering": {
+            "pos": {
+                "x": -5,
+                "y": 10,
+                "x2": 10
+            },
+            "isMirrored": false,
+            "scale": 3
+        }
+    },
+    "void_scroll": {
+        "spriteX": 144,
+        "spriteY": 112,
+        "height": 16,
+        "width": 16,
+        "scale": 4,
+        "attackDamage": 2,
+        "src": "scrollsSheet.png",
+        "onUse": "",
+        "clearsAfterUse": false,
+        "attackRange": 150,
+        "attackCooldown": 2000,
+        "description": "It makes your life darker and darker! Do not go any further!",
+        "type": "magic",
+        "rendering": {
+            "pos": {
+                "x": -5,
+                "y": 10,
+                "x2": 10
+            },
+            "isMirrored": false,
+            "scale": 3
+        }
+    },
+    "fire_scroll": {
+        "spriteX": 128,
+        "spriteY": 112,
+        "height": 16,
+        "width": 16,
+        "scale": 4,
+        "attackDamage": 2,
+        "src": "scrollsSheet.png",
+        "onUse": "",
+        "clearsAfterUse": false,
+        "attackRange": 150,
+        "attackCooldown": 2000,
+        "description": "Pyromaniac!",
+        "type": "magic",
+        "rendering": {
+            "pos": {
+                "x": -5,
+                "y": 10,
+                "x2": 10
+            },
+            "isMirrored": false,
+            "scale": 3
+        }
+    },
+    "lightning_scroll": {
+        "spriteX": 32,
+        "spriteY": 96,
+        "height": 16,
+        "width": 16,
+        "scale": 4,
+        "attackDamage": 2,
+        "src": "scrollsSheet.png",
+        "onUse": "",
+        "clearsAfterUse": false,
+        "attackRange": 150,
+        "attackCooldown": 2000,
+        "description": "",
+        "type": "magic",
+        "rendering": {
+            "pos": {
+                "x": -5,
+                "y": 10,
+                "x2": 10
+            },
+            "isMirrored": false,
+            "scale": 3
+        }
+    },
+    "blood_scroll": {
+        "spriteX": 144,
+        "spriteY": 80,
+        "height": 16,
+        "width": 16,
+        "scale": 4,
+        "attackDamage": 2,
+        "src": "scrollsSheet.png",
+        "onUse": "",
+        "clearsAfterUse": false,
+        "attackRange": 150,
+        "attackCooldown": 2000,
+        "description": "",
+        "type": "magic",
+        "rendering": {
+            "pos": {
+                "x": -5,
+                "y": 10,
+                "x2": 10
+            },
+            "isMirrored": false,
+            "scale": 3
+        }
+    },
+    "master_staff": {
+        "spriteX": 576,
+        "spriteY": 6272,
+        "height": 64,
+        "width": 64,
+        "scale": 1,
+        "attackDamage": 5,
+        "src": "itemsSheet.png",
+        "onUse": "",
+        "clearsAfterUse": false,
+        "attackRange": 150,
+        "attackCooldown": 2000,
+        "description": "Sorcery is only as strong as the wielder!",
+        "type": "wand",
+        "rendering": {
+            "pos": {
+                "x": 5,
+                "y": -10,
+                "x2": 5
+            },
+            "isMirrored": false,
+            "scale": 3
+        }
+    },
+    "advanced_staff": {
+        "spriteX": 576,
+        "spriteY": 5952,
+        "height": 64,
+        "width": 64,
+        "scale": 1,
+        "attackDamage": 5,
+        "src": "itemsSheet.png",
+        "onUse": "",
+        "clearsAfterUse": false,
+        "attackRange": 150,
+        "attackCooldown": 2000,
+        "description": "Sorcery is only as strong as the wielder!",
+        "type": "wand",
+        "rendering": {
+            "pos": {
+                "x": 5,
+                "y": -10,
+                "x2": 5
+            },
+            "isMirrored": false,
+            "scale": 3
+        }
+    },
+    "gold_staff": {
+        "spriteX": 384,
+        "spriteY": 6272,
+        "height": 64,
+        "width": 64,
+        "scale": 1,
+        "attackDamage": 5,
+        "src": "itemsSheet.png",
+        "onUse": "",
+        "clearsAfterUse": false,
+        "attackRange": 150,
+        "attackCooldown": 2000,
+        "description": "Sorcery is only as strong as the wielder!",
+        "type": "wand",
+        "rendering": {
+            "pos": {
+                "x": 5,
+                "y": -10,
+                "x2": 5
+            },
+            "isMirrored": false,
+            "scale": 3
+        }
     }
 }

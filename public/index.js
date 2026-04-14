@@ -9,14 +9,79 @@ if (!ctx)
 // set dimensions
 const CANVAS_WIDTH = canvas.width = /* 2000 */ window.innerWidth;
 const CANVAS_HEIGHT = canvas.height = 700;
+// some configs
+ctx.imageSmoothingEnabled = false;
 // initial values
 let gameSpeed = 0; // game speed depending on the players movement
 let gameFrame = 0; // counter for the frames
+const MAX_FALL_SPEED = 8; // 
 const staggerFrames = 7; // amount of ticks between each frame of animation
-const globalGravity = 60; // gravity affecting the player
+const globalGravity = 8; // gravity affecting the player
 const groundY = 580; // is the y-coordinate of the ground
 let isLoading = true;
+let bgPosition = 0;
+let AFKCounter = 0;
+const imageCache = {};
+function getImage(src) {
+    if (!imageCache[src]) {
+        const img = new Image();
+        img.src = src;
+        imageCache[src] = img;
+    }
+    return imageCache[src];
+}
+let stats = {
+    general: {
+        play_time: { value: 0, name: "Play Time", icon: "img/icons/play_time.png", desc: "Time spend in this world in minutes" },
+        healed: { value: 0, name: "HP Healed", icon: "img/icons/healed.png", desc: "How much HP has been healed" },
+        deaths: { value: 0, name: "Deaths", icon: "img/icons/killed_skeletons.png", desc: "How many times you died" },
+        distance: { value: 0, name: "Distance Traveled", icon: "img/icons/distance_traveled.png", desc: "Distance traveled in px" },
+    },
+    entities: {
+        kills: { value: 0, name: "Kills", icon: "img/icons/strength_icon.png", desc: "All kills" },
+        talked_to_NPC: { value: 0, name: "Talked to NPC", icon: "img/icons/talked_to_NPC.png", desc: "How many times you talked to a NPC" },
+        killed_goblin: { value: 0, name: "Killed goblin", icon: "img/icons/killed_goblins.png", desc: "How many goblin you killed" },
+        killed_skeleton: { value: 0, name: "Killed skeleton", icon: "img/icons/killed_skeletons.png", desc: "How many skeletons you killed" },
+    },
+    items: {
+        picked_up_items: { value: 0, name: "Picked up items", icon: "img/items/coin.png", desc: "How many items you picked up" },
+    },
+    sorcery: {
+        casted_spells: { value: 0, name: "Spells casted", icon: "img/icons/fire_icon.png", desc: "How many spells you casted" },
+    }
+};
+let achievements = {
+    oathbound: { granted: false, desc: "- the start...", name: "OathBound", icon: "img/icons/healthboost_icon.png" },
+    goblin_kill: { granted: false, desc: "Blood - green or red?", name: "Goblin Blood!", icon: "img/icons/killed_goblins.png" },
+    deal: { granted: false, desc: "Trade with a NPC", name: "Deal!", icon: "img/icons/talked_to_NPC.png" },
+    stone_age: { granted: false, desc: "Wait, I remember that!", name: "Stone Age!", icon: "img/icons/stone_age.png" },
+    afk: { granted: false, desc: "You know that you can save the game, right?", name: "AFK", icon: "img/icons/afk.png" },
+    beast: { granted: false, desc: "Kill an enemy with your bare hands!", name: "You Beast!", icon: "img/icons/beast.png" },
+    close_call: { granted: false, desc: "Kill an enemy with less than 5% of your health", name: "Close Call", icon: "img/icons/close_call.png" },
+    goblin_demolisher: { granted: false, desc: "Kill 75 Goblins", name: "Goblin Demolisher", icon: "img/icons/goblin_demolisher.png" },
+    free_nate: { granted: false, desc: "You still have no idea who he is, but sure, why not", name: "Who Even Is Nate?", icon: "img/portraits/nate.png" },
+    knock_knock: { granted: false, desc: "No Trespassing!", name: "Knock Knock!", icon: "img/blocks/door_1.png" },
+    cheater: {
+        "granted": true,
+        "desc": "What's the fun in that?",
+        "name": "You Cheated!",
+        "icon": "img/icons/cheater.png"
+    },
+    craft: { granted: false, desc: "Getting your hand dirty!", name: "Let's Craft!", icon: "img/icons/craft.png" },
+    heal: { granted: false, desc: "Trying best to stay alive!", name: "Healthy Diet!", icon: "img/icons/regeneration_icon.png" },
+    goblin_kingdom: { granted: false, desc: "The goblins don't take kindly to visitors", name: "Bold Move!", icon: "img/icons/goblin_kingdom.png" },
+    are_we_there_yet: { granted: false, desc: "Still no idea where you're going?", name: "Are we there yet?", icon: "img/icons/goblin_kingdom.png" },
+    hoarder: { granted: false, desc: "Have a full inventory", name: "Hoarder", icon: "img/icons/hoarder.png" },
+    you_werent_supposed_to_see_that: { granted: false, desc: "How did you find this?", name: "You weren't supposed to see that!", icon: "img/icons/see.png" },
+    new_look: { granted: false, desc: "You look like a strong warrior!", name: "Getting a new look!", icon: "img/icons/armor.png" }
+};
+setInterval(() => {
+    stats.general.play_time.value++;
+}, 60000);
 let fps = 0; // current fps
+const TARGET_FPS = 60;
+const FRAME_TIME = 1000 / TARGET_FPS;
+let lastFrameTime = 0;
 let frameCount = 0;
 let lastTime = performance.now();
 let isQuestUIupdated = false;
@@ -30,17 +95,33 @@ let keys = {};
 // all objects on the screen
 let nonWorldElems = [];
 let backgroundLayers = [];
+let droppedItems = [];
 let particles = [];
 let deadObjects = [];
 // level design values
 let levelPos = 0;
 // sound logic
-const clickSound = new Audio('sound/blipSelect.mp3');
-function playSound(sound, volume) {
-    if (sound === 'blipSelect.mp3') {
-        clickSound.volume = volume;
-        clickSound.currentTime = 0;
-        clickSound.play();
+const sounds = {
+    click: new Audio('sound/blipSelect.mp3'),
+    drop: new Audio('sound/drop.wav'),
+    pickup: new Audio('sound/pickup.wav'),
+    equip: new Audio('sound/equip.wav'),
+    speak: new Audio('sound/speak.wav'),
+    takeDamage: new Audio('sound/takeDamage.wav'),
+    UIopen: new Audio('sound/UIOpen.wav'),
+    UIclose: new Audio('sound/UIclose.wav'),
+    completeAchievement: new Audio('sound/completeAchievement.wav'),
+    equipSpell: new Audio('sound/equipSpell.wav'),
+    teleport: new Audio('sound/teleport.wav'),
+};
+function playSound(sound, volume, isInRegistry) {
+    if (!menu.checkSetting('Master Sound'))
+        return;
+    if (isInRegistry) {
+        const key = sound;
+        sounds[key].volume = sound === 'UIopen' || sound === 'UIclose' ? volume / 10 : volume;
+        sounds[key].currentTime = 0;
+        sounds[key].play();
         return;
     }
     const audio = new Audio(`sound/${sound}`);
@@ -75,11 +156,6 @@ const effectFunctions = {
             if (entity.data.speed) {
                 entity.data.speed *= 1.5;
             }
-        },
-    },
-    stun: {
-        onTick: (entity) => {
-            entity.takeHit(0);
         },
     },
     healthboost: {
@@ -122,18 +198,27 @@ const itemFunctions = {
     beer: {
         use: () => {
             player.heal(5);
+            if (menu.checkSetting('Master Sound'))
+                playSound('drink.wav', menu.sounds.effects / 100);
             return;
         },
     },
     heal_potion: {
         use: () => {
-            player.heal(20);
+            player.heal(35);
+            console.log('?');
+            grantAchievement('heal');
+            if (menu.checkSetting('Master Sound'))
+                playSound('drink.wav', menu.sounds.effects / 100);
             return;
         },
     },
     big_heal_potion: {
         use: () => {
-            player.heal(35);
+            player.heal(50);
+            grantAchievement('heal');
+            if (menu.checkSetting('Master Sound'))
+                playSound('drink.wav', menu.sounds.effects / 100);
             return;
         },
     },
@@ -155,22 +240,33 @@ const itemFunctions = {
     regeneration_potion: {
         use: () => {
             player.addEffect('regeneration', 600, 1);
+            grantAchievement('heal');
+            if (menu.checkSetting('Master Sound'))
+                playSound('drink.wav', menu.sounds.effects / 100);
         },
     },
     big_regeneration_potion: {
         use: () => {
             player.addEffect('regeneration', 1000, 1);
+            grantAchievement('heal');
+            if (menu.checkSetting('Master Sound'))
+                playSound('drink.wav', menu.sounds.effects / 100);
             return;
         },
     },
     healthboost_potion: {
         use: () => {
             player.addEffect('healthboost', 3000, 1);
+            grantAchievement('heal');
+            if (menu.checkSetting('Master Sound'))
+                playSound('drink.wav', menu.sounds.effects / 100);
         },
     },
     lightning_potion: {
         use: () => {
             player.addEffect('electrocute', 1500, 1);
+            if (menu.checkSetting('Master Sound'))
+                playSound('drink.wav', menu.sounds.effects / 100);
         },
     },
     fruit: {
@@ -192,7 +288,9 @@ const itemFunctions = {
     coffee: {
         use: () => {
             player.heal(5);
-            player.addEffect('speed', 250, 1);
+            player.addEffect('speed', 600, 1);
+            if (menu.checkSetting('Master Sound'))
+                playSound('drink.wav', menu.sounds.effects / 100);
             return;
         },
     },
@@ -211,8 +309,86 @@ const itemFunctions = {
             player.takeHit(10);
             entity.addEffect('deaths_curse', 1500, 1);
         },
+    },
+    ice_gem: {
+        use: () => {
+            player.addEffect('ice', 250, 1);
+        }
+    },
+    fire_gem: {
+        use: () => {
+            player.addEffect('burning', 250, 1);
+        }
+    },
+    iron_staff: {
+        use: () => {
+            if (player.data.isMoving)
+                return;
+            if (player.story.learntMagic) {
+                openStaffGUI('iron_staff');
+            }
+            else {
+                displayInfo('You don\'t know how to use this!');
+            }
+        },
+        attackStart: () => {
+        }
+    },
+    gold_staff: {
+        use: () => {
+            if (player.data.isMoving)
+                return;
+            if (player.story.learntMagic) {
+                openStaffGUI('gold_staff');
+            }
+            else {
+                displayInfo('You don\'t know how to use this!');
+            }
+        }
+    },
+    advanced_staff: {
+        use: () => {
+            if (player.data.isMoving)
+                return;
+            if (player.story.learntMagic) {
+                openStaffGUI('advanced_staff');
+            }
+            else {
+                displayInfo('You don\'t know how to use this!');
+            }
+        }
+    },
+    master_staff: {
+        use: () => {
+            if (player.data.isMoving)
+                return;
+            if (player.story.learntMagic) {
+                openStaffGUI('master_staff');
+            }
+            else {
+                displayInfo('You don\'t know how to use this!');
+            }
+        }
     }
 };
+setInterval(() => {
+    if (!player)
+        return;
+    if (player.data.spellCooldown > 0) {
+        player.data.spellCooldown--;
+        const div = document.querySelector('.cooldownDiv');
+        div.classList.remove('display-none');
+        const height = (player.data.spellCooldown / player.data.currentCooldown) * 80;
+        div.style.height = `${height}px`;
+    }
+    if (player.data.mana < 100) {
+        player.data.mana += 0.25;
+        player.updateMana();
+    }
+    if (!player.data.onInventory && !player.data.onTradingMenu && !player.data.onSecondaryInventory && !player.data.isAttacking && player.data.canMove && !player.data.onCooldown && !player.data.castingSpell) {
+        player.data.canMove = true;
+    }
+}, 100);
 // inputs
 document.querySelector('#game').addEventListener('contextmenu', e => e.preventDefault());
 canvas.addEventListener('mousedown', event => {
@@ -230,14 +406,24 @@ addEventListener('keyup', event => {
         return;
     if (!player.data.onInventory) {
         keys[event.code] = false;
-        player.changeState('idle');
+        if (!player.data.isAttacking && player.sprite.currentState !== 'take_hit')
+            player.changeState('idle');
         gameSpeed = 0;
     }
 });
 addEventListener('keydown', event => {
-    var _a;
+    var _a, _b;
     if (event.code === 'Escape') {
-        menu.toggleMenu();
+        if (player.data.onInventory || player.data.onSecondaryInventory) {
+            closeInventory();
+            closeStaffGUI();
+        }
+        else if (player.data.onTradingMenu) {
+            closeTradingMenu();
+        }
+        else {
+            menu.toggleMenu();
+        }
     }
     if (isLoading || !((_a = document.querySelector('#menu')) === null || _a === void 0 ? void 0 : _a.classList.contains('display-none')))
         return;
@@ -250,7 +436,10 @@ addEventListener('keydown', event => {
     }
     if (event.code === 'KeyE' && !player.data.isMoving) {
         if (player.data.onInventory && !player.data.onTradingMenu) {
+            (_b = document.querySelector('body')) === null || _b === void 0 ? void 0 : _b.classList.remove('grab');
+            player.data.dragging = null;
             closeInventory();
+            closeStaffGUI();
         }
         else {
             if (player.data.onTradingMenu) {
@@ -261,8 +450,11 @@ addEventListener('keydown', event => {
             }
         }
     }
-    if (event.code === 'Space' && !player.data.onInventory) {
+    if (event.code === 'Space' && !player.data.onInventory && player.data.canMove) {
         player.jump();
+    }
+    if (event.code === 'KeyQ') {
+        player.drop();
     }
     if (!player.data.onInventory && event.code.slice(0, 5) === 'Digit' && (parseInt(event.code.slice(5, 6)) < 6)) {
         changeSelectedSlot(parseInt(event.code.slice(5, 6)));
@@ -341,7 +533,12 @@ class menuClass {
         this.commands = {
             heal: (arg) => { player.heal(Number(arg)); },
             effect: (arg) => { player.addEffect(arg, 1000, 1); },
-            give: (arg) => { player.addItem(arg, 1); },
+            give: (arg) => { if (items[arg]) {
+                player.addItem(arg, 1);
+            }
+            else {
+                displayInfo('Unknown Item');
+            } },
             damage: (arg) => { player.takeHit(Number(arg)); },
             summon: (arg) => {
                 if (!elemRegistry[arg] || (arg !== 'skeleton' && arg !== 'goblin')) {
@@ -352,7 +549,15 @@ class menuClass {
                 worlds[currentWorld].elements.push(entity);
             },
             world: (arg) => {
-                changeWorld(arg);
+                try {
+                    changeWorld(arg);
+                }
+                catch (err) {
+                    displayInfo('Unkown world!');
+                }
+            },
+            story: (arg) => {
+                player.story[arg.trim()] = true;
             }
         };
     }
@@ -372,6 +577,7 @@ class menuClass {
             menu === null || menu === void 0 ? void 0 : menu.classList.remove('display-none');
             this.states.menu = true;
         }
+        window.api.saveSettings(this.settings);
     }
     toggleOptionsScreen() {
         const div = document.querySelector('#options');
@@ -392,13 +598,35 @@ class menuClass {
         }
     }
     quit() {
-        const answer = prompt('Do you still want to proceed? [YES]');
-        if (answer === 'YES') {
-            location.href = '/';
-        }
+        location.href = 'index.html';
     }
-    save() {
-        alert('Saving has not been implemented yet!');
+    async save() {
+        const save = sessionStorage.getItem("save");
+        const name = sessionStorage.getItem('name');
+        const description = sessionStorage.getItem('description');
+        if (!save || !name || !description) {
+            menu.quit();
+            return;
+        }
+        const temp = await window.api.checkForSaves(save);
+        const alreadySavedMeta = temp.meta;
+        const settings = this.settings;
+        console.log(settings);
+        let meta = {
+            name: "World",
+            description: "World",
+            world: currentWorld,
+            quest: activeQuests
+        };
+        if (alreadySavedMeta) {
+            meta.name = alreadySavedMeta.name,
+                meta.description = alreadySavedMeta.description;
+        }
+        else {
+            meta.name = name,
+                meta.description = description;
+        }
+        window.api.saveGame(worlds, player, save, meta, stats, settings, droppedItems);
     }
     toggleSettingsScreen(setting) {
         const div = document.querySelector('#settings');
@@ -435,6 +663,9 @@ class menuClass {
         }
     }
     toggleSetting(setting /* keyof menuClass['settings']['dev'] */, group) {
+        if (group === 'dev') {
+            grantAchievement('cheater');
+        }
         this.settings[group].settings.forEach(set => {
             const btn = document.querySelector(`#${set.name.replace(' ', '')}`);
             if (set.name === setting) {
@@ -536,6 +767,9 @@ class quest {
         this.gift.forEach(gift => {
             player.addItem(gift.item, gift.amount);
         });
+        if (this.text === "Pay the wizard two coins in order to learn magery.") {
+            player.story.learntMagic = true;
+        }
         let index = -1;
         activeQuests.forEach((quest, i) => {
             if (quest === this) {
@@ -549,704 +783,59 @@ class quest {
         this.completed = true;
     }
 }
-// classes for objects in the game
-// other objects classes
-class Layer {
-    constructor(img, speedModifier, spriteWidth, spriteHeight) {
-        this.pos = {
-            x: 0,
-            y: 0
-        };
-        this.sprite = {
-            img: img,
-            spriteWidth: spriteWidth,
-            spriteHeight: spriteHeight
-        };
-        this.speedModifier = speedModifier;
-        this.speed = gameSpeed * this.speedModifier;
-        this.isInit = false;
-        this.type = { isGround: true /* is a ground troop/thing */, name: 'layer' /* name of the entity/thing */, allignment: 'passive' /* does it attack the player */, moving: false /* should it be moved when the player moves; to mimic movement */, attackable: false, interactable: false };
-    }
-    update() {
-        this.speed = gameSpeed * this.speedModifier;
-        this.pos.x = Math.floor(this.pos.x - this.speed);
-        if (this.pos.x <= -this.sprite.spriteWidth) {
-            this.pos.x += this.sprite.spriteWidth;
+class trader extends Entity {
+    constructor(pos, sprite, trade, worldElem, isNotTurning, id) {
+        if (pos.y === StaticPositions.OnGround) {
+            pos.y = 500;
         }
-        else if (this.pos.x >= this.sprite.spriteWidth) {
-            this.pos.x -= this.sprite.spriteWidth;
-        }
-    }
-    draw() {
-        ctx.drawImage(this.sprite.img, this.pos.x, this.pos.y, this.sprite.spriteWidth, this.sprite.spriteHeight);
-        ctx.drawImage(this.sprite.img, this.pos.x + this.sprite.spriteWidth, this.pos.y, this.sprite.spriteWidth, this.sprite.spriteHeight);
-        ctx.drawImage(this.sprite.img, this.pos.x - this.sprite.spriteWidth, this.pos.y, this.sprite.spriteWidth, this.sprite.spriteHeight);
-    }
-}
-class particle {
-    constructor(entity, spriteWidth, spriteHeight, img, counter, frameAmount) {
-        this.pos = {
-            x: 0,
-            y: 0,
-        };
-        this.entity = entity;
-        this.spriteWidth = spriteWidth;
-        this.spriteHeight = spriteHeight;
-        this.frames = 0;
-        this.frameLoc = 0;
-        this.currentState = 'normal';
-        this.type = { isGround: true /* is a ground troop/thing */, name: 'particle' /* name of the entity/thing */, allignment: 'passive' /* does it attack the player */, moving: false /* should it be moved when the player moves; to mimic movement */, attackable: false, interactable: false };
-        this.animationStates = [
-            {
-                name: 'normal',
-                frames: frameAmount
-            }
-        ];
-        this.spriteAnimations = {};
-        this.img = img;
-        this.counter = counter;
-        this.init();
-    }
-    update() {
-        if (this.entity.data.Xdirec === 1) {
-            this.pos.x = this.entity.pos.x + this.entity.sprite.spriteWidth;
-        }
-        else {
-            this.pos.x = this.entity.pos.x + this.entity.sprite.spriteWidth;
-        }
-        if (this.entity.type.name === 'goblin') {
-            this.pos.x += 30;
-        }
-        this.pos.y = this.entity.pos.y + this.entity.sprite.spriteHeight;
-        this.frames++;
-        if (this.frames >= staggerFrames) { // check if next frame should be drawn
-            this.frames = 0; // reset frames
-            this.frameLoc++; // advance to next frame
-            const frameAmount = this.spriteAnimations[this.currentState].loc.length;
-            if (this.frameLoc >= frameAmount) { // check if the end of the animation is reached
-                this.frameLoc = 0;
-            }
-        }
-    }
-    init() {
-        this.animationStates.forEach((state, index) => {
-            let frames = {
-                loc: []
-            };
-            for (let j = 0; j < state.frames; j++) {
-                let positionX = j * this.spriteWidth;
-                let positionY = index * this.spriteHeight;
-                frames.loc.push({ x: positionX, y: positionY });
-            }
-            this.spriteAnimations[state.name] = frames;
-        });
-    }
-    draw() {
-        var _a, _b;
-        let frameX = this.spriteAnimations[this.currentState].loc[this.frameLoc].x;
-        let frameY = this.spriteAnimations[this.currentState].loc[this.frameLoc].y;
-        ctx.drawImage(this.img, frameX, frameY, this.spriteWidth, this.spriteHeight, this.pos.x, this.pos.y, 150 * ((_a = this.entity.sprite.scale) !== null && _a !== void 0 ? _a : 1), 150 * ((_b = this.entity.sprite.scale) !== null && _b !== void 0 ? _b : 1));
-    }
-}
-class projectile {
-    constructor(entity, spriteWidth, spriteHeight, scale, pathToImage, animationStates, range, speed, damage, hitbox) {
-        this.pos = {
-            x: entity.pos.x + entity.sprite.spriteWidth,
-            y: entity.pos.y + entity.sprite.spriteHeight * 1.9
-        };
-        this.entity = entity;
-        this.spriteWidth = spriteWidth;
-        this.spriteHeight = spriteHeight;
-        this.frames = 0;
-        this.frameLoc = 0;
-        this.currentState = 'flying';
-        this.type = { isGround: true /* is a ground troop/thing */, name: 'projectile' /* name of the entity/thing */, allignment: 'passive' /* does it attack the player */, moving: true /* should it be moved when the player moves; to mimic movement */, attackable: false, interactable: false };
-        this.animationStates = animationStates;
-        this.spriteAnimations = {};
-        this.img = new Image();
-        this.img.src = pathToImage;
-        this.range = range;
-        this.speed = speed;
-        this.damage = damage;
-        this.scale = scale;
-        this.startX = this.pos.x;
-        this.Xdirec = this.entity.data.Xdirec;
-        this.hitbox = hitbox;
-        this.init();
-    }
-    update() {
-        if (this.Xdirec === 1) {
-            this.pos.x += this.speed;
-        }
-        else {
-            this.pos.x -= this.speed;
-        }
-        let playerHit = checkCollision({ hitbox: this.hitbox, pos: this.pos }, { hitbox: player.hitbox, pos: player.pos });
-        if (playerHit) {
-            player.takeHit(this.damage);
-        }
-        if (playerHit || Math.abs(this.startX - this.pos.x) > this.range) {
-            let remover = [];
-            particles.forEach((elem, i) => {
-                if (elem === this)
-                    remover.push(i);
-            });
-            remover.forEach(i => {
-                particles.splice(i, 1);
-            });
-        }
-        this.frames++;
-        if (this.frames >= staggerFrames) { // check if next frame should be drawn
-            this.frames = 0; // reset frames
-            this.frameLoc++; // advance to next frame
-            const frameAmount = this.spriteAnimations[this.currentState].loc.length;
-            if (this.frameLoc >= frameAmount) { // check if the end of the animation is reached
-                this.frameLoc = 0;
-            }
-        }
-    }
-    init() {
-        this.animationStates.forEach((state, index) => {
-            let frames = {
-                loc: []
-            };
-            for (let j = 0; j < state.frames; j++) {
-                let positionX = j * this.spriteWidth;
-                let positionY = index * this.spriteHeight;
-                frames.loc.push({ x: positionX, y: positionY });
-            }
-            this.spriteAnimations[state.name] = frames;
-        });
-    }
-    draw() {
-        if (menu.checkSetting('Hitboxes')) {
-            ctx.save();
-            ctx.strokeStyle = this.type.allignment === 'enemy' ? 'red' : (this.type.allignment === 'passive' ? 'yellow' : 'green');
-            ctx.lineWidth = 2;
-            ctx.strokeRect(this.pos.x + this.hitbox.offsetX, this.pos.y + this.hitbox.offsetY, this.hitbox.width, this.hitbox.height);
-            ctx.restore();
-        }
-        let frameX = this.spriteAnimations[this.currentState].loc[this.frameLoc].x;
-        let frameY = this.spriteAnimations[this.currentState].loc[this.frameLoc].y;
-        ctx.drawImage(this.img, frameX, frameY, this.spriteWidth, this.spriteHeight, this.pos.x, this.pos.y, 150 - 50, 150 * this.scale);
-    }
-}
-class healthbar {
-    constructor(entity) {
-        this.x = 0;
-        this.y = 0;
-        this.entity = entity;
-        this.spriteWidth = 100;
-        this.spriteHeight = 50;
-        this.type = { isGround: true /* is a ground troop/thing */, name: 'healthbar' /* name of the entity/thing */, allignment: 'passive' /* does it attack the player */, moving: true /* should it be moved when the player moves; to mimic movement */, attackable: false, interactable: false };
-    }
-    update() {
-        this.x = this.entity.pos.x - 50;
-        this.y = this.entity.pos.y;
-        if (this.entity.data.health <= 0 && this.entity instanceof block) {
-            const index = nonWorldElems.findIndex(elem => elem === this);
-            if (index !== -1) {
-                nonWorldElems.splice(index, 1);
-            }
-        }
-        if (this.entity.type.name === 'player') {
-            this.x += 60;
-        }
-        else if (this.entity.type.name === 'nightBorn') {
-            this.x += 60;
-        }
-        else if (this.entity.type.name === 'teleporter') {
-            this.y -= 130;
-            this.x -= 100;
-        }
-        else if (this.entity.worldElem === 'crate') {
-            this.y -= 200;
-        }
-        else if (this.entity.type.name === 'skeleton') {
-            this.y -= 90;
-        }
-        else if (this.entity.type.name === 'archer') {
-            this.y -= 90;
-        }
-    }
-    draw() {
-        var _a;
-        const backgroundColor = this.entity.type.name === 'interactable' || this.entity.type.name === 'teleporter' ? "rgb(215, 215, 215)" : "rgb(184, 0, 0)";
-        const overColor = this.entity.type.name === 'interactable' ? "rgb(101, 101, 101)" : (this.entity.type.name === 'teleporter' ? "rgb(29, 93, 190)" : "rgb(0, 184, 3)");
-        let scale;
-        if ((this.entity instanceof block || this.entity instanceof teleporter) && this.entity.interactData) {
-            scale = this.entity.interactData.healthBarScale;
-        }
-        else {
-            scale = 1;
-        }
-        let drawMaxHealth;
-        if ((this.entity instanceof block || this.entity instanceof teleporter) && this.entity.interactData) {
-            drawMaxHealth = this.entity.interactData.cooldown;
-        }
-        else {
-            drawMaxHealth = (_a = this.entity.data.maxHealth) !== null && _a !== void 0 ? _a : 1;
-        }
-        let drawHealth = this.entity.data.health;
-        if (drawMaxHealth > 100 && this.entity === player && drawHealth > 100) {
-            drawHealth = drawHealth - 100;
-            ctx.fillStyle = "rgb(184, 0, 0)";
-            ctx.fillRect(this.x + this.entity.sprite.spriteWidth, this.y + 90, 100, 20);
-            ctx.fillStyle = "rgb(222, 236, 24)";
-            ctx.fillRect(this.x + this.entity.sprite.spriteWidth, this.y + 90, ((drawHealth / 50) * 100 < 0) ? 0 : (drawHealth / 50) * 100, 20);
-            drawHealth = 100;
-            drawMaxHealth = 100;
-        }
-        if (this.entity instanceof block || this.entity instanceof teleporter) {
-            ctx.fillStyle = backgroundColor;
-            ctx.fillRect(CANVAS_WIDTH * 0.85, 200, 200, 40);
-            ctx.fillStyle = overColor;
-            ctx.fillRect(CANVAS_WIDTH * 0.85, 200, (((drawHealth / drawMaxHealth) * 200 < 0) ? 0 : (drawHealth / drawMaxHealth) * 200), 40);
-            ctx.drawImage(this.entity.sprite.img, 0, 0, this.entity.sprite.spriteWidth, this.entity.sprite.spriteHeight, CANVAS_WIDTH * 0.825, 200, 40, 40);
-        }
-        else {
-            ctx.fillStyle = backgroundColor;
-            ctx.fillRect(this.x + this.entity.sprite.spriteWidth, this.y + 120, 100 * scale, 20 * scale);
-            ctx.fillStyle = overColor;
-            ctx.fillRect(this.x + this.entity.sprite.spriteWidth, this.y + 120, (((drawHealth / drawMaxHealth) * 100 < 0) ? 0 : (drawHealth / drawMaxHealth) * 100) * scale, 20 * scale);
-        }
-    }
-    interact() {
-        return;
-    }
-}
-class chest {
-    constructor(x, y, inventory, worldElem) {
-        if (y === StaticPositions.OnGround) {
-            y = 600;
-        }
-        this.pos = {
-            x: x,
-            y: y
-        };
-        this.spriteWidth = 43;
-        this.spriteHeight = 40;
-        this.hitbox = { offsetX: -30, offsetY: 0, width: 175, height: 100 };
-        this.frames = 0;
-        this.frameLoc = 0;
-        this.scale = 0.3;
-        this.showedText = false;
-        this.isInit = false;
-        this.currentState = 'normal';
-        this.img = new Image();
-        this.img.src = 'img/passiveEntities/dropChest.png';
-        this.inventory = inventory;
-        this.spriteAnimations = {};
-        this.animationStates = [
-            {
-                name: 'open',
-                frames: 4
-            },
-            {
-                name: 'normal',
-                frames: 1
-            }
-        ];
-        this.type = { isGround: true /* is a ground troop/thing */, name: 'chest' /* name of the entity/thing */, allignment: 'passive' /* does it attack the player */, moving: true /* should it be moved when the player moves; to mimic movement */, attackable: false, interactable: true };
-        this.worldElem = worldElem;
-        this.init();
-    }
-    update() {
-        if (checkCollision({ hitbox: this.hitbox, pos: this.pos }, { hitbox: player.hitbox, pos: player.pos }) && !player.data.onCooldown && player.data.onGround && menu.checkSetting('labels')) {
-            if (!this.showedText) {
-                this.showedText = true;
-                displayInfo('Press "R" to interact');
-            }
-            player.data.interactionFocus = this;
-            /*             player.data.interactionFocusEntity = null
-                        player.data.interactionFocusGrab = null */
-        }
-        else {
-            if (player.data.interactionFocus === this) {
-                player.data.interactionFocus = null;
-            }
-            this.showedText = false;
-        }
-        this.frames++;
-        if (this.frames >= staggerFrames) {
-            this.frames = 0;
-            this.frameLoc++;
-            const frameAmount = this.spriteAnimations[this.currentState].loc.length;
-            if (this.frameLoc >= frameAmount) {
-                this.frameLoc = 0;
-                if (this.currentState === 'open') {
-                    this.currentState = 'normal';
-                }
-            }
-        }
-    }
-    draw() {
-        if (menu.checkSetting('Hitboxes')) {
-            ctx.save();
-            ctx.strokeStyle = this.type.allignment === 'enemy' ? 'red' : (this.type.allignment === 'passive' ? 'yellow' : 'green');
-            ctx.lineWidth = 2;
-            ctx.strokeRect(this.pos.x + this.hitbox.offsetX, this.pos.y + this.hitbox.offsetY, this.hitbox.width, this.hitbox.height);
-            ctx.restore();
-        }
-        let frameX = this.spriteAnimations[this.currentState].loc[this.frameLoc].x; // get current locations of the animation
-        let frameY = this.spriteAnimations[this.currentState].loc[this.frameLoc].y;
-        ctx.drawImage(this.img, frameX, frameY, this.spriteWidth, this.spriteHeight, this.pos.x, this.pos.y, 400 * this.scale, 400 * this.scale);
-    }
-    init() {
-        this.isInit = true;
-        // initialise spriteAnimation object
-        this.animationStates.forEach((state, index) => {
-            let frames = {
-                loc: []
-            };
-            for (let j = 0; j < state.frames; j++) { // iterate for each frame
-                let positionX = j * this.spriteWidth; // calculate the corresponding position of said frame
-                let positionY = 0;
-                frames.loc.push({ x: positionX, y: positionY }); // push these positions onto the frames object
-            }
-            this.spriteAnimations[state.name] = frames; // create a key on the spriteAnimations object to store this data
-        });
-    }
-    changeState(state) {
-        this.currentState = state;
-        this.frames = 0;
-        this.frameLoc = 0;
-    }
-    interact() {
-        openInventory();
-        openSecondaryContainer(this);
-    }
-    fill() { }
-}
-class block {
-    constructor(pos, sprite, interact, blocking, worldElem, id) {
-        this.pos = { x: pos.x, y: pos.y };
-        this.sprite = {
-            img: new Image(),
-            pathToImage: sprite.pathToImage,
-            spriteWidth: sprite.spriteWidth,
-            spriteHeight: sprite.spriteHeight,
-            scale: sprite.scale,
-        };
-        this.hitbox = sprite.hitbox;
-        this.sprite.img.src = sprite.pathToImage;
-        if (interact) {
-            this.interactData = {
-                cooldown: interact === null || interact === void 0 ? void 0 : interact.cooldown,
-                output: interact.output,
-                isInfinite: interact.isInfinite,
-                healthBarScale: interact.healthBarScale,
-                interactCooldown: 300
-            };
-        }
-        else {
-            this.interactData = null;
-        }
-        this.blocking = {
-            isBlocking: blocking.isBlocking,
-            removeItem: blocking.removeItem,
-            text: blocking.text
-        };
-        this.data = {
-            showedText: false,
-            spawnedHealthbar: false,
-            wasCollected: false,
-            healthbar: null,
-            health: 0
-        };
-        this.type = { isGround: true /* is a ground troop/thing */, name: 'interactable' /* name of the entity/thing */, allignment: 'passive' /* does it attack the player */, moving: true /* should it be moved when the player moves; to mimic movement */, attackable: false, interactable: true };
-        if (this.pos.y === StaticPositions.OnGround) {
-            this.pos.y = groundY - (this.sprite.scale * 400);
-        }
-        this.onCooldown = false;
-        this.worldElem = worldElem;
-        this.id = id;
-    }
-    update() {
-        if (this.interactData) {
-            if (checkCollision({ hitbox: this.hitbox, pos: this.pos }, { hitbox: player.hitbox, pos: player.pos }) && !player.data.onCooldown && player.data.onGround) {
-                if (!this.data.showedText && menu.checkSetting('labels')) {
-                    this.data.showedText = true;
-                    /* if (!this.wasCollected && this.isInfinite) displayInfo('Hold "R" to interact') */
-                }
-                player.data.interactionFocus = this;
-            }
-            else {
-                if (player.data.interactionFocus === this) {
-                    player.data.interactionFocus = null;
-                }
-                this.data.showedText = false;
-            }
-        }
-        if (this.blocking.removeItem) {
-            if (checkCollision({ hitbox: this.hitbox, pos: this.pos }, { hitbox: player.hitbox, pos: player.pos }) && !player.data.onCooldown && player.data.onGround) {
-                if (!this.data.showedText) {
-                    this.data.showedText = true;
-                    displayInfo('Press "R" to unlock');
-                }
-                player.data.interactionFocus = this;
-            }
-            else {
-                if (player.data.interactionFocus === this) {
-                    player.data.interactionFocus = null;
-                }
-                this.data.showedText = false;
-            }
-        }
-        if (this.sprite.pathToImage === '/img/blocks/door_1.png' && this.blocking.isBlocking === false) {
-            this.sprite.img.src = '/img/blocks/door_1_open.png';
-        }
-    }
-    draw() {
-        if (menu.checkSetting('Hitboxes')) {
-            ctx.save();
-            ctx.strokeStyle = this.type.allignment === 'enemy' ? 'red' : (this.type.allignment === 'passive' ? 'yellow' : 'green');
-            ctx.lineWidth = 2;
-            ctx.strokeRect(this.pos.x + this.hitbox.offsetX, this.pos.y + this.hitbox.offsetY, this.hitbox.width, this.hitbox.height);
-            ctx.restore();
-        }
-        ctx.drawImage(this.sprite.img, 0, 0, this.sprite.spriteWidth, this.sprite.spriteHeight, this.pos.x, this.pos.y, this.sprite.spriteWidth * this.sprite.scale, this.sprite.spriteHeight * this.sprite.scale);
-    }
-    interact() {
-        if (this.interactData && !this.onCooldown) {
-            if (this.data.wasCollected && !this.interactData.isInfinite)
-                return;
-            if (!this.data.spawnedHealthbar) {
-                let remover = [];
-                nonWorldElems.forEach((elem, i) => {
-                    if (elem instanceof healthbar && (elem.entity instanceof block || elem.entity instanceof teleporter)) {
-                        elem.entity.data.spawnedHealthbar = false;
-                        elem.entity.data.health = 0;
-                        remover.push(i);
-                    }
-                });
-                remover.forEach(i => {
-                    nonWorldElems.splice(i, 1);
-                });
-                nonWorldElems.push(new healthbar(this));
-                this.data.spawnedHealthbar = true;
-            }
-            if (keys['KeyR']) {
-                this.data.health += 1;
-            }
-            else {
-                this.data.health = 0;
-            }
-            if (this.data.health >= this.interactData.cooldown) {
-                this.interactData.output.forEach(element => {
-                    var _a;
-                    player.addItem(element.item, element.amount);
-                    this.data.spawnedHealthbar = false;
-                    this.data.wasCollected = true;
-                    this.data.health = 0;
-                    this.onCooldown = true;
-                    setTimeout(() => {
-                        this.onCooldown = false;
-                    }, (_a = this.interactData) === null || _a === void 0 ? void 0 : _a.interactCooldown);
-                });
-            }
-        }
-        else if (this.blocking.removeItem) {
-            if (player.data.inventory[3][player.data.selectedSlot - 1] === this.blocking.removeItem) {
-                this.blocking.isBlocking = false;
-                this.blocking.removeItem = null;
-                player.data.inventory[3][player.data.selectedSlot - 1] = null;
-                if (this.id === 5432) {
-                    player.story.freedNate = true;
-                }
-                updateHotbar();
-            }
-            else {
-                displayInfo(`Use a ${this.blocking.removeItem} `);
-            }
-        }
-    }
-    get center() {
-        return {
-            x: this.pos.x + this.hitbox.offsetX + this.hitbox.width / 2,
-            y: this.pos.y + this.hitbox.offsetY + this.hitbox.height / 2
-        };
-    }
-}
-class teleporter {
-    constructor(pos, sprite, interact, blocking, destination, worldElem, id) {
-        this.pos = { x: pos.x, y: pos.y };
-        this.sprite = {
-            img: new Image(),
-            pathToImage: sprite.pathToImage,
-            spriteWidth: sprite.spriteWidth,
-            spriteHeight: sprite.spriteHeight,
-            scale: sprite.scale,
-        };
-        this.hitbox = sprite.hitbox;
-        this.sprite.img.src = sprite.pathToImage;
-        if (interact) {
-            this.interactData = {
-                cooldown: interact === null || interact === void 0 ? void 0 : interact.cooldown,
-                output: [],
-                isInfinite: true,
-                healthBarScale: interact.healthBarScale,
-                interactCooldown: 50
-            };
-        }
-        else {
-            this.interactData = null;
-        }
-        this.blocking = {
-            isBlocking: blocking.isBlocking,
-            removeItem: blocking.removeItem
-        };
-        this.data = {
-            showedText: false,
-            spawnedHealthbar: false,
-            wasCollected: false,
-            healthbar: null,
-            health: 0
-        };
-        this.type = { isGround: true /* is a ground troop/thing */, name: 'teleporter' /* name of the entity/thing */, allignment: 'passive' /* does it attack the player */, moving: true /* should it be moved when the player moves; to mimic movement */, attackable: false, interactable: true };
-        if (this.pos.y === StaticPositions.OnGround) {
-            this.pos.y = groundY - (this.sprite.scale * 400);
-        }
-        this.id = id;
-        this.onCooldown = false;
-        this.worldElem = worldElem;
-        this.destination = destination;
-    }
-    update() {
-        if (checkCollision({ hitbox: this.hitbox, pos: this.pos }, { hitbox: player.hitbox, pos: player.pos }) && !player.data.onCooldown && player.data.onGround) {
-            if (!this.data.showedText && menu.checkSetting('labels')) {
-                this.data.showedText = true;
-                if (!this.data.wasCollected)
-                    displayInfo('Hold "R" to interact');
-            }
-            player.data.interactionFocus = this;
-        }
-        else {
-            if (player.data.interactionFocus === this) {
-                player.data.interactionFocus = null;
-            }
-            this.data.showedText = false;
-        }
-    }
-    draw() {
-        if (menu.checkSetting('Hitboxes')) {
-            ctx.save();
-            ctx.strokeStyle = this.type.allignment === 'enemy' ? 'red' : (this.type.allignment === 'passive' ? 'yellow' : 'green');
-            ctx.lineWidth = 2;
-            ctx.strokeRect(this.pos.x + this.hitbox.offsetX, this.pos.y + this.hitbox.offsetY, this.hitbox.width, this.hitbox.height);
-            ctx.restore();
-        }
-        ctx.drawImage(this.sprite.img, 0, 0, this.sprite.spriteWidth, this.sprite.spriteHeight, this.pos.x, this.pos.y, 400 * this.sprite.scale, 400 * this.sprite.scale);
-    }
-    interact() {
-        var _a;
-        if (!this.data.spawnedHealthbar && !this.onCooldown) {
-            let remover = [];
-            nonWorldElems.forEach((elem, i) => {
-                if (elem instanceof healthbar && (elem.entity instanceof block || elem.entity instanceof teleporter)) {
-                    elem.entity.data.spawnedHealthbar = false;
-                    elem.entity.data.health = 0;
-                    remover.push(i);
-                }
-            });
-            remover.forEach(i => {
-                nonWorldElems.splice(i, 1);
-            });
-            nonWorldElems.push(new healthbar(this));
-            this.data.spawnedHealthbar = true;
-        }
-        if (keys['KeyR']) {
-            this.data.health += 1;
-        }
-        else {
-            this.data.health = 0;
-        }
-        let cooldown;
-        if (this.interactData) {
-            cooldown = this.interactData.cooldown;
-        }
-        else {
-            cooldown = 50;
-        }
-        if (this.data.health >= cooldown) {
-            changeWorld(this.destination.dim);
-            player.data.interactionFocus = null;
-            player.pos.x = this.destination.x;
-            this.data.health = 0;
-            this.data.spawnedHealthbar = false;
-            this.onCooldown = true;
-            setTimeout(() => {
-                this.onCooldown = false;
-            }, (_a = this.interactData) === null || _a === void 0 ? void 0 : _a.interactCooldown);
-            /* player.pos.y = this.destination.y */
-        }
-    }
-    get center() {
-        return {
-            x: this.pos.x + this.hitbox.offsetX + this.hitbox.width / 2,
-            y: this.pos.y + this.hitbox.offsetY + this.hitbox.height / 2
-        };
-    }
-}
-// enemy classes
-class Entity {
-    constructor(pos, sprite, data, type, worldElem, id) {
-        this.pos = {
-            x: pos.x,
-            y: pos.y
-        };
+        super({ x: pos.x, y: pos.y }, worldElem, id);
         this.sprite = {
             img: sprite.img,
+            pathToImage: sprite.img,
             spriteWidth: sprite.spriteWidth,
             spriteHeight: sprite.spriteHeight,
             scale: sprite.scale,
-            animationStates: sprite.animationStates,
-            spriteAnimations: {},
             frames: 0,
             frameLoc: 0,
+            spriteAnimations: {},
             currentState: 'idle',
-            invertOrientation: sprite.invertOrientation
+            invertOrientation: sprite.invertDirec || false,
+            animationStates: [
+                {
+                    name: 'idle',
+                    frames: sprite.frameAmount
+                }
+            ],
+            hitbox: { offsetX: 0, offsetY: 0, width: 200, height: 200 }
         };
         this.data = {
-            health: data.maxHealth,
-            maxHealth: data.maxHealth,
-            attackDamage: data.attackDamage,
-            attackRange: data.attackRange,
-            drops: data.drops,
-            name: data.name,
-            onCooldown: false,
+            class: 'trader',
+            isAttacking: false,
+            health: 50,
+            maxHealth: 50,
+            attackDamage: 15,
+            attackRange: 50,
+            drops: [],
+            name: 'trader',
+            attackFocus: null,
             isDead: false,
             isMoving: false,
+            onCooldown: false,
+            seeRange: 0,
             showedText: false,
-            Xdirec: 2,
-            seeRange: 500,
-            attackFocus: null
+            Xdirec: 1
         };
-        this.effectData = {
-            effects: [],
-            effectTicks: 0,
-            effectCounter: 0
+        this.type = {
+            isGround: true /* is it a ground/flying troop */, name: 'trader' /* name of the enemy */, allignment: 'passive' /* does it attack the player */, moving: true /* does it need to move while the player moves */, attackable: false, interactable: true, isNotTurning: isNotTurning
         };
-        this.hitbox = sprite.hitbox;
-        this.type = type;
         this.worldElem = worldElem;
-        this.id = id;
+        this.trade = trade;
+        this.data.class = "trader";
+        this.init();
     }
-    init() {
-        // initialise spriteAnimation object
-        this.sprite.animationStates.forEach((state, index) => {
-            let frames = {
-                loc: []
-            };
-            for (let j = 0; j < state.frames; j++) { // iterate for each frame
-                let positionX = j * this.sprite.spriteWidth; // calculate the corresponding position of said frame
-                let positionY = index * this.sprite.spriteHeight;
-                frames.loc.push({ x: positionX, y: positionY }); // push these positions onto the frames object
-            }
-            this.sprite.spriteAnimations[state.name] = frames; // create a key on the spriteAnimations object to store this data
-        });
-    }
-    update() {
+    async update() {
+        if (this.data.isDead)
+            return;
         // check for effect ticks
         this.effectData.effects.forEach(effect => {
             effect.duration--;
@@ -1268,8 +857,10 @@ class Entity {
                 }
             }
         });
+        if (this.sprite.currentState !== 'attack')
+            this.data.isAttacking = false;
         if (this.type.interactable) {
-            if (checkCollision({ hitbox: player.hitbox, pos: player.pos }, { hitbox: this.hitbox, pos: this.pos }) && !player.data.onCooldown && player.data.onGround) {
+            if (checkCollision({ hitbox: player.hitbox, pos: player.pos }, { hitbox: this.sprite.hitbox, pos: this.pos }) && !player.data.onCooldown && player.data.onGround) {
                 if (!this.data.showedText && menu.checkSetting('labels')) {
                     displayInfo('Press "R" to interact');
                     this.data.showedText = true;
@@ -1298,9 +889,29 @@ class Entity {
             }
         }
         if (this.data.health <= 0 && this.sprite.currentState !== 'death') {
+            if (player.data.inventory[3][player.data.selectedSlot - 1] === null) {
+                grantAchievement('beast');
+            }
+            if (player.data.health / player.data.maxHealth <= 0.05) {
+                grantAchievement('close_call');
+            }
+            stats.entities.kills.value++;
+            if (this.data.name === 'goblin') {
+                grantAchievement('goblin_kill');
+                const globalStats = await window.api.fetchGlobalStats();
+                if (globalStats.entities.killed_goblin.value >= 75) {
+                    grantAchievement('goblin_demolisher');
+                }
+            }
+            if (this.data.name === 'goblin') {
+                stats.entities.killed_goblin.value++;
+            }
+            else if (this.data.name === 'skeleton') {
+                stats.entities.killed_skeleton.value++;
+            }
             this.data.drops.forEach(drop => {
                 if (Math.floor(Math.random() * 100) <= drop.chance) {
-                    player.addItem(drop.drop, Math.floor(Math.random() * drop.amount));
+                    droppedItems.push(new droppedItem({ x: this.pos.x + this.sprite.hitbox.offsetX + Math.round(Math.random() * 80) - 40, y: this.pos.y + this.sprite.hitbox.offsetY }, drop.drop, currentWorld));
                 }
             });
             this.changeState('death');
@@ -1310,6 +921,8 @@ class Entity {
             if (menu.checkSetting('Master Sound'))
                 playSound('death.mp3', menu.sounds.effects / 100);
         }
+        if (this.data.health <= 0)
+            return;
         if (!menu.checkSetting('No Aggro')) {
             const playerPosX = player.pos.x;
             const distanceXToPlayer = Math.abs((playerPosX + (player.sprite.spriteWidth / 2) * player.sprite.scale) - (this.pos.x + (this.sprite.spriteWidth / 2) * this.sprite.scale));
@@ -1319,14 +932,12 @@ class Entity {
                 if (!playerHiddenFromGoblins || player.story.freedNate) {
                     this.data.attackFocus = player;
                     this.attack();
-                    this.setCooldown(1500);
                 }
             }
             else if (playerDirec > 0 && distanceXToPlayer <= this.data.attackRange * 2 && !this.data.onCooldown && player.pos.y + this.data.attackRange >= this.pos.y && this.type.allignment === 'enemy') {
                 if (!playerHiddenFromGoblins || player.story.freedNate) {
                     this.data.attackFocus = player;
                     this.attack();
-                    this.setCooldown(1200);
                 }
             }
             else if (distanceXToPlayer <= this.data.seeRange && !this.data.onCooldown && this.type.allignment === 'enemy') {
@@ -1364,43 +975,39 @@ class Entity {
             ctx.save();
             ctx.strokeStyle = this.type.allignment === 'enemy' ? 'red' : (this.type.allignment === 'passive' ? 'yellow' : 'green');
             ctx.lineWidth = 2;
-            ctx.strokeRect(this.pos.x + this.hitbox.offsetX, this.pos.y + this.hitbox.offsetY, this.hitbox.width, this.hitbox.height);
+            ctx.strokeRect(this.pos.x + this.sprite.hitbox.offsetX, this.pos.y + this.sprite.hitbox.offsetY, this.sprite.hitbox.width, this.sprite.hitbox.height);
+            ctx.strokeStyle = "black";
+            ctx.strokeRect(this.pos.x + this.sprite.hitbox.offsetX, this.pos.y + this.sprite.hitbox.offsetY, 5, 5);
             ctx.restore();
         }
         let frameX = this.sprite.spriteAnimations[this.sprite.currentState].loc[this.sprite.frameLoc].x; // get current locations of the animation
         let frameY = this.sprite.spriteAnimations[this.sprite.currentState].loc[this.sprite.frameLoc].y;
         let orientation = (player.pos.x + player.sprite.spriteWidth / 2) - (this.pos.x + this.sprite.spriteWidth / 2);
-        if (this.data.name === 'elder' || this.sprite.invertOrientation) {
+        if (this.sprite.invertOrientation) {
             orientation = -orientation;
         }
+        const image = getImage(this.sprite.img);
         if (orientation <= 0 && !this.type.isNotTurning) {
             this.data.Xdirec = 2;
             ctx.save(); // save current state of the canvas
             const drawX = -(this.pos.x + 400 * this.sprite.scale);
             ctx.scale(-1, 1); // invert orientatian of the entity
-            ctx.drawImage(this.sprite.img, frameX, frameY, this.sprite.spriteWidth, this.sprite.spriteHeight, drawX, this.pos.y, 400 * this.sprite.scale, 400 * this.sprite.scale);
+            ctx.drawImage(image, frameX, frameY, this.sprite.spriteWidth, this.sprite.spriteHeight, drawX, this.pos.y, 400 * this.sprite.scale, 400 * this.sprite.scale);
             ctx.restore();
         }
         else {
             this.data.Xdirec = 1;
-            ctx.drawImage(this.sprite.img, frameX, frameY, this.sprite.spriteWidth, this.sprite.spriteHeight, this.pos.x, this.pos.y, 400 * this.sprite.scale, 400 * this.sprite.scale);
+            ctx.drawImage(image, frameX, frameY, this.sprite.spriteWidth, this.sprite.spriteHeight, this.pos.x, this.pos.y, 400 * this.sprite.scale, 400 * this.sprite.scale);
         }
-    }
-    changeState(state) {
-        this.sprite.currentState = state;
-        this.sprite.frameLoc = 0; // reset animation
-        this.sprite.frames = 0;
     }
     takeHit(damage) {
         if (this.data.health <= 0)
             return;
+        if (Math.random() * 100 < 80)
+            this.setCooldown(1000);
         this.changeState('take_hit');
         this.data.health -= damage;
         this.showHealthbar();
-    }
-    setCooldown(ms) {
-        this.data.onCooldown = true;
-        setTimeout(() => this.data.onCooldown = false, ms);
     }
     endOfAnimation(frameAmount) {
         var _a;
@@ -1427,9 +1034,27 @@ class Entity {
             }
             else if (this.sprite.currentState === 'attack') {
                 if (((_a = this.type.attackType) === null || _a === void 0 ? void 0 : _a.type) === 'rangedCombat') {
-                    particles.push(new projectile(this, this.type.attackType.projectile.spriteWidth, this.type.attackType.projectile.spriteHeight, this.type.attackType.projectile.scale, this.type.attackType.projectile.pathToImage, this.type.attackType.projectile.animationStates, this.type.attackType.projectile.range, this.type.attackType.projectile.speed, this.type.attackType.projectile.damage, this.type.attackType.projectile.hitbox));
+                    particles.push(new projectile(this, this.type.attackType.projectile.spriteWidth, this.type.attackType.projectile.spriteHeight, this.type.attackType.projectile.scale, this.type.attackType.projectile.pathToImage, this.type.attackType.projectile.animationStates, this.type.attackType.projectile.range, this.type.attackType.projectile.speed, this.type.attackType.projectile.damage, this.type.attackType.projectile.hitbox, 'arrow'));
                 }
-                else {
+                this.changeState('idle');
+                this.data.isAttacking = false;
+            }
+        }
+        if (this.type.name === 'trader' && this.sprite.currentState === 'open') {
+            this.changeState('dialogue');
+        }
+    }
+    attack() {
+        if (!this.data.isAttacking && !this.data.onCooldown) {
+            this.changeState('attack');
+            this.data.isAttacking = true;
+            setTimeout(() => {
+                var _a;
+                if (this.data.isDead)
+                    return;
+                if (this.data.onCooldown)
+                    return;
+                if (((_a = this.type.attackType) === null || _a === void 0 ? void 0 : _a.type) !== 'rangedCombat') {
                     const playerPosX = player.pos.x;
                     const playerDirec = this.pos.x - player.pos.x;
                     const distanceXToPlayer = Math.abs((playerPosX + (player.sprite.spriteWidth / 2) * player.sprite.scale) - (this.pos.x + (this.sprite.spriteWidth / 2) * this.sprite.scale));
@@ -1440,254 +1065,8 @@ class Entity {
                         player.takeHit(this.data.attackDamage);
                     }
                 }
-                this.changeState('idle');
-            }
+            }, 550);
         }
-        if (this.type.name === 'trader' && this.sprite.currentState === 'open') {
-            this.changeState('dialogue');
-        }
-    }
-    attack() {
-        if (!this.data.onCooldown) {
-            this.changeState('attack');
-        }
-    }
-    showHealthbar() {
-        const exists = nonWorldElems.some(o => o.type.name === 'healthbar' &&
-            o.entity === this);
-        if (!exists) {
-            const newHealthbar = new healthbar(this);
-            nonWorldElems.push(newHealthbar);
-        }
-    }
-    addEffect(effect, duration, factor) {
-        let foundDuplicate = false;
-        this.effectData.effects.forEach(effect1 => {
-            if (effect1.effect.name === effect) {
-                effect1.duration = duration;
-                foundDuplicate = true;
-            }
-        });
-        if (!foundDuplicate) {
-            const image = new Image();
-            image.src = effects[effect].particle;
-            this.effectData.effects.push({ effect: effects[effect], duration, factor, index: this.effectData.effectCounter });
-            particles.push(new particle(this, effects[effect].spriteWidth, effects[effect].spriteHeight, image, this.effectData.effectCounter, effects[effect].frameAmount));
-            this.effectData.effectCounter++;
-        }
-        if (effects[effect].start)
-            effects[effect].start(this);
-    }
-    removeEffect(index) {
-        for (let i = 0; i < this.effectData.effects.length; i++) {
-            if (this.effectData.effects[i].index === index) {
-                this.effectData.effects.splice(i, 1);
-                break;
-            }
-        }
-        let particleIndex = 0;
-        particles.forEach((particle, i) => {
-            if (particle.counter === index) {
-                particleIndex = i;
-            }
-        });
-        particles.splice(particleIndex, 1);
-    }
-    heal(healAmount) {
-        if (healAmount + this.data.health >= this.data.maxHealth) {
-            this.data.health = this.data.maxHealth;
-        }
-        else {
-            this.data.health += healAmount;
-        }
-    }
-    checkEffect(effect) {
-        let foundEffect = false;
-        let effect2 = null;
-        this.effectData.effects.forEach(effect1 => {
-            if (effect1.effect.name === effect) {
-                foundEffect = true;
-                effect2 = effect1;
-            }
-        });
-        return { wasFound: foundEffect, effect: effect2 };
-    }
-}
-class enemy extends Entity {
-    constructor(pos, sprite, data, type, worldElem, id) {
-        let image = new Image();
-        image.src = sprite.pathToImage;
-        super({ x: pos.x, y: pos.y }, {
-            img: image, spriteWidth: sprite.spriteWidth, spriteHeight: sprite.spriteHeight, scale: sprite.scale,
-            animationStates: sprite.animationStates, hitbox: sprite.hitbox
-        }, {
-            maxHealth: data.maxHealth, attackDamage: data.attackDamage, attackRange: data.attackRange, drops: data.drops, name: data.name
-        }, type, worldElem, id);
-        this.init();
-    }
-    interact() {
-        return;
-    }
-}
-class nightBorn extends Entity {
-    constructor(x, y, worldElem, id) {
-        let image = new Image();
-        image.src = 'img/enemies/nightBorn.png';
-        const scale = 1.5;
-        if (y === StaticPositions.OnGround) {
-            y = 230;
-        }
-        super({ x, y }, {
-            img: image, spriteWidth: 300, spriteHeight: 300, scale: scale,
-            animationStates: [
-                {
-                    name: 'idle',
-                    frames: 9
-                },
-                {
-                    name: 'run',
-                    frames: 6
-                },
-                {
-                    name: 'attack',
-                    frames: 12
-                },
-                {
-                    name: 'take_hit',
-                    frames: 5
-                },
-                {
-                    name: 'death',
-                    frames: 23
-                }
-            ], hitbox: { offsetX: 100, offsetY: 100, width: 100, height: 100 }
-        }, {
-            maxHealth: 300, attackDamage: 80, attackRange: 80, drops: [{ amount: 1, drop: "silver_ingot", chance: 100 }], name: 'nightborn'
-        }, {
-            isGround: true /* is it a ground/flying troop */, name: 'nightBorn' /* name of the enemy */, allignment: 'enemy' /* does it attack the player */, moving: true /* does it need to move while the player moves */, attackable: true, interactable: false
-        }, worldElem, id);
-        this.worldElem = worldElem;
-        this.init();
-    }
-    interact() {
-        return;
-    }
-}
-class goblin extends Entity {
-    constructor(x, y, worldElem, id) {
-        let image = new Image();
-        image.src = 'img/enemies/goblin.png';
-        const scale = 1;
-        if (y === StaticPositions.OnGround) {
-            y = 430;
-        }
-        super({ x, y }, {
-            img: image, spriteWidth: 150, spriteHeight: 150, scale: scale,
-            animationStates: [
-                {
-                    name: 'idle',
-                    frames: 4
-                },
-                {
-                    name: 'attack',
-                    frames: 8
-                },
-                {
-                    name: 'attack2',
-                    frames: 8
-                },
-                {
-                    name: 'death',
-                    frames: 4
-                },
-                {
-                    name: 'run',
-                    frames: 8
-                },
-                {
-                    name: 'take_hit',
-                    frames: 4
-                }
-            ], hitbox: { offsetX: 150, offsetY: 160, width: 80, height: 100 }
-        }, {
-            maxHealth: 50, attackDamage: 8, attackRange: 75, drops: [{ amount: 2, drop: "leather", chance: 25 }, { amount: 1, drop: "cloth", chance: 5 }, { amount: 1, drop: "string", chance: 10 }], name: 'goblin'
-        }, {
-            isGround: true /* is it a ground/flying troop */, name: 'goblin' /* name of the enemy */, allignment: 'enemy' /* does it attack the player */, moving: true /* does it need to move while the player moves */, attackable: true, interactable: false
-        }, worldElem, id);
-        this.worldElem = worldElem;
-        this.init();
-    }
-    interact() {
-        return;
-    }
-}
-class skeleton extends Entity {
-    constructor(x, y, worldElem, id) {
-        let image = new Image();
-        image.src = 'img/enemies/skeleton.png';
-        const scale = 0.5;
-        if (y === StaticPositions.OnGround) {
-            y = 500;
-        }
-        super({ x, y }, {
-            img: image, spriteWidth: 96, spriteHeight: 64, scale: scale,
-            animationStates: [
-                {
-                    name: 'idle',
-                    frames: 8
-                },
-                {
-                    name: 'attack',
-                    frames: 10
-                },
-                {
-                    name: 'death',
-                    frames: 13
-                },
-                {
-                    name: 'run',
-                    frames: 10
-                },
-                {
-                    name: 'take_hit',
-                    frames: 5
-                }
-            ], hitbox: { offsetX: 85, offsetY: 80, width: 50, height: 100 }
-        }, {
-            maxHealth: 35, attackDamage: 10, attackRange: 100, drops: [{ amount: 1, drop: "stone", chance: 25 }], name: 'skeleton'
-        }, {
-            isGround: true /* is it a ground/flying troop */, name: 'skeleton' /* name of the enemy */, allignment: 'enemy' /* does it attack the player */, moving: true /* does it need to move while the player moves */, attackable: true, interactable: false
-        }, worldElem, id);
-        this.worldElem = worldElem;
-        this.init();
-    }
-    interact() {
-        return;
-    }
-}
-class trader extends Entity {
-    constructor(pos, sprite, trade, worldElem, isNotTurning, id) {
-        let image = new Image();
-        image.src = sprite.img;
-        if (pos.y === StaticPositions.OnGround) {
-            pos.y = 500;
-        }
-        super({ x: pos.x, y: pos.y }, {
-            img: image, spriteWidth: sprite.spriteWidth, spriteHeight: sprite.spriteHeight, scale: sprite.scale,
-            animationStates: [
-                {
-                    name: 'idle',
-                    frames: sprite.frameAmount
-                }
-            ], hitbox: { offsetX: 100, offsetY: 100, width: 200, height: 1000 }
-        }, {
-            maxHealth: 50, attackDamage: 15, attackRange: 50, drops: [{ amount: 1, drop: "stone", chance: 75 }], name: 'trader'
-        }, {
-            isGround: true /* is it a ground/flying troop */, name: 'trader' /* name of the enemy */, allignment: 'passive' /* does it attack the player */, moving: true /* does it need to move while the player moves */, attackable: false, interactable: true, isNotTurning: isNotTurning
-        }, worldElem, id);
-        this.worldElem = worldElem;
-        this.trade = trade;
-        this.init();
     }
     interact() {
         openTradingMenu(this.trade);
@@ -1695,18 +1074,46 @@ class trader extends Entity {
 }
 class NPC extends Entity {
     constructor(pos, sprite, worldElem, conversation, name, present, id, quest, story) {
-        let image = new Image();
-        image.src = sprite.pathToImage;
         let invertOrientation = sprite.invertOrientation;
-        // samurai: SW:96 SH: 96 
         if (pos.y === StaticPositions.OnGround) {
             pos.y = groundY - 400 * sprite.scale;
         }
-        super({ x: pos.x, y: pos.y }, {
-            img: image, spriteWidth: sprite.spriteWidth, spriteHeight: sprite.spriteHeight, scale: sprite.scale, animationStates: [{ name: 'idle', frames: sprite.frameAmount }], hitbox: sprite.hitbox, invertOrientation: invertOrientation
-        }, { maxHealth: 100, attackRange: 1, attackDamage: 1, drops: [], name: name }, {
+        super({ x: pos.x, y: pos.y }, worldElem, id);
+        this.sprite = {
+            img: sprite.pathToImage,
+            pathToImage: sprite.pathToImage,
+            spriteWidth: sprite.spriteWidth,
+            spriteHeight: sprite.spriteHeight,
+            scale: sprite.scale,
+            animationStates: [{ name: 'idle', frames: sprite.frameAmount }],
+            hitbox: sprite.hitbox,
+            invertOrientation: invertOrientation,
+            frames: 0,
+            frameLoc: 0,
+            spriteAnimations: {},
+            currentState: 'idle',
+        };
+        this.data = {
+            health: 100,
+            maxHealth: 100,
+            attackRange: 1,
+            attackDamage: 1,
+            drops: [],
+            name: name,
+            class: 'NPC',
+            isAttacking: false,
+            attackFocus: null,
+            isDead: false,
+            isMoving: false,
+            onCooldown: false,
+            seeRange: 0,
+            showedText: false,
+            Xdirec: 1
+        };
+        this.type = {
             isGround: true /* is it a ground/flying troop */, name: 'NPC' /* name of the enemy */, allignment: 'passive' /* does it attack the player */, moving: true /* does it need to move while the player moves */, attackable: false, interactable: true
-        }, worldElem, id);
+        };
+        this.portrait = sprite.portrait;
         this.worldElem = worldElem;
         this.conversation = conversation;
         this.conversationCounter = 0;
@@ -1717,9 +1124,15 @@ class NPC extends Entity {
         this.quest = quest;
         this.story = story;
         this.questCompleted = false;
+        this.data.class = "NPC";
         this.init();
     }
     endConversation() {
+        const portrait = document.querySelector('#portrait');
+        portrait.style.background = ``;
+        stats.entities.talked_to_NPC.value++;
+        const speakDiv = document.querySelector('#speakingDiv');
+        speakDiv === null || speakDiv === void 0 ? void 0 : speakDiv.classList.add('display-none');
         if (this.quest && !this.hasGivenPresent) {
             activeQuests.push(this.quest);
             isQuestUIupdated = false;
@@ -1748,8 +1161,15 @@ class NPC extends Entity {
     }
     speak() {
         var _a;
-        const speakDiv = document.querySelector('#speakWrapper');
+        const speakDiv = document.querySelector('#speakingDiv');
         speakDiv === null || speakDiv === void 0 ? void 0 : speakDiv.classList.remove('display-none');
+        const portrait = document.querySelector('#portrait');
+        if (this.portrait) {
+            portrait.style.background = `url(${this.portrait})`;
+        }
+        else {
+            portrait.style.background = `url(img/portraits/defaultNPC.png)`;
+        }
         player.data.canMove = false;
         if (((_a = this.quest) === null || _a === void 0 ? void 0 : _a.items) && this.hasGivenPresent) {
             let hasAllItems = true;
@@ -1783,132 +1203,25 @@ class NPC extends Entity {
     }
     get center() {
         return {
-            x: this.pos.x + this.hitbox.offsetX + this.hitbox.width / 2,
-            y: this.pos.y + this.hitbox.offsetY + this.hitbox.height / 2
+            x: this.pos.x + this.sprite.hitbox.offsetX + this.sprite.hitbox.width / 2,
+            y: this.pos.y + this.sprite.hitbox.offsetY + this.sprite.hitbox.height / 2
         };
     }
-}
-// player classs
-class Player {
-    constructor(x, y) {
-        this.pos = {
-            x: x,
-            y: y
-        };
-        this.sprite = {
-            img: new Image(),
-            spriteWidth: 162,
-            spriteHeight: 162,
-            frames: 0,
-            frameLoc: 0,
-            animationStates: [
-                {
-                    name: 'idle',
-                    frames: 10
-                },
-                {
-                    name: 'attack1',
-                    frames: 7
-                },
-                {
-                    name: 'attack2',
-                    frames: 7
-                },
-                {
-                    name: 'attack3',
-                    frames: 8
-                },
-                {
-                    name: 'death',
-                    frames: 7
-                },
-                {
-                    name: 'fall',
-                    frames: 3
-                },
-                {
-                    name: 'jump',
-                    frames: 3
-                },
-                {
-                    name: 'run',
-                    frames: 8
-                },
-                {
-                    name: 'take_hit',
-                    frames: 3
-                }
-            ],
-            spriteAnimations: {},
-            currentState: 'idle',
-            scale: 1
-        };
-        this.sprite.img.src = 'img/player.png';
-        this.effectData = {
-            effects: [],
-            effectTicks: 0,
-            effectCounter: 0
-        };
-        this.data = {
-            onGround: true,
-            isOnBlock: false,
-            onInventory: false,
-            onTradingMenu: false,
-            showedText: false,
-            speed: 7,
-            onSecondaryInventory: false,
-            canMove: true,
-            isMoving: false,
-            velocity_Y: 0,
-            health: 100,
-            maxHealth: 100,
-            interactionRange: 125,
-            dragging: null,
-            selectedSlot: 1,
-            showingText: false,
-            interactionFocus: null,
-            Ydirec: 0,
-            Xdirec: 1,
-            onCooldown: false,
-            inventory: [
-                [null, null, null, null, null],
-                [null, null, null, null, null],
-                [null, null, null, null, null],
-                [null, null, null, null, null],
-            ],
-            armor: [null, null, null],
-            craftingInventory: [[null, null, null], [null, null, null], [null, null, null]],
-            attackRange: 150,
-            attackDamage: 5,
-            drops: [],
-            name: "player",
-            isDead: false,
-            seeRange: 0,
-        };
-        this.story = {
-            freedNate: false
-        };
-        this.hitbox = { offsetX: 195, offsetY: 170, width: 60, height: 110 };
-        this.type = { isGround: true, name: 'player', allignment: 'friendly', moving: false, attackable: false, interactable: false };
-        this.isInit = false;
-        this.lootDrop = [];
-        this.id = -1;
-        this.worldElem = 'player';
-        this.init();
-    }
-    update() {
+    async update() {
+        if (this.data.isDead)
+            return;
         // check for effect ticks
         this.effectData.effects.forEach(effect => {
             effect.duration--;
             if (effect.duration <= 0) {
-                if (effectFunctions[effect.effect.name] && effectFunctions[effect.effect.name].end) {
-                    effectFunctions[effect.effect.name].end(this);
+                if (effect.effect.end) {
+                    effect.effect.end(this);
                 }
                 this.removeEffect(effect.index);
             }
             if (this.effectData.effectTicks % effect.effect.ticks === 0) {
-                if (effectFunctions[effect.effect.name] && effectFunctions[effect.effect.name].onTick) {
-                    effectFunctions[effect.effect.name].onTick(this);
+                if (effect.effect.onTick) {
+                    effect.effect.onTick(this);
                 }
             }
             if (document.querySelector(`#${effect.effect.name} `)) {
@@ -1918,396 +1231,216 @@ class Player {
                 }
             }
         });
-        let stillOnBlock = false;
-        let onOtherBlock = { onBlock: false, block: null };
-        worlds[currentWorld].elements.forEach(el => {
-            if (el instanceof block) {
-                if (checkCollision({ hitbox: { offsetX: el.hitbox.offsetX, offsetY: el.hitbox.offsetY, width: el.hitbox.width, height: el.hitbox.height + 20 }, pos: { x: el.pos.x, y: el.pos.y + 20 } }, { hitbox: this.hitbox, pos: this.pos })) {
-                    stillOnBlock = true;
+        if (this.sprite.currentState !== 'attack')
+            this.data.isAttacking = false;
+        if (this.type.interactable) {
+            if (checkCollision({ hitbox: player.hitbox, pos: player.pos }, { hitbox: this.sprite.hitbox, pos: this.pos }) && !player.data.onCooldown && player.data.onGround) {
+                if (!this.data.showedText && menu.checkSetting('labels')) {
+                    displayInfo('Press "R" to interact');
+                    this.data.showedText = true;
                 }
-                if (el.blocking.isBlocking && checkCollision({ hitbox: el.hitbox, pos: el.pos }, { hitbox: this.hitbox, pos: this.pos })) {
-                    onOtherBlock = { onBlock: true, block: el };
-                }
-            }
-        });
-        if (this.data.isOnBlock) {
-            player.data.isOnBlock = stillOnBlock;
-        }
-        /*
-                console.log(player.data.isOnBlock); */
-        // check if player is jumping
-        if (!this.data.onGround && !(gameFrame % staggerFrames)) {
-            if (this.data.Ydirec === 1) { // if he is moving upward 
-                this.pos.y -= this.data.velocity_Y * globalGravity; // calculate new y position
-                this.data.velocity_Y -= 0.2; // advance velocity
-                if (this.sprite.currentState !== 'attack3' && this.sprite.currentState !== 'jump')
-                    player.changeState('jump');
-            }
-            else if (this.data.Ydirec === 2) {
-                this.pos.y += this.data.velocity_Y * globalGravity; // calculate new y position
-                this.data.velocity_Y += 0.2; // advance velocity
-                if (this.sprite.currentState !== 'attack3' && this.sprite.currentState !== 'fall')
-                    player.changeState('fall');
-            }
-            if (this.data.velocity_Y <= 0) { // invert movement
-                this.data.Ydirec = 2;
-            }
-            if (this.pos.y + this.sprite.spriteHeight >= groundY) { // check if player is on the ground
-                this.pos.y = groundY - this.sprite.spriteHeight;
-                this.data.isOnBlock = false;
-                this.data.onGround = true; // reset values
-                this.data.velocity_Y = 0;
-                this.data.Ydirec = 0;
-                if (this.sprite.currentState !== 'attack3')
-                    this.changeState('idle');
-            }
-            else if (onOtherBlock.onBlock) {
-                this.pos.y = (onOtherBlock.block.pos.y + onOtherBlock.block.hitbox.offsetY) - (player.hitbox.offsetY + player.hitbox.height);
-                this.data.isOnBlock = true;
-                this.data.onGround = true; // reset values
-                this.data.velocity_Y = 0;
-                this.data.Ydirec = 0;
-                if (this.sprite.currentState !== 'attack3')
-                    this.changeState('idle');
+                player.data.interactionFocus = this;
+                /*                 player.data.interactionFocus = null
+                                player.data.interactionFocusGrab = null */
             }
             else {
-                this.data.onGround = false;
+                if (player.data.interactionFocus === this) {
+                    player.data.interactionFocus = null;
+                }
+                this.data.showedText = false;
+                if (this.sprite.currentState !== 'idle')
+                    this.changeState('idle');
             }
-        }
-        if (this.data.Ydirec === 0 && !(this.pos.y + this.sprite.spriteHeight >= groundY) && !this.data.isOnBlock) {
-            this.data.onGround = false;
-            this.data.Ydirec = 2;
         }
         this.sprite.frames++;
-        if (this.sprite.frames >= staggerFrames) { // check if next frame should be drawn
-            this.sprite.frames = 0; // reset frames
-            this.sprite.frameLoc++; // advance to next frame
+        if (this.sprite.frames >= staggerFrames) {
+            this.sprite.frames = 0;
+            this.sprite.frameLoc++;
             const frameAmount = this.sprite.spriteAnimations[this.sprite.currentState].loc.length;
-            if (this.sprite.frameLoc >= frameAmount) { // check if the end of the animation is reached
+            if (this.sprite.frameLoc >= frameAmount) {
                 this.sprite.frameLoc = 0;
-                this.endOfAnimation(); // check if any state should be changed at the end of its execution (one time animation)
+                this.endOfAnimation(frameAmount);
             }
         }
-        this.effectData.effectTicks++;
+        if (this.data.health <= 0 && this.sprite.currentState !== 'death') {
+            if (player.data.inventory[3][player.data.selectedSlot - 1] === null) {
+                grantAchievement('beast');
+            }
+            if (player.data.health / player.data.maxHealth <= 0.05) {
+                grantAchievement('close_call');
+            }
+            stats.entities.kills.value++;
+            if (this.data.name === 'goblin') {
+                grantAchievement('goblin_kill');
+                const globalStats = await window.api.fetchGlobalStats();
+                if (globalStats.entities.killed_goblin.value >= 75) {
+                    grantAchievement('goblin_demolisher');
+                }
+            }
+            if (this.data.name === 'goblin') {
+                stats.entities.killed_goblin.value++;
+            }
+            else if (this.data.name === 'skeleton') {
+                stats.entities.killed_skeleton.value++;
+            }
+            this.data.drops.forEach(drop => {
+                if (Math.floor(Math.random() * 100) <= drop.chance) {
+                    droppedItems.push(new droppedItem({ x: this.pos.x + this.sprite.hitbox.offsetX + Math.round(Math.random() * 80) - 40, y: this.pos.y + this.sprite.hitbox.offsetY }, drop.drop, currentWorld));
+                }
+            });
+            this.changeState('death');
+            this.data.onCooldown = true;
+            currentEvents.push({ event: 'kill', entity: this });
+            isQuestUIupdated = false;
+            if (menu.checkSetting('Master Sound'))
+                playSound('death.mp3', menu.sounds.effects / 100);
+        }
+        if (this.data.health <= 0)
+            return;
+        if (!menu.checkSetting('No Aggro')) {
+            const playerPosX = player.pos.x;
+            const distanceXToPlayer = Math.abs((playerPosX + (player.sprite.spriteWidth / 2) * player.sprite.scale) - (this.pos.x + (this.sprite.spriteWidth / 2) * this.sprite.scale));
+            const playerDirec = this.pos.x - player.pos.x;
+            const playerHiddenFromGoblins = player.data.armor[0] === 'goblin_mask' && this.data.name === 'goblin';
+            if (distanceXToPlayer <= this.data.attackRange && !this.data.onCooldown && player.pos.y + this.data.attackRange >= this.pos.y && this.type.allignment === 'enemy') {
+                if (!playerHiddenFromGoblins || player.story.freedNate) {
+                    this.data.attackFocus = player;
+                    this.attack();
+                }
+            }
+            else if (playerDirec > 0 && distanceXToPlayer <= this.data.attackRange * 2 && !this.data.onCooldown && player.pos.y + this.data.attackRange >= this.pos.y && this.type.allignment === 'enemy') {
+                if (!playerHiddenFromGoblins || player.story.freedNate) {
+                    this.data.attackFocus = player;
+                    this.attack();
+                }
+            }
+            else if (distanceXToPlayer <= this.data.seeRange && !this.data.onCooldown && this.type.allignment === 'enemy') {
+                if (!playerHiddenFromGoblins || player.story.freedNate) {
+                    this.data.attackFocus = player;
+                    if (this.sprite.currentState !== 'run')
+                        this.changeState('run');
+                    if (playerPosX > this.pos.x) {
+                        this.pos.x += 4;
+                    }
+                    else {
+                        this.pos.x -= 4;
+                    }
+                    if (this.checkEffect('poison').wasFound) {
+                        this.data.health -= .1;
+                    }
+                }
+                else {
+                    if (this.sprite.currentState === 'run') {
+                        this.changeState('idle');
+                    }
+                }
+            }
+            else {
+                if (this.sprite.currentState === 'run') {
+                    this.changeState('idle');
+                }
+                this.data.attackFocus = null;
+            }
+            this.effectData.effectTicks++;
+        }
     }
     draw() {
         if (menu.checkSetting('Hitboxes')) {
             ctx.save();
             ctx.strokeStyle = this.type.allignment === 'enemy' ? 'red' : (this.type.allignment === 'passive' ? 'yellow' : 'green');
             ctx.lineWidth = 2;
-            ctx.strokeRect(this.pos.x + this.hitbox.offsetX, this.pos.y + this.hitbox.offsetY, this.hitbox.width, this.hitbox.height);
+            ctx.strokeRect(this.pos.x + this.sprite.hitbox.offsetX, this.pos.y + this.sprite.hitbox.offsetY, this.sprite.hitbox.width, this.sprite.hitbox.height);
+            ctx.strokeStyle = "black";
+            ctx.strokeRect(this.pos.x + this.sprite.hitbox.offsetX, this.pos.y + this.sprite.hitbox.offsetY, 5, 5);
             ctx.restore();
         }
-        let frameX = this.sprite.spriteAnimations[this.sprite.currentState].loc[this.sprite.frameLoc].x;
+        let frameX = this.sprite.spriteAnimations[this.sprite.currentState].loc[this.sprite.frameLoc].x; // get current locations of the animation
         let frameY = this.sprite.spriteAnimations[this.sprite.currentState].loc[this.sprite.frameLoc].y;
-        if (this.data.Xdirec === 2) {
+        let orientation = (player.pos.x + player.sprite.spriteWidth / 2) - (this.pos.x + this.sprite.spriteWidth / 2);
+        if (this.data.name === 'elder' || this.sprite.invertOrientation) {
+            orientation = -orientation;
+        }
+        const image = getImage(this.sprite.img);
+        if (orientation <= 0 && !this.type.isNotTurning) {
+            this.data.Xdirec = 2;
             ctx.save(); // save current state of the canvas
-            const drawX = -(this.pos.x + 450);
+            const drawX = -(this.pos.x + 400 * this.sprite.scale);
             ctx.scale(-1, 1); // invert orientatian of the entity
-            ctx.drawImage(this.sprite.img, frameX, frameY, this.sprite.spriteWidth, this.sprite.spriteHeight, drawX, this.pos.y, 450, 450);
+            ctx.drawImage(image, frameX, frameY, this.sprite.spriteWidth, this.sprite.spriteHeight, drawX, this.pos.y, 400 * this.sprite.scale, 400 * this.sprite.scale);
             ctx.restore();
         }
-        else if (this.data.Xdirec === 1) {
-            ctx.drawImage(this.sprite.img, frameX, frameY, this.sprite.spriteWidth, this.sprite.spriteHeight, this.pos.x, this.pos.y, 450, 450);
-        } // (image, sx, sy, sw, sh, dx, dy, dw, dh)
-        // draw selectedItem
-        const selectedItem = this.data.inventory[3][this.data.selectedSlot - 1];
-        if (selectedItem !== null) {
-            const image = new Image();
-            image.src = `img/items/${items[selectedItem].src}`;
-            let drawX = items[selectedItem].rendering ? (this.data.Xdirec === 1 ? this.pos.x + 245 + items[selectedItem].rendering.pos.x : (this.pos.x + 200 + (items[selectedItem].rendering.pos.x2 ? items[selectedItem].rendering.pos.x2 : items[selectedItem].rendering.pos.x))) : (this.data.Xdirec === 1 ? this.pos.x + 245 : (this.pos.x + 200));
-            const drawY = items[selectedItem].rendering ? this.pos.y + 190 + items[selectedItem].rendering.pos.y : this.pos.y + 190;
-            const scale = items[selectedItem].rendering ? 20 * items[selectedItem].rendering.scale : 20 * items[selectedItem].scale;
-            let isMirrored = this.data.Xdirec === 2;
-            if (items[selectedItem].rendering && items[selectedItem].rendering.isMirrored) {
-                if (isMirrored) {
-                    isMirrored = false;
-                }
-                else {
-                    isMirrored = true;
-                }
-            }
-            if (!isMirrored) {
-                ctx.drawImage(image, items[selectedItem].spriteX, items[selectedItem].spriteY, items[selectedItem].width, items[selectedItem].height, drawX, drawY, scale, scale);
-            }
-            else {
-                ctx.save();
-                ctx.scale(-1, 1);
-                drawX = -(drawX);
-                ctx.drawImage(image, items[selectedItem].spriteX, items[selectedItem].spriteY, items[selectedItem].width, items[selectedItem].height, drawX, drawY, scale, scale);
-                ctx.restore();
-            }
-        }
-    }
-    init() {
-        this.sprite.animationStates.forEach((state, index) => {
-            let frames = {
-                loc: []
-            };
-            for (let j = 0; j < state.frames; j++) {
-                let positionX = j * this.sprite.spriteWidth;
-                let positionY = index * this.sprite.spriteHeight;
-                frames.loc.push({ x: positionX, y: positionY });
-            }
-            this.sprite.spriteAnimations[state.name] = frames;
-        });
-    }
-    changeState(state) {
-        this.sprite.currentState = state;
-        this.sprite.frameLoc = 0; // reset animation
-        this.sprite.frames = 0;
-    }
-    showHealthbar() {
-        const exists = nonWorldElems.some(o => o.type.name === 'healthbar' &&
-            o.entity === this); // check if healthbar already exists
-        if (!exists) {
-            const newHealthbar = new healthbar(this);
-            nonWorldElems.push(newHealthbar);
+        else {
+            this.data.Xdirec = 1;
+            ctx.drawImage(image, frameX, frameY, this.sprite.spriteWidth, this.sprite.spriteHeight, this.pos.x, this.pos.y, 400 * this.sprite.scale, 400 * this.sprite.scale);
         }
     }
     takeHit(damage) {
-        if (this.sprite.currentState !== 'attack1' && this.sprite.currentState !== 'attack3')
-            this.changeState('take_hit');
-        let protection = 100;
-        this.data.armor.forEach(armor => {
-            if (armor !== null && items[armor].protection) {
-                protection -= items[armor].protection;
-            }
-        });
-        this.data.health -= damage * (protection / 100);
-        if (this.data.health < 0)
-            this.data.health = 0;
-        this.setCooldown(200);
-    }
-    setCooldown(ms) {
-        this.data.onCooldown = true;
-        setTimeout(() => this.data.onCooldown = false, ms);
-    }
-    attack() {
-        gameSpeed = 0; // make the player stop walking
-        if (!this.data.onCooldown) {
-            if (this.data.onGround) {
-                this.changeState(`attack1`); // change to attack state
-                if (menu.checkSetting('Master Sound'))
-                    playSound('slice.mp3', menu.sounds.effects / 100);
-                if (player.data.inventory[3][this.data.selectedSlot - 1] !== null) {
-                    this.setCooldown(items[player.data.inventory[3][this.data.selectedSlot - 1]].attackCooldown); // set a cooldown
-                }
-                else {
-                    this.setCooldown(1000);
-                }
-                setTimeout(() => {
-                    worlds[currentWorld].elements.forEach(obj => {
-                        var _a;
-                        if (!(obj instanceof Entity))
-                            return;
-                        let attackRange = 100;
-                        const item = this.data.inventory[3][this.data.selectedSlot - 1];
-                        if (item !== null) {
-                            attackRange = items[item].attackRange;
-                        }
-                        if (checkCollision({ hitbox: { offsetY: 0 + this.hitbox.offsetY, offsetX: this.data.Xdirec === 1 ? this.hitbox.offsetX + this.hitbox.width : this.hitbox.offsetX - attackRange, width: attackRange, height: this.hitbox.height }, pos: this.pos }, { hitbox: obj.hitbox, pos: obj.pos }) && obj.type.attackable) { // Xdirec === 1 --> rechts Xdirec === 2 --> Links
-                            let attackDamage = (this.data.inventory[3][this.data.selectedSlot - 1] ? items[this.data.inventory[3][this.data.selectedSlot - 1]].attackDamage : 1);
-                            if (menu.checkSetting('Inf Damage'))
-                                attackDamage = 10000;
-                            if (this.checkEffect('strength').wasFound) {
-                                attackDamage += (((_a = this.checkEffect('strength').effect) === null || _a === void 0 ? void 0 : _a.factor) / 2) * 6;
-                            }
-                            if (this.checkEffect('electrocute').wasFound) {
-                                obj.addEffect('stun', 200, 1);
-                            }
-                            obj.takeHit(attackDamage);
-                            const selectedSlot = this.data.inventory[3][this.data.selectedSlot - 1];
-                            if (selectedSlot !== null) {
-                                if (itemFunctions[selectedSlot] && itemFunctions[selectedSlot].attack) {
-                                    itemFunctions[selectedSlot].attack(obj);
-                                }
-                            }
-                        }
-                    });
-                }, 300);
-            }
-            else {
-                if (this.data.Ydirec !== 0) {
-                    this.changeState(`attack3`); // change to attack state
-                    if (menu.checkSetting('Master Sound'))
-                        playSound('slice.mp3', menu.sounds.effects / 100);
-                    if (player.data.inventory[3][this.data.selectedSlot - 1] !== null) {
-                        this.setCooldown(items[player.data.inventory[3][this.data.selectedSlot - 1]].attackCooldown); // set a cooldown
-                    }
-                    else {
-                        this.setCooldown(1500);
-                    }
-                    setTimeout(() => {
-                        worlds[currentWorld].elements.forEach(obj => {
-                            var _a;
-                            if (!(obj instanceof Entity))
-                                return;
-                            let attackRange = 100;
-                            const item = this.data.inventory[3][this.data.selectedSlot - 1];
-                            if (item !== null) {
-                                attackRange = items[item].attackRange;
-                            }
-                            if (checkCollision({ hitbox: { offsetY: 0 + this.hitbox.offsetY, offsetX: this.data.Xdirec === 1 ? this.hitbox.offsetX + this.hitbox.width : this.hitbox.offsetX - attackRange, width: attackRange, height: this.hitbox.height }, pos: this.pos }, { hitbox: obj.hitbox, pos: obj.pos }) && obj.type.attackable) { // Xdirec === 1 --> rechts Xdirec === 2 --> Links
-                                let attackDamage = (this.data.inventory[3][this.data.selectedSlot - 1] ? items[this.data.inventory[3][this.data.selectedSlot - 1]].attackDamage : 1);
-                                if (menu.checkSetting('Inf Damage'))
-                                    attackDamage = 10000;
-                                if (this.checkEffect('strength').wasFound) {
-                                    attackDamage += (((_a = this.checkEffect('strength').effect) === null || _a === void 0 ? void 0 : _a.factor) / 2) * 6;
-                                }
-                                if (this.checkEffect('electrocute').wasFound) {
-                                    obj.addEffect('stun', 200, 1);
-                                }
-                                obj.takeHit(attackDamage);
-                                const selectedSlot = this.data.inventory[3][this.data.selectedSlot - 1];
-                                if (selectedSlot !== null) {
-                                    if (itemFunctions[selectedSlot] && itemFunctions[selectedSlot].attack) {
-                                        itemFunctions[selectedSlot].attack(obj);
-                                    }
-                                }
-                            }
-                        });
-                    }, 300);
-                }
-            }
-        }
-    }
-    jump() {
-        if (!player.data.onCooldown && player.data.onGround) {
-            player.data.onGround = false;
-            player.data.velocity_Y = 1;
-            player.data.Ydirec = 1;
-        }
-    }
-    endOfAnimation() {
-        if (this.sprite.currentState === 'attack1' || this.sprite.currentState === 'take_hit' || this.sprite.currentState === 'attack3') { // reset animation
-            this.changeState('idle');
-        }
-    }
-    useItem() {
-        const currentItem = player.data.inventory[3][this.data.selectedSlot - 1];
-        if (!currentItem)
+        if (this.data.health <= 0)
             return;
-        if (items[player.data.inventory[3][this.data.selectedSlot - 1]].clearsAfterUse)
-            player.data.inventory[3][this.data.selectedSlot - 1] = null;
-        if (itemFunctions[currentItem] && itemFunctions[currentItem].use) {
-            itemFunctions[currentItem].use();
-        }
-        updateHotbar();
+        if (Math.random() * 100 < 80)
+            this.setCooldown(1000);
+        this.changeState('take_hit');
+        this.data.health -= damage;
+        this.showHealthbar();
     }
-    heal(healAmount) {
-        if (healAmount + this.data.health >= this.data.maxHealth) {
-            this.data.health = this.data.maxHealth;
+    endOfAnimation(frameAmount) {
+        var _a;
+        if (this.sprite.currentState === 'death') {
+            let deadParticles = [];
+            particles.forEach((particle, i) => {
+                if (particle.entity === this) {
+                    deadParticles.push(i);
+                }
+            });
+            deadParticles.forEach(deadParticle => {
+                particles.splice(deadParticle, 1);
+            });
+            if (this.data.isDead)
+                return;
+            this.data.isDead = true;
+            this.sprite.frameLoc = frameAmount - 1;
+            deadObjects.push(this);
+            return;
         }
         else {
-            this.data.health += healAmount;
+            if (this.sprite.currentState === 'take_hit') {
+                this.changeState('idle');
+            }
+            else if (this.sprite.currentState === 'attack') {
+                if (((_a = this.type.attackType) === null || _a === void 0 ? void 0 : _a.type) === 'rangedCombat') {
+                    particles.push(new projectile(this, this.type.attackType.projectile.spriteWidth, this.type.attackType.projectile.spriteHeight, this.type.attackType.projectile.scale, this.type.attackType.projectile.pathToImage, this.type.attackType.projectile.animationStates, this.type.attackType.projectile.range, this.type.attackType.projectile.speed, this.type.attackType.projectile.damage, this.type.attackType.projectile.hitbox, 'arrow'));
+                }
+                this.changeState('idle');
+                this.data.isAttacking = false;
+            }
+        }
+        if (this.type.name === 'trader' && this.sprite.currentState === 'open') {
+            this.changeState('dialogue');
         }
     }
-    interact() {
-        if (this.data.interactionFocus)
-            this.data.interactionFocus.interact();
-    }
-    addItem(item, amount) {
-        let itemCounter = 0;
-        outerLoop: for (let y = 3; y >= 0; y--) {
-            for (let x = 0; x < 5; x++) {
-                if (player.data.inventory[y][x] === null) {
-                    player.data.inventory[y][x] = item;
-                    itemCounter++;
-                    if (itemCounter >= amount) {
-                        break outerLoop;
+    attack() {
+        if (!this.data.isAttacking && !this.data.onCooldown) {
+            this.changeState('attack');
+            this.data.isAttacking = true;
+            setTimeout(() => {
+                var _a;
+                if (this.data.isDead)
+                    return;
+                if (this.data.onCooldown)
+                    return;
+                if (((_a = this.type.attackType) === null || _a === void 0 ? void 0 : _a.type) !== 'rangedCombat') {
+                    const playerPosX = player.pos.x;
+                    const playerDirec = this.pos.x - player.pos.x;
+                    const distanceXToPlayer = Math.abs((playerPosX + (player.sprite.spriteWidth / 2) * player.sprite.scale) - (this.pos.x + (this.sprite.spriteWidth / 2) * this.sprite.scale));
+                    if (playerDirec <= 0 && distanceXToPlayer <= this.data.attackRange && player.pos.y + this.data.attackRange >= this.pos.y) {
+                        player.takeHit(this.data.attackDamage);
+                    }
+                    else if (playerDirec > 0 && distanceXToPlayer <= this.data.attackRange * 2 && player.pos.y + this.data.attackRange >= this.pos.y) {
+                        player.takeHit(this.data.attackDamage);
                     }
                 }
-            }
+            }, 550);
         }
-        if (itemCounter < amount) {
-            displayInfo('Not enough space!');
-        }
-        updateHotbar();
-    }
-    removeItems(items) {
-        let success = true;
-        items.forEach(item => {
-            let counter = 0;
-            for (let y = 0; y < player.data.inventory.length; y++) {
-                for (let x = 0; x < player.data.inventory[y].length; x++) {
-                    if (player.data.inventory[y][x] === item.item) {
-                        counter++;
-                        player.data.inventory[y][x] = null;
-                    }
-                }
-            }
-            if (counter < item.amount) {
-                success = false;
-            }
-        });
-        updateHotbar();
-        return success;
-    }
-    addEffect(effect, duration, factor) {
-        let foundDuplicate = false;
-        this.effectData.effects.forEach(effect1 => {
-            if (effect1.effect.name === effect) {
-                effect1.duration = duration;
-                foundDuplicate = true;
-            }
-        });
-        if (!foundDuplicate) {
-            const image = new Image();
-            image.src = effects[effect].particle;
-            this.effectData.effects.push({ effect: effects[effect], duration, factor, index: this.effectData.effectCounter });
-            particles.push(new particle(this, effects[effect].spriteWidth, effects[effect].spriteHeight, image, this.effectData.effectCounter, effects[effect].frameAmount));
-            this.effectData.effectCounter++;
-            const innerDiv = document.createElement('div');
-            innerDiv.id = `${effect}`;
-            const div = document.querySelector('.effect-icons-div');
-            const effectIcon = document.createElement('div');
-            effectIcon.title = effects[effect].name;
-            const durationDiv = document.createElement('h3');
-            durationDiv.textContent = String(duration);
-            durationDiv.id = 'duration';
-            effectIcon.classList.add('effectIcon');
-            effectIcon.style.backgroundImage = `url(${effects[effect].icon})`;
-            innerDiv === null || innerDiv === void 0 ? void 0 : innerDiv.appendChild(effectIcon);
-            innerDiv === null || innerDiv === void 0 ? void 0 : innerDiv.appendChild(durationDiv);
-            div === null || div === void 0 ? void 0 : div.appendChild(innerDiv);
-        }
-        if (effectFunctions[effect] && effectFunctions[effect].start) {
-            effectFunctions[effect].start(this);
-        }
-    }
-    removeEffect(index) {
-        for (let i = 0; i < this.effectData.effects.length; i++) {
-            if (this.effectData.effects[i].index === index) {
-                document.querySelector(`#${this.effectData.effects[i].effect.name}`).remove();
-                this.effectData.effects.splice(i, 1);
-                break;
-            }
-        }
-        let particleIndex = 0;
-        particles.forEach((particle, i) => {
-            if (particle.counter === index) {
-                particleIndex = i;
-            }
-        });
-        particles.splice(particleIndex, 1);
-    }
-    checkEffect(effect) {
-        let foundEffect = false;
-        let effect2 = null;
-        this.effectData.effects.forEach(effect1 => {
-            if (effect1.effect.name === effect) {
-                foundEffect = true;
-                effect2 = effect1;
-            }
-        });
-        return { wasFound: foundEffect, effect: effect2 };
-    }
-    get center() {
-        return {
-            x: this.pos.x + this.hitbox.offsetX + this.hitbox.width / 2,
-            y: this.pos.y + this.hitbox.offsetY + this.hitbox.height / 2
-        };
     }
 }
 //
@@ -2322,7 +1455,7 @@ function removeWorldElements(properties, elementValue, dim) {
         });
     });
     removeList.forEach(i => {
-        if (!(worlds[dim].elements[i].sprite.pathToImage === "/img/blocks/house_5.png")) {
+        if (!(worlds[dim].elements[i].sprite.pathToImage === "img/blocks/house_5.png")) {
             worlds[dim].elements.splice(i, 1);
         }
     });
@@ -2349,686 +1482,13 @@ function checkCollision(element1, element2) {
         aTop < bBottom &&
         aBottom > bTop);
 }
+function teleport(distance) {
+    worlds[currentWorld].elements.forEach(el => {
+        el.pos.x -= distance;
+    });
+}
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
-}
-// inventory logic
-function openInventory() {
-    player.data.onInventory = true;
-    const inventoryDiv = document.querySelector('.inventory-div');
-    const playerDiv = document.querySelector('.player-data');
-    inventoryDiv === null || inventoryDiv === void 0 ? void 0 : inventoryDiv.classList.remove('display-none');
-    renderInventory();
-}
-function parseSlotId(id) {
-    const match = id.match(/(slot|secondarySlot|armorSlot|craftingSlot)(\d+)(\d+)/);
-    if (!match)
-        throw new Error('Invalid ID!');
-    return {
-        x: Number(match[2]),
-        y: Number(match[3])
-    };
-}
-function updateHotbar() {
-    for (let x = 0; x < 5; x++) {
-        const hotbarSlot = document.querySelector(`#hotbar${x + 1}`);
-        hotbarSlot.innerHTML = '';
-        if (player.data.inventory[3][x] !== null) {
-            const itemDivHotbar = document.createElement('div');
-            itemDivHotbar.classList.add('slotItem');
-            itemDivHotbar.style.scale = `${items[player.data.inventory[3][x]].scale + 1} `;
-            itemDivHotbar.style.width = `${items[player.data.inventory[3][x]].width}px`;
-            itemDivHotbar.style.height = `${items[player.data.inventory[3][x]].height}px`;
-            itemDivHotbar.style.backgroundImage = `url(img/items/${items[player.data.inventory[3][x]].src})`;
-            itemDivHotbar.style.backgroundPosition = `-${items[player.data.inventory[3][x]].spriteX}px -${items[player.data.inventory[3][x]].spriteY}px`;
-            hotbarSlot.appendChild(itemDivHotbar);
-        }
-    }
-}
-function advanceConversation(NPC) {
-    var _a, _b;
-    const speakBtn = document.querySelector('#speakBtn');
-    const speak = document.querySelector('.speak');
-    let currentConversation;
-    if (!NPC.hasGivenPresent && NPC.conversation) {
-        currentConversation = NPC.conversation.first;
-    }
-    else if (NPC.quest && NPC.quest.completed && ((_a = NPC.conversation) === null || _a === void 0 ? void 0 : _a.questCompleted)) {
-        currentConversation = NPC.conversation.questCompleted;
-    }
-    else {
-        if ((_b = NPC.conversation) === null || _b === void 0 ? void 0 : _b.second) {
-            currentConversation = NPC.conversation.second;
-        }
-        else {
-            currentConversation = NPC.conversation.first;
-        }
-    }
-    if (NPC.conversationCounter >= currentConversation.length || menu.checkSetting('Insta Skip')) {
-        const speakDiv = document.querySelector('#speakWrapper');
-        speakDiv === null || speakDiv === void 0 ? void 0 : speakDiv.classList.add('display-none');
-        NPC.conversationCounter = 0;
-        player.data.canMove = true;
-        NPC.isSpeaking = false;
-        if (NPC.endConversation)
-            NPC.endConversation();
-        return;
-    }
-    const charArray = currentConversation[NPC.conversationCounter].split('');
-    let counter = 0;
-    let interval = setInterval(() => {
-        speak.innerHTML += charArray[counter];
-        counter++;
-        if (counter >= charArray.length) {
-            clearInterval(interval);
-            NPC.conversationCounter++;
-            speakBtn.classList.remove('display-none');
-            speakBtn.replaceWith(speakBtn.cloneNode(true));
-            const newSpeakBtn = document.querySelector('#speakBtn');
-            newSpeakBtn.addEventListener('click', () => {
-                speak.innerHTML = '';
-                newSpeakBtn.classList.add('display-none');
-                advanceConversation(NPC);
-            });
-        }
-    }, 50);
-}
-function renderInventory() {
-    var _a;
-    document.querySelector('.inventory-div').innerHTML = `<div class="armor-div"></div><div class="slots-div"></div > <div class="player-data" > </div>`;
-    const playerDiv = document.querySelector('.player-data');
-    const armorDiv = document.querySelector('.armor-div');
-    playerDiv.innerHTML = `<h2>No item selected</h2>`;
-    // add each armor slot
-    for (let i = 0; i < 3; i++) {
-        const slot = document.createElement('div');
-        if (i === 0) {
-            slot.classList.add('helmet');
-        }
-        else if (i === 1) {
-            slot.classList.add('chestplate');
-        }
-        else {
-            slot.classList.add('boots');
-        }
-        slot.classList.add('armorSlot');
-        slot.classList.add('inv-slot');
-        slot.id = `armorSlot${i}0`;
-        armorDiv === null || armorDiv === void 0 ? void 0 : armorDiv.appendChild(slot);
-    }
-    // add each armor item
-    for (let i = 0; i < 3; i++) {
-        if (player.data.armor[i] !== null) {
-            const itemDiv = document.createElement('div');
-            itemDiv.classList.add('item');
-            itemDiv.addEventListener('click', (e) => {
-                var _a;
-                e.stopPropagation();
-                player.data.dragging = e.target.parentElement.id;
-                (_a = document.querySelector('body')) === null || _a === void 0 ? void 0 : _a.classList.add('grab');
-                if (player.data.armor[i] !== null) {
-                    if (items[player.data.armor[i]].type === 'armor')
-                        playerDiv.innerHTML = `<h2>${player.data.armor[i].replace(/_/g, ' ').toUpperCase()}</h2> <br><h3>Protection: ${items[player.data.armor[i]].protection}%</h3>${items[player.data.armor[i]].onUse !== '' ? '<br><h2>On use: ' + items[player.data.armor[i]].onUse + '</h2>' : ''}<br><h2 style="font-weight: 200; font-family: cursive;">${items[player.data.armor[i]].description} </h2>`;
-                }
-            });
-            itemDiv.addEventListener('mousedown', (e) => {
-                e.stopPropagation();
-                if (player.data.armor[i] !== null && e.button === 2 && items[player.data.armor[i]].type === 'armor') {
-                    playerDiv.innerHTML = `<h2>${player.data.armor[i].replace(/_/g, ' ').toUpperCase()}</h2> <br><h3>Protection: ${items[player.data.armor[i]].protection}%</h3>${items[player.data.armor[i]].onUse !== '' ? '<br><h2>On use: ' + items[player.data.armor[i]].onUse + '</h2>' : ''}<br><h2 style="font-weight: 200; font-family: cursive;">${items[player.data.armor[i]].description} </h2>`;
-                }
-            });
-            itemDiv.style.backgroundImage = `url(img/items/${items[player.data.armor[i]].src})`;
-            itemDiv.style.width = `${items[player.data.armor[i]].width}px`;
-            itemDiv.style.height = `${items[player.data.armor[i]].height}px`;
-            itemDiv.style.scale = `${items[player.data.armor[i]].scale}`;
-            itemDiv.style.backgroundPosition = `-${items[player.data.armor[i]].spriteX}px -${items[player.data.armor[i]].spriteY}px`;
-            document.querySelector(`#armorSlot${i}0`).appendChild(itemDiv);
-        }
-    }
-    // add each slot
-    for (let y = 0; y < player.data.inventory.length; y++) {
-        for (let x = 0; x < player.data.inventory[y].length; x++) {
-            const slot = document.createElement('div');
-            slot.classList.add('inv-slot');
-            slot.classList.add('primarySlot');
-            slot.id = `slot${x}${y}`;
-            (_a = document.querySelector('.slots-div')) === null || _a === void 0 ? void 0 : _a.appendChild(slot);
-        }
-    }
-    // add each item
-    for (let y = 0; y < player.data.inventory.length; y++) {
-        for (let x = 0; x < player.data.inventory[y].length; x++) {
-            if (player.data.inventory[y][x] !== null) {
-                const itemDiv = document.createElement('div');
-                itemDiv.classList.add('item');
-                itemDiv.addEventListener('click', (e) => {
-                    var _a;
-                    e.stopPropagation();
-                    player.data.dragging = e.target.parentElement.id;
-                    (_a = document.querySelector('body')) === null || _a === void 0 ? void 0 : _a.classList.add('grab');
-                    if (menu.checkSetting('Master Sound'))
-                        playSound('blipSelect.mp3', menu.sounds.effects / 100);
-                    if (player.data.inventory[y][x] !== null) {
-                        if (items[player.data.inventory[y][x]].type === 'armor') {
-                            playerDiv.innerHTML = `<h2>${player.data.inventory[y][x].replace(/_/g, ' ').toUpperCase()}</h2> <br><h3>Protection: ${items[player.data.inventory[y][x]].protection}%</h3>${items[player.data.inventory[y][x]].onUse !== '' ? '<br><h2>On use: ' + items[player.data.inventory[y][x]].onUse + '</h2>' : ''}<br><h2 style="font-weight: 200; font-family: cursive;">${items[player.data.inventory[y][x]].description} </h2>`;
-                        }
-                        else if (items[player.data.inventory[y][x]].type === 'weapon') {
-                            playerDiv.innerHTML = `<h2>${player.data.inventory[y][x].replace(/_/g, ' ').toUpperCase()}</h2> <br> <h3>Attack Damage: ${items[player.data.inventory[y][x]].attackDamage}</h3> <br><h3>Attack Speed: ${items[player.data.inventory[y][x]].attackCooldown / 1000}s</h3><br><h3>Attack Range: ${items[player.data.inventory[y][x]].attackRange}</h3>${items[player.data.inventory[y][x]].onUse !== '' ? '<br><h2>On use: ' + items[player.data.inventory[y][x]].onUse + '</h2>' : ''}<br><h2 style="font-weight: 200; font-family: cursive;">${items[player.data.inventory[y][x]].description} </h2>`;
-                        }
-                        else if (items[player.data.inventory[y][x]].type === 'food') {
-                            playerDiv.innerHTML = `<h2>${player.data.inventory[y][x].replace(/_/g, ' ').toUpperCase()}</h2> <br> ${items[player.data.inventory[y][x]].onUse !== '' ? '<br><h2>On use: ' + items[player.data.inventory[y][x]].onUse + '</h2>' : ''}<br><h2 style="font-weight: 200; font-family: cursive;">${items[player.data.inventory[y][x]].description} </h2>`;
-                        }
-                        else {
-                            playerDiv.innerHTML = `<h2>${player.data.inventory[y][x].replace(/_/g, ' ').toUpperCase()}</h2> <br>${items[player.data.inventory[y][x]].onUse !== '' ? '<br><h2>On use: ' + items[player.data.inventory[y][x]].onUse + '</h2>' : ''}<br><h2 style="font-weight: 200; font-family: cursive;">${items[player.data.inventory[y][x]].description} </h2>`;
-                        }
-                    }
-                });
-                itemDiv.addEventListener('mousedown', (e) => {
-                    e.stopPropagation();
-                    if (player.data.inventory[y][x] !== null && e.button === 2) {
-                        if (items[player.data.inventory[y][x]].type === 'armor') {
-                            playerDiv.innerHTML = `<h2>${player.data.inventory[y][x].replace(/_/g, ' ').toUpperCase()}</h2> <br><h3>Protection: ${items[player.data.inventory[y][x]].protection}%</h3>${items[player.data.inventory[y][x]].onUse !== '' ? '<br><h2>On use: ' + items[player.data.inventory[y][x]].onUse + '</h2>' : ''}<br><h2 style="font-weight: 200; font-family: cursive;">${items[player.data.inventory[y][x]].description} </h2>`;
-                        }
-                        else if (items[player.data.inventory[y][x]].type === 'weapon') {
-                            playerDiv.innerHTML = `<h2>${player.data.inventory[y][x].replace(/_/g, ' ').toUpperCase()}</h2> <br> <h3>Attack Damage: ${items[player.data.inventory[y][x]].attackDamage}</h3> <br><h3>Attack Speed: ${items[player.data.inventory[y][x]].attackCooldown / 1000}s</h3><br><h3>Attack Range: ${items[player.data.inventory[y][x]].attackRange}</h3>${items[player.data.inventory[y][x]].onUse !== '' ? '<br><h2>On use: ' + items[player.data.inventory[y][x]].onUse + '</h2>' : ''}<br><h2 style="font-weight: 200; font-family: cursive;">${items[player.data.inventory[y][x]].description} </h2>`;
-                        }
-                        else if (items[player.data.inventory[y][x]].type === 'food') {
-                            playerDiv.innerHTML = `<h2>${player.data.inventory[y][x].replace(/_/g, ' ').toUpperCase()}</h2> <br> ${items[player.data.inventory[y][x]].onUse !== '' ? '<br><h2>On use: ' + items[player.data.inventory[y][x]].onUse + '</h2>' : ''}<br><h2 style="font-weight: 200; font-family: cursive;">${items[player.data.inventory[y][x]].description} </h2>`;
-                        }
-                        else {
-                            playerDiv.innerHTML = `<h2>${player.data.inventory[y][x].replace(/_/g, ' ').toUpperCase()}</h2> <br>${items[player.data.inventory[y][x]].onUse !== '' ? '<br><h2>On use: ' + items[player.data.inventory[y][x]].onUse + '</h2>' : ''}<br><h2 style="font-weight: 200; font-family: cursive;">${items[player.data.inventory[y][x]].description} </h2>`;
-                        }
-                    }
-                });
-                itemDiv.style.backgroundImage = `url(img/items/${items[player.data.inventory[y][x]].src})`;
-                itemDiv.style.width = `${items[player.data.inventory[y][x]].width}px`;
-                itemDiv.style.height = `${items[player.data.inventory[y][x]].height}px`;
-                itemDiv.style.scale = `${items[player.data.inventory[y][x]].scale}`;
-                itemDiv.style.backgroundPosition = `-${items[player.data.inventory[y][x]].spriteX}px -${items[player.data.inventory[y][x]].spriteY}px`;
-                document.querySelector(`#slot${x}${y}`).appendChild(itemDiv);
-                if (y === 3) {
-                    const itemDivHotbar = document.createElement('div');
-                    itemDivHotbar.classList.add('slotItem');
-                    itemDivHotbar.style.scale = `${items[player.data.inventory[y][x]].scale + 1}`;
-                    itemDivHotbar.style.width = `${items[player.data.inventory[y][x]].width}px`;
-                    itemDivHotbar.style.height = `${items[player.data.inventory[y][x]].height}px`;
-                    itemDivHotbar.style.backgroundImage = `url(img/items/${items[player.data.inventory[y][x]].src})`;
-                    itemDivHotbar.style.backgroundPosition = `-${items[player.data.inventory[y][x]].spriteX}px -${items[player.data.inventory[y][x]].spriteY}px`;
-                    document.querySelector(`#hotbar${x + 1}`).innerHTML = '';
-                    document.querySelector(`#hotbar${x + 1}`).appendChild(itemDivHotbar);
-                }
-            }
-            else {
-                if (y === 3) {
-                    document.querySelector(`#hotbar${x + 1}`).innerHTML = '';
-                }
-            }
-        }
-    }
-    // crafting
-    const craftingDiv = document.querySelector('.crafting-div');
-    craftingDiv.innerHTML = '';
-    craftingDiv === null || craftingDiv === void 0 ? void 0 : craftingDiv.classList.remove('display-none');
-    const innerDiv = document.createElement('div');
-    innerDiv.classList.add('grid');
-    const arrowDiv = document.createElement('div');
-    arrowDiv.addEventListener('click', () => {
-        const recipe = checkForRecipes();
-        if (recipe.isValid && recipe.output) {
-            player.addItem(recipe.output, 1);
-            player.data.craftingInventory = [[null, null, null], [null, null, null], [null, null, null]];
-            renderInventory();
-        }
-    });
-    arrowDiv.classList.add('arrow');
-    arrowDiv.classList.add('arrow1');
-    const outputDiv = document.createElement('div');
-    outputDiv.classList.add('crafting-slot');
-    outputDiv.classList.add('inv-slot');
-    outputDiv.id = 'output';
-    outputDiv.addEventListener('click', () => {
-        const recipe = checkForRecipes();
-        if (recipe.isValid && recipe.output) {
-            player.addItem(recipe.output, 1);
-            player.data.craftingInventory = [[null, null, null], [null, null, null], [null, null, null]];
-            renderInventory();
-        }
-    });
-    arrowDiv.classList.add('margin-top');
-    outputDiv.classList.add('margin-top');
-    for (let y = 0; y < 3; y++) {
-        for (let x = 0; x < 3; x++) {
-            const slot = document.createElement('div');
-            slot.classList.add('crafting-slot');
-            slot.classList.add('inv-slot');
-            slot.id = `craftingSlot${x}${y}`;
-            innerDiv === null || innerDiv === void 0 ? void 0 : innerDiv.appendChild(slot);
-        }
-    }
-    craftingDiv === null || craftingDiv === void 0 ? void 0 : craftingDiv.appendChild(innerDiv);
-    craftingDiv === null || craftingDiv === void 0 ? void 0 : craftingDiv.appendChild(arrowDiv);
-    craftingDiv === null || craftingDiv === void 0 ? void 0 : craftingDiv.appendChild(outputDiv);
-    for (let y = 0; y < 3; y++) {
-        for (let x = 0; x < 3; x++) {
-            if (player.data.craftingInventory[y][x] !== null) {
-                const itemDiv = document.createElement('div');
-                itemDiv.classList.add('item');
-                itemDiv.addEventListener('click', (e) => {
-                    var _a;
-                    e.stopPropagation();
-                    player.data.dragging = e.target.parentElement.id;
-                    (_a = document.querySelector('body')) === null || _a === void 0 ? void 0 : _a.classList.add('grab');
-                    if (player.data.craftingInventory[y][x] !== null) {
-                        if (items[player.data.craftingInventory[y][x]].type === 'armor') {
-                            playerDiv.innerHTML = `<h2>${player.data.craftingInventory[y][x].replace(/_/g, ' ').toUpperCase()}</h2> <br><h3>Protection: ${items[player.data.craftingInventory[y][x]].protection}%</h3>${items[player.data.craftingInventory[y][x]].onUse !== '' ? '<br><h2>On use: ' + items[player.data.craftingInventory[y][x]].onUse + '</h2>' : ''}<br><h2 style="font-weight: 200; font-family: cursive;">${items[player.data.craftingInventory[y][x]].description} </h2>`;
-                        }
-                        else if (items[player.data.craftingInventory[y][x]].type === 'weapon') {
-                            playerDiv.innerHTML = `<h2>${player.data.craftingInventory[y][x].replace(/_/g, ' ').toUpperCase()}</h2> <br> <h3>Attack Damage: ${items[player.data.craftingInventory[y][x]].attackDamage}</h3> <br><h3>Attack Speed: ${items[player.data.craftingInventory[y][x]].attackCooldown / 1000}s</h3><br><h3>Attack Range: ${items[player.data.craftingInventory[y][x]].attackRange}</h3>${items[player.data.craftingInventory[y][x]].onUse !== '' ? '<br><h2>On use: ' + items[player.data.craftingInventory[y][x]].onUse + '</h2>' : ''}<br><h2 style="font-weight: 200; font-family: cursive;">${items[player.data.craftingInventory[y][x]].description} </h2>`;
-                        }
-                        else if (items[player.data.craftingInventory[y][x]].type === 'food') {
-                            playerDiv.innerHTML = `<h2>${player.data.craftingInventory[y][x].replace(/_/g, ' ').toUpperCase()}</h2> <br> ${items[player.data.craftingInventory[y][x]].onUse !== '' ? '<br><h2>On use: ' + items[player.data.craftingInventory[y][x]].onUse + '</h2>' : ''}<br><h2 style="font-weight: 200; font-family: cursive;">${items[player.data.craftingInventory[y][x]].description} </h2>`;
-                        }
-                        else {
-                            playerDiv.innerHTML = `<h2>${player.data.craftingInventory[y][x].replace(/_/g, ' ').toUpperCase()}</h2> <br>${items[player.data.craftingInventory[y][x]].onUse !== '' ? '<br><h2>On use: ' + items[player.data.craftingInventory[y][x]].onUse + '</h2>' : ''}<br><h2 style="font-weight: 200; font-family: cursive;">${items[player.data.craftingInventory[y][x]].description} </h2>`;
-                        }
-                    }
-                });
-                itemDiv.addEventListener('mousedown', (e) => {
-                    e.stopPropagation();
-                    if (player.data.craftingInventory[y][x] !== null && e.button === 2) {
-                        if (items[player.data.craftingInventory[y][x]].type === 'armor') {
-                            playerDiv.innerHTML = `<h2>${player.data.craftingInventory[y][x].replace(/_/g, ' ').toUpperCase()}</h2> <br><h3>Protection: ${items[player.data.craftingInventory[y][x]].protection}%</h3>${items[player.data.craftingInventory[y][x]].onUse !== '' ? '<br><h2>On use: ' + items[player.data.craftingInventory[y][x]].onUse + '</h2>' : ''}<br><h2 style="font-weight: 200; font-family: cursive;">${items[player.data.craftingInventory[y][x]].description} </h2>`;
-                        }
-                        else if (items[player.data.craftingInventory[y][x]].type === 'weapon') {
-                            playerDiv.innerHTML = `<h2>${player.data.craftingInventory[y][x].replace(/_/g, ' ').toUpperCase()}</h2> <br> <h3>Attack Damage: ${items[player.data.craftingInventory[y][x]].attackDamage}</h3> <br><h3>Attack Speed: ${items[player.data.craftingInventory[y][x]].attackCooldown / 1000}s</h3><br><h3>Attack Range: ${items[player.data.craftingInventory[y][x]].attackRange}</h3>${items[player.data.craftingInventory[y][x]].onUse !== '' ? '<br><h2>On use: ' + items[player.data.craftingInventory[y][x]].onUse + '</h2>' : ''}<br><h2 style="font-weight: 200; font-family: cursive;">${items[player.data.craftingInventory[y][x]].description} </h2>`;
-                        }
-                        else if (items[player.data.craftingInventory[y][x]].type === 'food') {
-                            playerDiv.innerHTML = `<h2>${player.data.craftingInventory[y][x].replace(/_/g, ' ').toUpperCase()}</h2> <br> ${items[player.data.craftingInventory[y][x]].onUse !== '' ? '<br><h2>On use: ' + items[player.data.craftingInventory[y][x]].onUse + '</h2>' : ''}<br><h2 style="font-weight: 200; font-family: cursive;">${items[player.data.craftingInventory[y][x]].description} </h2>`;
-                        }
-                        else {
-                            playerDiv.innerHTML = `<h2>${player.data.craftingInventory[y][x].replace(/_/g, ' ').toUpperCase()}</h2> <br>${items[player.data.craftingInventory[y][x]].onUse !== '' ? '<br><h2>On use: ' + items[player.data.craftingInventory[y][x]].onUse + '</h2>' : ''}<br><h2 style="font-weight: 200; font-family: cursive;">${items[player.data.craftingInventory[y][x]].description} </h2>`;
-                        }
-                    }
-                });
-                itemDiv.style.backgroundImage = `url(img/items/${items[player.data.craftingInventory[y][x]].src})`;
-                itemDiv.style.width = `${items[player.data.craftingInventory[y][x]].width}px`;
-                itemDiv.style.height = `${items[player.data.craftingInventory[y][x]].height}px`;
-                itemDiv.style.scale = `${items[player.data.craftingInventory[y][x]].scale}`;
-                itemDiv.style.backgroundPosition = `-${items[player.data.craftingInventory[y][x]].spriteX}px -${items[player.data.craftingInventory[y][x]].spriteY}px`;
-                document.querySelector(`#craftingSlot${x}${y}`).appendChild(itemDiv);
-            }
-        }
-    }
-    const recipe = checkForRecipes();
-    if (recipe.isValid && recipe.output) {
-        const itemDiv = document.createElement('div');
-        itemDiv.classList.add('item');
-        itemDiv.style.backgroundImage = `url(img/items/${items[recipe.output].src})`;
-        itemDiv.style.width = `${items[recipe.output].width}px`;
-        itemDiv.style.height = `${items[recipe.output].height}px`;
-        itemDiv.style.scale = `${items[recipe.output].scale}`;
-        itemDiv.style.backgroundPosition = `-${items[recipe.output].spriteX}px -${items[recipe.output].spriteY}px`;
-        outputDiv.appendChild(itemDiv);
-    }
-    // add all of the drop logic
-    document.querySelectorAll('.primarySlot').forEach(slot => {
-        slot.addEventListener('click', e => {
-            var _a;
-            e.preventDefault();
-            (_a = document.querySelector('body')) === null || _a === void 0 ? void 0 : _a.classList.remove('grab');
-            if (menu.checkSetting('Master Sound'))
-                playSound('blipSelect.mp3', menu.sounds.effects / 100);
-            if (!player.data.dragging)
-                return;
-            const targetElement = e.target.closest('.inv-slot');
-            const dragSlot = parseSlotId(player.data.dragging);
-            const targetSlot = parseSlotId(targetElement.id);
-            if (player.data.inventory[targetSlot.y][targetSlot.x] !== null)
-                return;
-            if (player.data.dragging.slice(0, 13) === 'secondarySlot') {
-                if (player.data.interactionFocus instanceof chest) {
-                    const temp = player.data.interactionFocus.inventory[dragSlot.y][dragSlot.x];
-                    player.data.interactionFocus.inventory[dragSlot.y][dragSlot.x] = null;
-                    player.data.inventory[targetSlot.y][targetSlot.x] = temp;
-                }
-            }
-            else if (player.data.dragging.slice(0, 12) === 'craftingSlot') {
-                const temp = player.data.craftingInventory[dragSlot.y][dragSlot.x];
-                player.data.craftingInventory[dragSlot.y][dragSlot.x] = null;
-                player.data.inventory[targetSlot.y][targetSlot.x] = temp;
-            }
-            else if (player.data.dragging.slice(0, 9) === 'armorSlot') {
-                const temp = player.data.armor[dragSlot.x];
-                player.data.armor[dragSlot.x] = null;
-                player.data.inventory[targetSlot.y][targetSlot.x] = temp;
-            }
-            else if (player.data.dragging.slice(0, 4) === 'slot') {
-                const temp = player.data.inventory[dragSlot.y][dragSlot.x];
-                player.data.inventory[dragSlot.y][dragSlot.x] = null;
-                player.data.inventory[targetSlot.y][targetSlot.x] = temp;
-            }
-            player.data.dragging = null;
-            renderInventory();
-            if (player.data.onSecondaryInventory && player.data.interactionFocus instanceof chest)
-                renderSecondaryContainer(player.data.interactionFocus);
-        });
-    });
-    document.querySelectorAll('.armorSlot').forEach(slot => {
-        slot.addEventListener('click', e => {
-            var _a;
-            e.preventDefault();
-            (_a = document.querySelector('body')) === null || _a === void 0 ? void 0 : _a.classList.remove('grab');
-            if (menu.checkSetting('Master Sound'))
-                playSound('blipSelect.mp3', menu.sounds.effects / 100);
-            if (!player.data.dragging)
-                return;
-            const targetElement = e.target.closest('.inv-slot');
-            const dragSlot = parseSlotId(player.data.dragging);
-            const targetSlot = parseSlotId(targetElement.id);
-            if (player.data.armor[targetSlot.x] !== null)
-                return;
-            if (player.data.dragging.slice(0, 13) === 'secondarySlot') {
-                if (player.data.interactionFocus instanceof chest) {
-                    const temp = player.data.interactionFocus.inventory[dragSlot.y][dragSlot.x];
-                    if (items[temp].type !== 'armor' || ((targetSlot.x === 0 && items[temp].slot !== 'helmet') || (targetSlot.x === 1 && items[temp].slot !== 'chestplate') || (targetSlot.x === 2 && items[temp].slot !== 'boots'))) {
-                        displayInfo('Item doesn\'t fit this slot!');
-                        return;
-                    }
-                    player.data.interactionFocus.inventory[dragSlot.y][dragSlot.x] = null;
-                    player.data.armor[targetSlot.x] = temp;
-                }
-            }
-            else if (player.data.dragging.slice(0, 9) === 'armorSlot') {
-                const temp = player.data.armor[dragSlot.x];
-                if (items[temp].type !== 'armor' || ((targetSlot.x === 0 && items[temp].slot !== 'helmet') || (targetSlot.x === 1 && items[temp].slot !== 'chestplate') || (targetSlot.x === 2 && items[temp].slot !== 'boots'))) {
-                    displayInfo('Item doesn\'t fit this slot!');
-                    return;
-                }
-                player.data.armor[dragSlot.x] = null;
-                player.data.armor[targetSlot.x] = temp;
-            }
-            else if (player.data.dragging.slice(0, 4) === 'slot') {
-                const temp = player.data.inventory[dragSlot.y][dragSlot.x];
-                if (items[temp].type !== 'armor' || ((targetSlot.x === 0 && items[temp].slot !== 'helmet') || (targetSlot.x === 1 && items[temp].slot !== 'chestplate') || (targetSlot.x === 2 && items[temp].slot !== 'boots'))) {
-                    displayInfo('Item doesn\'t fit this slot!');
-                    return;
-                }
-                player.data.inventory[dragSlot.y][dragSlot.x] = null;
-                player.data.armor[targetSlot.x] = temp;
-            }
-            else if (player.data.dragging.slice(0, 12) === 'craftingSlot') {
-                const temp = player.data.craftingInventory[dragSlot.y][dragSlot.x];
-                if (items[temp].type !== 'armor' || ((targetSlot.x === 0 && items[temp].slot !== 'helmet') || (targetSlot.x === 1 && items[temp].slot !== 'chestplate') || (targetSlot.x === 2 && items[temp].slot !== 'boots'))) {
-                    displayInfo('Item doesn\'t fit this slot!');
-                    return;
-                }
-                player.data.craftingInventory[dragSlot.y][dragSlot.x] = null;
-                player.data.armor[targetSlot.x] = temp;
-            }
-            player.data.dragging = null;
-            renderInventory();
-            if (player.data.onSecondaryInventory && player.data.interactionFocus instanceof chest)
-                renderSecondaryContainer(player.data.interactionFocus);
-        });
-    });
-    document.querySelectorAll('.crafting-slot').forEach(slot => {
-        slot.addEventListener('click', e => {
-            var _a;
-            e.preventDefault();
-            (_a = document.querySelector('body')) === null || _a === void 0 ? void 0 : _a.classList.remove('grab');
-            if (menu.checkSetting('Master Sound'))
-                playSound('blipSelect.mp3', menu.sounds.effects / 100);
-            if (!player.data.dragging)
-                return;
-            const targetElement = e.target.closest('.inv-slot');
-            const dragSlot = parseSlotId(player.data.dragging);
-            const targetSlot = parseSlotId(targetElement.id);
-            if (player.data.craftingInventory[targetSlot.y][targetSlot.x] !== null)
-                return;
-            if (player.data.dragging.slice(0, 13) === 'secondarySlot') {
-                if (player.data.interactionFocus instanceof chest) {
-                    const temp = player.data.interactionFocus.inventory[dragSlot.y][dragSlot.x];
-                    player.data.interactionFocus.inventory[dragSlot.y][dragSlot.x] = null;
-                    player.data.craftingInventory[targetSlot.y][targetSlot.x] = temp;
-                }
-            }
-            else if (player.data.dragging.slice(0, 9) === 'armorSlot') {
-                const temp = player.data.armor[dragSlot.x];
-                player.data.armor[dragSlot.x] = null;
-                player.data.craftingInventory[targetSlot.y][targetSlot.x] = temp;
-            }
-            else if (player.data.dragging.slice(0, 4) === 'slot') {
-                const temp = player.data.inventory[dragSlot.y][dragSlot.x];
-                player.data.inventory[dragSlot.y][dragSlot.x] = null;
-                player.data.craftingInventory[targetSlot.y][targetSlot.x] = temp;
-            }
-            else if (player.data.dragging.slice(0, 12) === 'craftingSlot') {
-                const temp = player.data.craftingInventory[dragSlot.y][dragSlot.x];
-                player.data.craftingInventory[dragSlot.y][dragSlot.x] = null;
-                player.data.craftingInventory[targetSlot.y][targetSlot.x] = temp;
-            }
-            player.data.dragging = null;
-            renderInventory();
-            if (player.data.onSecondaryInventory && player.data.interactionFocus instanceof chest)
-                renderSecondaryContainer(player.data.interactionFocus);
-        });
-    });
-}
-function closeInventory() {
-    const inventoryDiv = document.querySelector('.inventory-div');
-    const craftingDiv = document.querySelector('.crafting-div');
-    craftingDiv === null || craftingDiv === void 0 ? void 0 : craftingDiv.classList.add('display-none');
-    inventoryDiv === null || inventoryDiv === void 0 ? void 0 : inventoryDiv.classList.add('display-none');
-    document.querySelector('.slots-div').innerHTML = '';
-    document.querySelector('.player-data').innerHTML = '';
-    player.data.onInventory = false;
-    if (player.data.onSecondaryInventory) {
-        const container = document.querySelector('.container');
-        container.classList.add('display-none');
-        document.querySelector('#slot-div-container').innerHTML = '';
-        player.data.onSecondaryInventory = false;
-    }
-}
-function openSecondaryContainer(container) {
-    if (player.data.onSecondaryInventory)
-        return;
-    player.data.onSecondaryInventory = true;
-    const inventoryDiv = document.querySelector('.container');
-    inventoryDiv.classList.remove('display-none');
-    container.changeState('open');
-    renderSecondaryContainer(container);
-}
-function renderSecondaryContainer(container) {
-    var _a;
-    document.querySelector('.container').innerHTML = `<div div class="slots-div" id = "slot-div-container" > </div>`;
-    const playerDiv = document.querySelector('.player-data');
-    for (let y = 0; y < container.inventory.length; y++) {
-        for (let x = 0; x < container.inventory[y].length; x++) {
-            const slot = document.createElement('div');
-            slot.classList.add('inv-slot');
-            slot.classList.add('secondarySlot');
-            slot.id = `secondarySlot${x}${y}`;
-            (_a = document.querySelector('#slot-div-container')) === null || _a === void 0 ? void 0 : _a.appendChild(slot);
-        }
-    }
-    for (let y = 0; y < container.inventory.length; y++) {
-        for (let x = 0; x < container.inventory[y].length; x++) {
-            if (container.inventory[y][x] !== null) {
-                const itemDiv = document.createElement('div');
-                itemDiv.classList.add('item');
-                itemDiv.addEventListener('click', (e) => {
-                    var _a;
-                    e.stopPropagation();
-                    player.data.dragging = e.target.parentElement.id;
-                    (_a = document.querySelector('body')) === null || _a === void 0 ? void 0 : _a.classList.add('grab');
-                    if (menu.checkSetting('Master Sound'))
-                        playSound('blipSelect.mp3', menu.sounds.effects / 100);
-                    if (player.data.inventory[y][x] !== null) {
-                        if (items[container.inventory[y][x]].type === 'armor') {
-                            playerDiv.innerHTML = `<h2>${container.inventory[y][x].replace(/_/g, ' ').toUpperCase()}</h2> <br><h3>Protection: ${items[container.inventory[y][x]].protection}%</h3>${items[container.inventory[y][x]].onUse !== '' ? '<br><h2>On use: ' + items[container.inventory[y][x]].onUse + '</h2>' : ''}<br><h2 style="font-weight: 200; font-family: cursive;">${items[container.inventory[y][x]].description} </h2>`;
-                        }
-                        else if (items[container.inventory[y][x]].type === 'weapon') {
-                            playerDiv.innerHTML = `<h2>${container.inventory[y][x].replace(/_/g, ' ').toUpperCase()}</h2> <br> <h3>Attack Damage: ${items[container.inventory[y][x]].attackDamage}</h3> <br><h3>Attack Speed: ${items[container.inventory[y][x]].attackCooldown / 1000}s</h3><br><h3>Attack Range: ${items[container.inventory[y][x]].attackRange}</h3>${items[container.inventory[y][x]].onUse !== '' ? '<br><h2>On use: ' + items[container.inventory[y][x]].onUse + '</h2>' : ''}<br><h2 style="font-weight: 200; font-family: cursive;">${items[container.inventory[y][x]].description} </h2>`;
-                        }
-                        else if (items[container.inventory[y][x]].type === 'food') {
-                            playerDiv.innerHTML = `<h2>${container.inventory[y][x].replace(/_/g, ' ').toUpperCase()}</h2> <br> ${items[container.inventory[y][x]].onUse !== '' ? '<br><h2>On use: ' + items[container.inventory[y][x]].onUse + '</h2>' : ''}<br><h2 style="font-weight: 200; font-family: cursive;">${items[container.inventory[y][x]].description} </h2>`;
-                        }
-                        else {
-                            playerDiv.innerHTML = `<h2>${container.inventory[y][x].replace(/_/g, ' ').toUpperCase()}</h2> <br>${items[container.inventory[y][x]].onUse !== '' ? '<br><h2>On use: ' + items[container.inventory[y][x]].onUse + '</h2>' : ''}<br><h2 style="font-weight: 200; font-family: cursive;">${items[container.inventory[y][x]].description} </h2>`;
-                        }
-                    }
-                });
-                itemDiv.addEventListener('mousedown', (e) => {
-                    e.stopPropagation();
-                    if (container.inventory[y][x] !== null && e.button === 2) {
-                        if (items[container.inventory[y][x]].type === 'armor') {
-                            playerDiv.innerHTML = `<h2>${container.inventory[y][x].replace(/_/g, ' ').toUpperCase()}</h2> <br><h3>Protection: ${items[container.inventory[y][x]].protection}%</h3>${items[container.inventory[y][x]].onUse !== '' ? '<br><h2>On use: ' + items[container.inventory[y][x]].onUse + '</h2>' : ''}<br><h2 style="font-weight: 200; font-family: cursive;">${items[container.inventory[y][x]].description} </h2>`;
-                        }
-                        else if (items[container.inventory[y][x]].type === 'weapon') {
-                            playerDiv.innerHTML = `<h2>${container.inventory[y][x].replace(/_/g, ' ').toUpperCase()}</h2> <br> <h3>Attack Damage: ${items[container.inventory[y][x]].attackDamage}</h3> <br><h3>Attack Speed: ${items[container.inventory[y][x]].attackCooldown / 1000}s</h3><br><h3>Attack Range: ${items[container.inventory[y][x]].attackRange}</h3>${items[container.inventory[y][x]].onUse !== '' ? '<br><h2>On use: ' + items[container.inventory[y][x]].onUse + '</h2>' : ''}<br><h2 style="font-weight: 200; font-family: cursive;">${items[container.inventory[y][x]].description} </h2>`;
-                        }
-                        else if (items[container.inventory[y][x]].type === 'food') {
-                            playerDiv.innerHTML = `<h2>${container.inventory[y][x].replace(/_/g, ' ').toUpperCase()}</h2> <br> ${items[container.inventory[y][x]].onUse !== '' ? '<br><h2>On use: ' + items[container.inventory[y][x]].onUse + '</h2>' : ''}<br><h2 style="font-weight: 200; font-family: cursive;">${items[container.inventory[y][x]].description} </h2>`;
-                        }
-                        else {
-                            playerDiv.innerHTML = `<h2>${container.inventory[y][x].replace(/_/g, ' ').toUpperCase()}</h2> <br>${items[container.inventory[y][x]].onUse !== '' ? '<br><h2>On use: ' + items[container.inventory[y][x]].onUse + '</h2>' : ''}<br><h2 style="font-weight: 200; font-family: cursive;">${items[container.inventory[y][x]].description} </h2>`;
-                        }
-                    }
-                });
-                itemDiv.style.backgroundImage = `url(img/items/${items[container.inventory[y][x]].src})`;
-                itemDiv.style.width = `${items[container.inventory[y][x]].width}px`;
-                itemDiv.style.height = `${items[container.inventory[y][x]].height}px`;
-                itemDiv.style.scale = `${items[container.inventory[y][x]].scale}`;
-                itemDiv.style.backgroundPosition = `-${items[container.inventory[y][x]].spriteX}px -${items[container.inventory[y][x]].spriteY}px`;
-                document.querySelector(`#secondarySlot${x}${y}`).appendChild(itemDiv);
-            }
-        }
-    }
-    document.querySelectorAll('.secondarySlot').forEach(slot => {
-        slot.addEventListener('click', e => {
-            var _a;
-            e.preventDefault();
-            if (!player.data.dragging)
-                return;
-            if (menu.checkSetting('Master Sound'))
-                playSound('blipSelect.mp3', menu.sounds.effects / 100);
-            (_a = document.querySelector('body')) === null || _a === void 0 ? void 0 : _a.classList.remove('grab');
-            // Slot, auf den das Item fallen soll
-            const targetElement = e.target.closest('.inv-slot');
-            const dragSlot = parseSlotId(player.data.dragging); // { x, y }
-            const targetSlot = parseSlotId(targetElement.id); // { x, y }
-            if (player.data.interactionFocus instanceof chest) {
-                if (player.data.interactionFocus.inventory[targetSlot.y][targetSlot.x] !== null)
-                    return;
-                if (player.data.dragging.slice(0, 4) === 'slot') {
-                    const temp = player.data.inventory[dragSlot.y][dragSlot.x];
-                    player.data.inventory[dragSlot.y][dragSlot.x] = null;
-                    player.data.interactionFocus.inventory[targetSlot.y][targetSlot.x] = temp;
-                }
-                else if (player.data.dragging.slice(0, 9) === 'armorSlot') {
-                    const temp = player.data.armor[dragSlot.x];
-                    player.data.armor[dragSlot.x] = null;
-                    player.data.interactionFocus.inventory[targetSlot.y][targetSlot.x] = temp;
-                }
-                else if (player.data.dragging.slice(0, 13) === 'secondarySlot') {
-                    const temp = player.data.interactionFocus.inventory[dragSlot.y][dragSlot.x];
-                    player.data.interactionFocus.inventory[dragSlot.y][dragSlot.x] = null;
-                    player.data.interactionFocus.inventory[targetSlot.y][targetSlot.x] = temp;
-                }
-                else if (player.data.dragging.slice(0, 12) === 'craftingSlot') {
-                    const temp = player.data.craftingInventory[dragSlot.y][dragSlot.x];
-                    player.data.craftingInventory[dragSlot.y][dragSlot.x] = null;
-                    player.data.interactionFocus.inventory[targetSlot.y][targetSlot.x] = temp;
-                }
-                player.data.dragging = null;
-                renderInventory();
-                if (player.data.onSecondaryInventory)
-                    renderSecondaryContainer(player.data.interactionFocus);
-            }
-        });
-    });
-}
-function changeSelectedSlot(slot) {
-    player.data.selectedSlot = slot;
-    for (let i = 1; i < 6; i++) {
-        document.querySelector(`#hotbar${i}`).classList.remove('selected');
-    }
-    document.querySelector(`#hotbar${slot}`).classList.add('selected');
-}
-function openTradingMenu(trades) {
-    player.data.onTradingMenu = true;
-    const tradingMenu = document.querySelector('#trading-menu');
-    tradingMenu.classList.remove('display-none');
-    tradingMenu.innerHTML = '';
-    let i = 0;
-    trades.forEach(trade => {
-        const itemGiveDiv = document.createElement('div');
-        itemGiveDiv.style.backgroundImage = `url(img/items/${items[trade[0].item].src})`;
-        itemGiveDiv.style.width = `${items[trade[0].item].width}px`;
-        itemGiveDiv.style.height = `${items[trade[0].item].height}px`;
-        itemGiveDiv.style.scale = `${items[trade[0].item].scale}`;
-        itemGiveDiv.style.backgroundPosition = `-${items[trade[0].item].spriteX}px -${items[trade[0].item].spriteY}px`;
-        const itemTakeDiv = document.createElement('div');
-        itemTakeDiv.style.backgroundImage = `url(img/items/${items[trade[1].item].src})`;
-        itemTakeDiv.style.width = `${items[trade[1].item].width}px`;
-        itemTakeDiv.style.height = `${items[trade[1].item].height}px`;
-        itemTakeDiv.style.scale = `${items[trade[1].item].scale}`;
-        itemTakeDiv.style.backgroundPosition = `-${items[trade[1].item].spriteX}px -${items[trade[1].item].spriteY}px`;
-        itemGiveDiv.style.margin = '25px';
-        itemTakeDiv.style.margin = '25px';
-        const innerDiv = document.createElement('div');
-        innerDiv.id = `innerDiv${i}`;
-        innerDiv.classList.add('flex-center', 'innerDiv');
-        tradingMenu.appendChild(innerDiv);
-        const innerDiv1 = document.querySelector(`#innerDiv${i}`);
-        const arrow = document.createElement('div');
-        arrow.classList.add('arrow');
-        const amount1 = document.createElement('h3');
-        const amount2 = document.createElement('h3');
-        amount1.textContent = String(trade[0].amount);
-        amount2.textContent = String(trade[1].amount);
-        innerDiv1.appendChild(itemGiveDiv);
-        innerDiv1.appendChild(amount1);
-        innerDiv1.appendChild(arrow);
-        innerDiv1.appendChild(itemTakeDiv);
-        innerDiv1.appendChild(amount2);
-        const button = document.createElement('div');
-        button.classList.add('margin-16', 'confirm-btn');
-        button.addEventListener('click', () => confirmTrade(trade));
-        innerDiv1.appendChild(button);
-        i++;
-    });
-}
-function closeTradingMenu() {
-    document.querySelector('#trading-menu').innerHTML = '';
-    document.querySelector('#trading-menu').classList.add('display-none');
-    player.data.onTradingMenu = false;
-}
-function confirmTrade(trade) {
-    let itemAmount = 0;
-    for (let y = 0; y < 4; y++) {
-        for (let x = 0; x < 5; x++) {
-            if (player.data.inventory[y][x] === trade[0].item) {
-                itemAmount++;
-            }
-        }
-    }
-    if (itemAmount >= trade[0].amount) {
-        itemAmount = 0;
-        outerLoop: for (let y = 0; y < 4; y++) {
-            for (let x = 0; x < 5; x++) {
-                if (player.data.inventory[y][x] === trade[0].item) {
-                    player.data.inventory[y][x] = null;
-                    itemAmount++;
-                    if (itemAmount === trade[0].amount) {
-                        player.addItem(trade[1].item, trade[1].amount);
-                        break outerLoop;
-                    }
-                }
-            }
-        }
-    }
-    updateHotbar();
 }
 function displayInfo(text) {
     const field = document.querySelector('#info');
@@ -3072,6 +1532,37 @@ function checkForRecipes() {
     }
     return { output: null, isValid: false };
 }
+async function grantAchievement(achievement) {
+    const achievementData = await window.api.fetchAchievements();
+    if (achievementData[achievement].granted)
+        return;
+    const AchievementsWrapper = document.querySelector('.AchievementsWrapper');
+    const data = achievements[achievement];
+    document.querySelector('.achievementIcon').style.backgroundImage = `url(${data.icon})`;
+    document.querySelector('#achievementName').innerHTML = data.name;
+    document.querySelector('#achievementDesc').innerHTML = data.desc;
+    AchievementsWrapper === null || AchievementsWrapper === void 0 ? void 0 : AchievementsWrapper.classList.remove('display-none');
+    playSound('completeAchievement', menu.sounds.effects / 100, true);
+    let counter = -400;
+    const interval = setInterval(() => {
+        counter++;
+        AchievementsWrapper.style.right = `${counter}px`;
+        if (counter === 100) {
+            clearInterval(interval);
+            setTimeout(() => {
+                const innerInterval = setInterval(() => {
+                    counter--;
+                    AchievementsWrapper.style.right = `${counter}px`;
+                    if (counter < -400) {
+                        clearInterval(innerInterval);
+                        AchievementsWrapper.classList.add('display-none');
+                    }
+                }, 2.5);
+            }, 3000);
+        }
+    }, 5);
+    window.api.grantAchievement(achievement);
+}
 const elemRegistry = {
     block: block,
     NPC: NPC,
@@ -3081,7 +1572,8 @@ const elemRegistry = {
     chest: chest,
     trader: trader,
     teleporter: teleporter,
-    enemy: enemy,
+    enemyArcher: enemyArcher,
+    ogre: ogre
 };
 async function initialise() {
     // import data
@@ -3111,44 +1603,123 @@ async function initialise() {
         items = data;
     });
     loadingBar.value += 10;
-    console.info('Fetching worlds...');
-    loadingInfo.innerHTML = 'Fetching worlds...';
-    const intermediatWorld = await fetch('./data/worlds.json')
-        .then(r => r.json());
-    console.info('Formatting worlds...');
-    loadingInfo.innerHTML = 'Formatting worlds...';
-    Object.values(intermediatWorld).forEach((world) => {
-        if (!worlds[world.name]) {
-            worlds[world.name] = { background: { imgs: [], spriteWidth: 0, spriteHeight: 0 }, elements: [] };
-        }
-        worlds[world.name].background = {
-            imgs: world.background.imgs,
-            spriteWidth: world.background.spriteWidth,
-            spriteHeight: world.background.spriteHeight
-        };
-        world.elements.forEach((element) => {
-            const ElemClass = elemRegistry[element.class];
-            if (!ElemClass) {
-                alert(`World loading error!`);
-                throw new Error(`World loading error!`);
+    const settings = await window.api.fetchSettings();
+    if (settings)
+        menu.settings = settings;
+    const save = sessionStorage.getItem("save");
+    let isOldSave;
+    if (save) {
+        const temp = await window.api.checkForSaves(save);
+        isOldSave = temp.exists;
+    }
+    else {
+        menu.quit();
+        return;
+    }
+    if (!isOldSave) {
+        console.info('Fetching worlds...');
+        loadingInfo.innerHTML = 'Fetching worlds...';
+        const intermediatWorld = await fetch('./data/worlds.json')
+            .then(r => r.json());
+        console.info('Formatting worlds...');
+        loadingInfo.innerHTML = 'Formatting worlds...';
+        Object.values(intermediatWorld).forEach((world) => {
+            if (!worlds[world.name]) {
+                worlds[world.name] = { background: { imgs: [], spriteWidth: 0, spriteHeight: 0, ground: "" }, elements: [] };
             }
-            if (ElemClass === NPC && element.args[7] !== null) {
-                const instance = new ElemClass(element.args[0], element.args[1], element.args[2], element.args[3], element.args[4], element.args[5], element.args[6], new quest(element.args[7][0], element.args[7][1], element.args[7][2], element.args[7][3], element.args[7][4]), element.args[8]);
-                worlds[world.name].elements.push(instance);
+            worlds[world.name].background = {
+                imgs: world.background.imgs,
+                spriteWidth: world.background.spriteWidth,
+                spriteHeight: world.background.spriteHeight,
+                ground: world.background.ground
+            };
+            world.elements.forEach((element) => {
+                const ElemClass = elemRegistry[element.class];
+                if (!ElemClass) {
+                    alert(`World loading error!`);
+                    throw new Error(`World loading error!`);
+                }
+                if (ElemClass === NPC && element.args[7] !== null) {
+                    const instance = new ElemClass(element.args[0], element.args[1], element.args[2], element.args[3], element.args[4], element.args[5], element.args[6], new quest(element.args[7][0], element.args[7][1], element.args[7][2], element.args[7][3], element.args[7][4]), element.args[8]);
+                    worlds[world.name].elements.push(instance);
+                }
+                else {
+                    const instance = new ElemClass(...element.args);
+                    worlds[world.name].elements.push(instance);
+                }
+            });
+        });
+        loadingBar.value += 40;
+        await changeWorld('jungle', true);
+        loadingBar.value += 10;
+    }
+    else {
+        const { intermediatWorld, playerData, metaData, droppedItemsData } = await window.api.getWorldData(save);
+        Object.entries(intermediatWorld).forEach(([worldName, world]) => {
+            if (!worlds[worldName]) {
+                worlds[worldName] = { background: { imgs: [], spriteWidth: 0, spriteHeight: 0, ground: "" }, elements: [] };
             }
-            else {
-                const instance = new ElemClass(...element.args);
-                worlds[world.name].elements.push(instance);
+            worlds[worldName].background = world.background;
+            world.elements.forEach((elem) => {
+                const ElemClass = elemRegistry[elem.data.class];
+                if (!ElemClass) {
+                    console.warn(`Unknown class: ${elem.data.class}`);
+                    return;
+                }
+                Object.setPrototypeOf(elem, ElemClass.prototype);
+                if (elem.quest) {
+                    let interquest = elem.quest;
+                    Object.setPrototypeOf(interquest, quest.prototype);
+                    elem.quest = interquest;
+                }
+                if (elem.data) {
+                    elem.data.onCooldown = false;
+                    elem.data.isDead = false;
+                    elem.data.showedText = false;
+                    elem.data.attackFocus = null;
+                    elem.data.interactionFocus = null;
+                }
+                elem.init();
+                if ('onCooldown' in elem) {
+                    elem.onCooldown = false;
+                }
+                worlds[worldName].elements.push(elem);
+            });
+        });
+        loadingBar.value += 20;
+        player.data = playerData.data;
+        player.data.spells.forEach(spell => {
+            if (spell) {
+                Object.setPrototypeOf(spell, spellRegistry[spell.class].prototype);
             }
         });
-    });
-    loadingBar.value += 40;
+        player.sprite = playerData.sprite;
+        player.pos = playerData.pos;
+        player.data.onCooldown = false;
+        player.data.isAttacking = false;
+        player.data.canMove = true;
+        let intermediatQuests = metaData.quest;
+        intermediatQuests.forEach((interquest) => {
+            Object.setPrototypeOf(interquest, quest.prototype);
+        });
+        activeQuests = intermediatQuests;
+        changeWorld(metaData.world, true);
+        /*         const newstats = await window.api.getStats(save);
+                stats = newstats; */
+        const savedAchievements = await window.api.fetchAchievements();
+        achievements = savedAchievements;
+        droppedItemsData.forEach((item) => {
+            Object.setPrototypeOf(item, droppedItem.prototype);
+        });
+        droppedItems = droppedItemsData;
+        loadingBar.value += 20;
+    }
     console.info('Finished initialisation');
     loadingInfo.innerHTML = 'Finished initialisation';
 }
-function update() {
+function update(timestamp = 0) {
+    var _a, _b;
     const now = performance.now();
-    ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
     // display fps
     const fpsDiv = document.querySelector('.fps-div');
     frameCount++;
@@ -3164,6 +1735,17 @@ function update() {
             fpsDiv.classList.add('display-none');
         }
     }
+    const elapsed = timestamp - lastFrameTime;
+    if (elapsed < FRAME_TIME) {
+        requestAnimationFrame(update);
+        return;
+    }
+    lastFrameTime = timestamp - (elapsed % FRAME_TIME);
+    ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+    if (!currentWorld || !worlds[currentWorld]) {
+        requestAnimationFrame(update);
+        return;
+    }
     if (!menu.checkSetting('Master Sound')) {
         music.pause();
     }
@@ -3173,10 +1755,12 @@ function update() {
     // player logic
     player.data.isMoving = false;
     let isBlocked = false;
+    player.update();
     // check for keydown/up inputs
-    if ((keys['KeyD'] || keys['KeyW']) && !player.data.onInventory && !player.data.onTradingMenu && !player.data.onSecondaryInventory) {
+    if ((keys['KeyD'] || keys['KeyW']) && !player.data.onInventory && !player.data.onTradingMenu && !player.data.onSecondaryInventory && !player.data.isAttacking && player.data.canMove && !player.data.onCooldown && !player.data.castingSpell) {
+        AFKCounter = 0;
         // check for obstacles
-        if (!menu.checkSetting('No Clip')) {
+        if (!menu.checkSetting('No Clip') && !player.data.onBlock.isOnBlock) {
             worlds[currentWorld].elements.forEach(elem => {
                 if (elem instanceof block && elem.blocking.isBlocking) {
                     if (checkCollision({ hitbox: elem.hitbox, pos: elem.pos }, { hitbox: player.hitbox, pos: player.pos })) {
@@ -3187,31 +1771,37 @@ function update() {
                         if (elem.blocking.text) {
                             displayInfo(elem.blocking.text);
                         }
-                        if (player.sprite.currentState !== 'idle' && player.sprite.currentState !== 'jump' && player.sprite.currentState !== 'fall')
+                        if (player.sprite.currentState !== 'idle' && player.sprite.currentState !== 'jump' && player.sprite.currentState !== 'fall' && !player.data.isAttacking)
                             player.changeState('idle');
                     }
                 }
             });
         }
-        if (!player.data.onCooldown && !isBlocked) {
-            if (player.sprite.currentState !== 'run' && player.data.onGround) {
+        if (!isBlocked) {
+            if (player.sprite.currentState !== 'run' && player.data.onGround && !player.data.onCooldown && !player.data.isAttacking) {
                 player.changeState('run');
             }
             if (menu.checkSetting('Speed')) {
                 gameSpeed = 100;
                 levelPos += 100;
+                bgPosition -= 100;
             }
             else {
                 gameSpeed = player.data.speed;
                 levelPos += player.data.speed;
+                bgPosition -= player.data.speed;
+                stats.general.distance.value += player.data.speed;
             }
+            ;
+            document.querySelector('.bar').style.backgroundPosition = `${bgPosition}px 0`;
             player.data.Xdirec = 1;
             player.data.isMoving = true;
         }
     }
-    else if ((keys['KeyA'] || keys['KeyS']) && !player.data.onInventory && !player.data.onTradingMenu && !player.data.onSecondaryInventory) {
+    else if ((keys['KeyA'] || keys['KeyS']) && !player.data.onInventory && !player.data.onTradingMenu && !player.data.onSecondaryInventory && !player.data.isAttacking && player.data.canMove && !player.data.onCooldown && !player.data.castingSpell) {
+        AFKCounter = 0;
         // check for obstacles
-        if (!menu.checkSetting('No Clip')) {
+        if (!menu.checkSetting('No Clip') && !player.data.onBlock.isOnBlock) {
             worlds[currentWorld].elements.forEach(elem => {
                 if (elem instanceof block && elem.blocking.isBlocking) {
                     if (checkCollision({ hitbox: elem.hitbox, pos: elem.pos }, { hitbox: player.hitbox, pos: player.pos })) {
@@ -3229,20 +1819,31 @@ function update() {
             });
         }
         if (!player.data.onCooldown && !isBlocked) {
-            if (player.sprite.currentState !== 'run' && player.data.onGround) {
+            if (player.sprite.currentState !== 'run' && player.data.onGround && !player.data.onCooldown && !player.data.isAttacking) {
                 player.changeState('run');
             }
-            // Beispiel: gameSpeed und levelPos zeitbasiert machen
             if (menu.checkSetting('Speed')) {
                 gameSpeed = -100;
                 levelPos -= 100;
+                bgPosition += 100;
             }
             else {
                 gameSpeed = -player.data.speed;
                 levelPos -= player.data.speed;
+                bgPosition += player.data.speed;
+                stats.general.distance.value += player.data.speed;
             }
             player.data.Xdirec = 2;
             player.data.isMoving = true;
+        }
+        document.querySelector('.bar').style.backgroundPosition = `${bgPosition}px 0`;
+    }
+    else {
+        AFKCounter++;
+        (_a = document.querySelector('.bar')) === null || _a === void 0 ? void 0 : _a.classList.remove('scrollRight');
+        (_b = document.querySelector('.bar')) === null || _b === void 0 ? void 0 : _b.classList.remove('scrollLeft');
+        if (AFKCounter > 18000) {
+            grantAchievement('afk');
         }
     }
     if (isBlocked)
@@ -3269,7 +1870,6 @@ function update() {
     worlds[currentWorld].elements.forEach((element) => {
         const VIEW_LEFT = -600;
         const VIEW_RIGHT = CANVAS_WIDTH + 600;
-        // Bewegung der Elemente zeitbasiert machen
         if ((keys['KeyD'] || keys['KeyW']) && element.type.moving === true && !isBlocked) {
             element.pos.x -= gameSpeed;
         }
@@ -3285,7 +1885,24 @@ function update() {
         elem.update();
         elem.draw();
     });
-    player.update();
+    let removerArr = [];
+    droppedItems.forEach((item, i) => {
+        if (item.wasPickedUp) {
+            removerArr.push(i);
+        }
+        if ((keys['KeyD'] || keys['KeyW']) && !isBlocked) {
+            item.pos.x -= gameSpeed;
+        }
+        else if ((keys['KeyA'] || keys['KeyS']) && !isBlocked) {
+            item.pos.x -= gameSpeed;
+        }
+        item.update();
+        item.draw();
+    });
+    removerArr.forEach(i => {
+        droppedItems.splice(i, 1);
+        return;
+    });
     player.draw();
     particles.forEach(particle => {
         // Bewegung der Partikel zeitbasiert machen
@@ -3309,20 +1926,26 @@ function update() {
     if (!isQuestUIupdated) {
         questDiv.innerHTML = '';
         activeQuests.forEach(quest => {
-            var _a;
-            const questCompleted = quest.update(); // update quest && check if it is completed
-            questDiv.innerHTML += `<hr class="background-color-black"><div><h2>${quest.text}</h2></div>`;
-            let amountOfCompleted = 0;
-            quest.entities.forEach(entity => {
-                if (entity.completed)
-                    amountOfCompleted++;
-            });
-            questDiv.innerHTML += `<h1>${amountOfCompleted}/${quest.entities.length}</h1>`;
+            const questCompleted = quest.update();
+            questDiv.appendChild(document.createElement('hr')).classList.add('background-color-black');
+            const titleDiv = document.createElement('div');
+            const h2 = document.createElement('h2');
+            h2.textContent = quest.text;
+            titleDiv.appendChild(h2);
+            questDiv.appendChild(titleDiv);
+            let amountOfCompleted = quest.entities.filter(e => e.completed).length;
+            const h1 = document.createElement('h1');
+            h1.textContent = `${amountOfCompleted}/${quest.entities.length}`;
+            questDiv.appendChild(h1);
             if (questCompleted) {
-                questDiv.innerHTML += `<button class="confirm-btn" id="questBtn" style="scale: 0.8;"></button>`;
-                (_a = document.querySelector('#questBtn')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', () => {
+                const btn = document.createElement('button');
+                btn.classList.add('confirm-btn');
+                btn.id = 'questBtn';
+                btn.addEventListener('click', () => {
+                    console.log('click');
                     quest.finish();
                 });
+                questDiv.appendChild(btn);
             }
         });
         isQuestUIupdated = true;
@@ -3332,35 +1955,88 @@ function update() {
     requestAnimationFrame(update);
 }
 let currentWorld;
-function changeWorld(world) {
-    backgroundLayers = [];
-    if (!worlds[world]) {
-        console.error(`World does not exist: ${world}`);
-        alert(`World error!`);
-        menu.save();
-        menu.quit();
-        return;
+async function changeWorld(world, fromInit) {
+    var _a, _b;
+    if (world.startsWith("house")) {
+        grantAchievement('knock_knock');
     }
-    const spriteWidth = worlds[world].background.spriteWidth;
-    const spriteHeight = worlds[world].background.spriteHeight;
-    const base_path = '/img/background/';
-    let speedModifier = 0.2;
-    for (let i = 0; i < worlds[world].background.imgs.length; i++) {
-        let currentLayer = new Image();
-        currentLayer.src = `${base_path}${worlds[world].background.imgs[i]}`;
-        backgroundLayers.push(new Layer(currentLayer, speedModifier, spriteWidth, spriteHeight));
-        speedModifier += 0.2;
+    if (world === 'goblin_kingdom') {
+        grantAchievement('goblin_kingdom');
     }
-    nonWorldElems = [];
-    currentWorld = world;
-    player.showHealthbar();
+    if (!fromInit) {
+        const loadingInfo = document.querySelector('#loadingInfo');
+        const loadingScreen = document.querySelector('#loadingScreen');
+        loadingScreen === null || loadingScreen === void 0 ? void 0 : loadingScreen.classList.remove('display-none');
+        const loadingBar = document.querySelector('#loadingBar');
+        canvas === null || canvas === void 0 ? void 0 : canvas.classList.add('display-none');
+        (_a = document.querySelector('.bar')) === null || _a === void 0 ? void 0 : _a.classList.add('display-none');
+        backgroundLayers = [];
+        loadingInfo.innerHTML = `Loading ${world}...`;
+        loadingBar.value += 20;
+        if (!worlds[world]) {
+            console.error(`World does not exist: ${world}`);
+            alert(`World error!`);
+            menu.save();
+            /* menu.quit() */
+            return;
+        }
+        ;
+        document.querySelector('.bar').style.backgroundImage = `url(img/background/${worlds[world].background.ground})`;
+        loadingInfo.innerHTML = `Generating paralax layers...`;
+        loadingBar.value += 50;
+        const spriteWidth = worlds[world].background.spriteWidth;
+        const spriteHeight = worlds[world].background.spriteHeight;
+        const base_path = 'img/background/';
+        let speedModifier = 0.2;
+        for (let i = 0; i < worlds[world].background.imgs.length; i++) {
+            let currentLayer = new Image();
+            currentLayer.src = `${base_path}${worlds[world].background.imgs[i]}`;
+            backgroundLayers.push(new Layer(currentLayer, speedModifier, spriteWidth, spriteHeight));
+            speedModifier += 0.2;
+        }
+        loadingInfo.innerHTML = `Finishing...`;
+        await sleep(300);
+        loadingBar.value += 30;
+        loadingInfo.innerHTML = `Completed!`;
+        loadingBar.value += 30;
+        nonWorldElems = [];
+        currentWorld = world;
+        window.api.changeDCState('playing', currentWorld);
+        loadingScreen === null || loadingScreen === void 0 ? void 0 : loadingScreen.classList.add('display-none');
+        canvas === null || canvas === void 0 ? void 0 : canvas.classList.remove('display-none');
+        (_b = document.querySelector('.bar')) === null || _b === void 0 ? void 0 : _b.classList.remove('display-none');
+    }
+    else {
+        backgroundLayers = [];
+        if (!worlds[world]) {
+            console.error(`World does not exist: ${world}`);
+            alert(`World error!`);
+            menu.save();
+            menu.quit();
+            return;
+        }
+        const spriteWidth = worlds[world].background.spriteWidth;
+        const spriteHeight = worlds[world].background.spriteHeight;
+        const base_path = 'img/background/';
+        let speedModifier = 0.2;
+        document.querySelector('.bar').style.backgroundImage = `url(img/background/${worlds[world].background.ground})`;
+        for (let i = 0; i < worlds[world].background.imgs.length; i++) {
+            let currentLayer = new Image();
+            currentLayer.src = `${base_path}${worlds[world].background.imgs[i]}`;
+            backgroundLayers.push(new Layer(currentLayer, speedModifier, spriteWidth, spriteHeight));
+            speedModifier += 0.2;
+        }
+        await sleep(300);
+        nonWorldElems = [];
+        currentWorld = world;
+        window.api.changeDCState('playing', currentWorld);
+    }
 }
 // declare player
-const player = new Player(CANVAS_WIDTH * 0.4, 420);
-player.showHealthbar();
+let player = new Player(CANVAS_WIDTH * 0.4, 420);
 const menu = new menuClass();
 let music = new Audio();
-music.src = '/sound/music.ogg';
+music.src = 'sound/music.ogg';
 // initialise && push layers
 async function start() {
     const loadingInfo = document.querySelector('#loadingInfo');
@@ -3368,17 +2044,18 @@ async function start() {
     loadingScreen === null || loadingScreen === void 0 ? void 0 : loadingScreen.classList.remove('display-none');
     const loadingBar = document.querySelector('#loadingBar');
     await updateHotbar();
+    window.api.changeDCState('playing', currentWorld);
     console.info('Initialising...');
     await initialise();
     loadingBar.value += 20;
-    await changeWorld('jungle');
-    loadingBar.value += 10;
     loadingInfo.innerHTML = 'Starting!';
     await sleep(120);
     loadingScreen === null || loadingScreen === void 0 ? void 0 : loadingScreen.classList.add('display-none');
     isLoading = false;
     music.volume = menu.sounds.music / 100;
     music.loop = true;
+    grantAchievement('oathbound');
+    await updateHotbar();
     await update();
 }
 start();

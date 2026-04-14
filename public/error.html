@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="DuckCSSv1-3.css">
+    <style>
+        body {
+            background-color: rgb(144, 139, 139);
+        }
+    </style>
+    <title>Error</title>
+</head>
+<body>
+    <div class="flex-center">
+        <h1 id="error" style="font-size: 100px;">Loading...</h1>
+    </div>
+    <div class="flex-center">
+        <h1 id="info" style="font-size: 60px;" class="display-none">Loading...</h1>
+    </div>
+    <div class="flex-center">
+        <button onclick="location.href = 'index.html'" id="resumeBtn" class="display-none btn-medium background-color-white margin-top-32">Resume</button>
+    </div>
+    <div class="flex-center">
+        <button onclick="window.api.exitGame()" class="btn-medium background-color-white margin-top-32">Quit</button>
+    </div>
+
+<script>
+    window.api.onData((data) => {
+        const elem = document.querySelector('#error');
+
+        elem.innerHTML = data.error.text;
+        if(data.error.type === "refreshRate") {
+            const info = document.querySelector('#info');
+            info.classList.remove('display-none')
+            info.innerHTML = data.error.addInfo
+        }
+
+        if(data.severity === "small" || data.severity === 'medium') {
+            const btn = document.querySelector('#resumeBtn');
+            btn.classList.remove('display-none')
+        }
+    })
+</script>
+</body>
+</html>

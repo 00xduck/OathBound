@@ -40,6 +40,11 @@
     margin-top: 32px;
 }
 
+.margin-top-128 {
+    margin-top: 128px;
+}
+
+
 .margin-top-8 {
     margin-top: 8px;
 }
@@ -109,6 +114,10 @@
 /* borders */
 .border-black-1 {
     border: 1px solid black !important;
+}
+
+.border-none {
+    border: none;
 }
 
 .border-black-2 {
@@ -288,4 +297,8 @@
 
 .font-size-24 {
     font-size: 24px;
+}
+
+.margin-top-64 {
+    margin-top: 64px;
 }
