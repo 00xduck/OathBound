@@ -2,4 +2,10 @@
   -> added the ability to drop items
   -> achievements
   -> global statistics
-  
+0.5.1
+  -> added statistics for individual saves
+  -> new speaking design for NPCs
+  -> options are now saved in AppData
+  -> added links for Discord, Itch and GitHub 
+  -> new healthbar design
+  -> added mana bar
