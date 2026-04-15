@@ -1,6 +1,15 @@
 Devlogs Oathbound
 
 O.5.-
+  0.5.3
+    -> magic system
+      --> 12 spells, 6 subclasses, new magic wands, new rune, mana crystals
+    -> new ground design
+    ->new font
+    -> new ogre enemy
+    -> sharper graphics
+    -> some story adjustments
+    -> new statistic header
   0.5.2
     -> added the ability to drop items
     -> achievements
