@@ -1,17 +1,20 @@
-0.5.2
-  -> added the ability to drop items
-  -> achievements
-  -> global statistics
-0.5.1
-  -> added statistics for individual saves
-  -> new speaking design for NPCs
-  -> options are now saved in AppData
-  -> added links for Discord, Itch and GitHub 
-  -> new healthbar design
-  -> added mana bar
-0.5.0
-  -> OathBound can be downloaded as a desktop app
-  -> you can save your playthroughs in AppData
-  -> you can edit the name and description of your saves
-  -> you can delete saves
-  -> new homepage design
+Devlogs Oathbound
+
+O.5.-
+  0.5.2
+    -> added the ability to drop items
+    -> achievements
+    -> global statistics
+  0.5.1
+    -> added statistics for individual saves
+    -> new speaking design for NPCs
+    -> options are now saved in AppData
+    -> added links for Discord, Itch and GitHub 
+    -> new healthbar design
+    -> added mana bar
+  0.5.0
+    -> OathBound can be downloaded as a desktop app
+    -> you can save your playthroughs in AppData
+    -> you can edit the name and description of your saves
+    -> you can delete saves
+    -> new homepage design
