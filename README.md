@@ -1,5 +1,5 @@
 # OathBound
-### Latest Version: 0.5.2 (Alpha)
+### Latest Version: 0.5.3 (Alpha)
 ## About
 **OathBound** is a singleplayer pixel-art side-scroller progression-based story game currently in development.
 It is a semi open world game with intentional limitations.
@@ -15,6 +15,7 @@ Some features include:
 - Gathering of raw materials
 - Quest system
 - Enemies
+- magic system
 ## Gameplay
 **OathBound's** gameplay is focused on learning and progression through collection of
 items, killing of enemies and completing quests.
