@@ -32,6 +32,7 @@ I am planning on releasing **OathBound** on a few platforms. This will include a
 - Interact: `R`
 - Use Item: `Right Click`
 - Drop item: `Q`
+- Open Companion GUI: `C`
 - Close UI/open main Menu: `Escape`
 ## Installation
 1. download a [setup for OathBound](https://github.com/00xduck/OathBound/releases) (v0.5.0 or above)
