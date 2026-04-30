@@ -1,6 +1,12 @@
 Devlogs Oathbound
 
 O.5.-
+  0.5.4
+    -> new passive entities (cow, chicken)
+    -> mob spawning of passive entities
+    -> new companions GUI
+    -> new companion (cat)
+    -> worlds with cheats enabled now appear red
   0.5.3
     -> magic system
       --> 12 spells, 6 subclasses, new magic wands, new rune, mana crystals
