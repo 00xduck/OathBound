@@ -1,11 +1,13 @@
 # OathBound
-### Latest Version: 0.3.3 (Alpha)
+### Latest Version: 0.5.5 (Alpha)
 ## About
 **OathBound** is a singleplayer pixel-art side-scroller progression-based story game currently in development.
 It is a semi open world game with intentional limitations.
 ## Project Status
-**OathBound** is still in early development and is not yet playable as a finished product, but only as a testing version.
+**OathBound** is still in early development and is not yet playable as a finished product, but only as a testing version. 
 However, many core features are already implemented, on which I want to build upon.
+[Devlogs](https://github.com/00xduck/OathBound/blob/main/docs/devlogs.txt)
+
 Some features include:
 - Crafting System
 - Worlds System
@@ -13,51 +15,47 @@ Some features include:
 - Gathering of raw materials
 - Quest system
 - Enemies
+- magic system
 ## Gameplay
 **OathBound's** gameplay is focused on learning and progression through collection of
 items, killing of enemies and completing quests.
 The story is also a core part of the game, but its development is very early and I am open for suggestions!
-## Future plans
+## Releasing
 I am planning on releasing **OathBound** on a few platforms. This will include a website, platforms like [CrazyGames](https://www.crazygames.com/) and an App!
 ## Controls
 - Walk forwards: `W` or `D`
 - Walk backwards: `S` or `A`
 - Jump: `Space`
 - Attack: `Left Click`
-- Jump Attack: `Space` and `Left Click`
+- Jump Attack: `Space + Left Click`
 - Open/Close Inventory: `E`
 - Interact: `R`
 - Use Item: `Right Click`
+- Drop item: `Q`
+- Open Companion GUI: `C`
+- Close UI/open main Menu: `Escape`
 ## Installation
-1. download [node.js](https://nodejs.org/en/download)
-2. download a [release of OathBound](https://github.com/00xduck/OathBound/releases)
-3. go to the folder/directory in the command prompt `cd 'C:/path/to/the/folder'`
-4. install TypeScript `npm install -g typescript`
-5. install express:
-   `npm install express@5.1.0`
-6. build the Javascript file & start server:
-   `npm run buildStart`
-
-[Tutorial Video](https://www.dropbox.com/scl/fi/78yv12i677p32v5zjrwr0/oathbound-instructions.mp4?rlkey=wiezwsuwdajbn8w1qiu16we8p&st=omj3rmyf&dl=0)
+1. download a [setup for OathBound](https://github.com/00xduck/OathBound/releases) (v0.5.0 or above)
+2. follow the setup instructions
 ## Tech Stack
 - HTML5
 - CSS
 - TS
 - JS
 - Node.js
-- Express
+- Electron
 ## Contributing
 This repository is currently not open for external contributors, but reporting of errors or new ideas are appreciated and creating pull requests
 is not prohibited eventhough a merge is unlikely.
 ### Screenshots
 <div style="margin-left: 200px">
-<img src="/docs/gameplayFootage_1.png" width="500"></div>
+<img src="/docs/gameplayFootage_5.png" width="500"></div>
 <hr>
 <div>
-<img src="/docs/gameplayFootage_4.jpeg" width="500"></div>
+<img src="/docs/gameplayFootage_6.png" width="500"></div>
 <hr>
 <div>
-<img src="/docs/gameplayFootage_3.png" width="500">
+<img src="/docs/gameplayFootage_7.png" width="500">
 </div>
 
 ## Credits
