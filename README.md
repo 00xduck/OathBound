@@ -1,5 +1,5 @@
 # OathBound
-### Latest Version: 0.5.2 (Alpha)
+### Latest Version: 0.5.5 (Alpha)
 ## About
 **OathBound** is a singleplayer pixel-art side-scroller progression-based story game currently in development.
 It is a semi open world game with intentional limitations.
@@ -15,6 +15,7 @@ Some features include:
 - Gathering of raw materials
 - Quest system
 - Enemies
+- magic system
 ## Gameplay
 **OathBound's** gameplay is focused on learning and progression through collection of
 items, killing of enemies and completing quests.
@@ -31,6 +32,7 @@ I am planning on releasing **OathBound** on a few platforms. This will include a
 - Interact: `R`
 - Use Item: `Right Click`
 - Drop item: `Q`
+- Open Companion GUI: `C`
 - Close UI/open main Menu: `Escape`
 ## Installation
 1. download a [setup for OathBound](https://github.com/00xduck/OathBound/releases) (v0.5.0 or above)
@@ -47,13 +49,13 @@ This repository is currently not open for external contributors, but reporting o
 is not prohibited eventhough a merge is unlikely.
 ### Screenshots
 <div style="margin-left: 200px">
-<img src="/docs/gameplayFootage_1.png" width="500"></div>
+<img src="/docs/gameplayFootage_5.png" width="500"></div>
 <hr>
 <div>
-<img src="/docs/gameplayFootage_4.jpeg" width="500"></div>
+<img src="/docs/gameplayFootage_6.png" width="500"></div>
 <hr>
 <div>
-<img src="/docs/gameplayFootage_3.png" width="500">
+<img src="/docs/gameplayFootage_7.png" width="500">
 </div>
 
 ## Credits
