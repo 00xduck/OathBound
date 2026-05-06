@@ -36,7 +36,8 @@ I am planning on releasing **OathBound** on a few platforms. This will include a
 - Close UI/open main Menu: `Escape`
 ## Installation
 1. download a [setup for OathBound](https://github.com/00xduck/OathBound/releases) (v0.5.0 or above)
-2. follow the setup instructions
+2. you could use the hash to check for any data corruption
+3. follow the setup instructions
 ## Tech Stack
 - HTML5
 - CSS
