@@ -1,18 +1,26 @@
 body {
     overflow-x: hidden;
     overflow-y: hidden;
-    /* background-color: rgb(49, 101, 95); */
-    background-image: url(img/background/ground.png);
-    background-position: 50%;
-    filter: brightness(0.75);
+}
+
+@font-face {
+    font-family: 'main';
+    src: url(fonts/main.ttf) format('truetype');
+    font-weight: normal;
 }
 
 * {
     color: rgb(216, 216, 216);
     user-select: none;
-    font-family: "Silkscreen", sans-serif;
+    font-family: 'main', monospace !important;
     font-weight: 400;
     font-style: normal;
+    image-rendering: pixelated;
+    image-rendering: crisp-edgeseeee;
+}
+
+::-webkit-scrollbar {
+    width: 0px;
 }
 
 .loading-screen {
@@ -37,20 +45,129 @@ body {
     background-repeat: no-repeat;
 }
 
+.blur {
+    filter: brightness(0.4);
+    pointer-events: none;
+}
+
+.save-div-inner {
+    width: 70%;
+    height: 100%;
+}
+
+.menuStatDiv {
+    width: 100%;
+    height: 60px;
+    margin-top: 10px;
+    display: flex;
+    justify-content: flex-start;
+}
+
+
+#statsDivInner {
+    flex: 1;
+    overflow-y: auto;
+    box-sizing: border-box;
+    border: 1px black solid;
+    border-radius: 10px;
+    padding: 16px;
+    font-size: 25px;
+    background: url(img/background/craftingBackground.png);
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.statIcon {
+    background-repeat: no-repeat;
+    background-size: cover;
+    border: 1px black solid;
+    width: 100px;
+    height: 100px;
+}
+
+#statsInsert {
+    font-size: 30px;
+    display: grid;
+    grid-template-columns: 20% 60% 20%;
+}
+
+.selectedHeader {
+    scale: 1.1;
+    filter: brightness(0.7);
+}
+
+.statHeader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    width: 110px;
+    height: 60px;
+    border: 1px black solid;
+    color: white;
+    border-radius: 10px 10px 0px 0px;
+    box-shadow: none !important;
+    cursor: pointer;
+    background: url(img/background/craftingBackground.png);
+    background-repeat: no-repeat;
+    background-size: auto;
+}
+
+.statHeader:hover {
+    animation: hover 0.75s ease-in-out forwards;
+}
+
+.statsDiv {
+    display: flex;
+    flex-direction: column;
+    width: 40%;
+    height: 800px;
+    border-radius: 25px;
+}
+
+.statHeadline {
+    height: 70px;
+    border-radius: 25px 25px 0px 0px;
+}
+
+.statsBtn {
+    border: none;
+    background: none;
+    background-image: url(img/icons/stats_btn.png);
+    background-repeat: no-repeat;
+    background-size: cover;
+    width: 65px;
+    height: 65px;
+}
+
+.statsBtn:hover {
+    cursor: pointer;
+    animation: btnHover2 0.75s ease-in-out forwards;
+}
+
+@keyframes btnHover2 {
+    100% {
+        scale: 0.85;
+        filter: brightness(1.2);
+    }
+}
+
 .shadow {
     box-shadow: 3px 3px 3px black;
     background-color: rgba(0, 0, 0, .2);
 }
 
 .popup {
-    box-shadow: 3px 3px 3px black;
-    background-color: rgb(116, 116, 116);
-    width: 400px;
-    height: 300px;
+    border: 1px black solid;
+    background-image: url(img/icons/invBackground.png);
+    width: 600px;
+    height: 550px;
     color: black;
+    filter: brightness(0.8);
 }
 
 .save-div {
+    cursor: pointer;
     border-radius: 10px;
     user-select: none;
 }
@@ -62,25 +179,30 @@ body {
 .title {
     padding: 16px;
     font-size: 30px;
+}
 
+.title-big {
+    padding: 8px;
+    font-size: 70px;
 }
 
 .save-div:hover {
-    animation: hover 0.5s ease-in-out forwards;
+    animation: hover 0.2s ease-in-out forwards;
 }
 
 .box {
     margin-top: 32px;
     margin-left: 64px;
     width: 500px;
-    height: 95%;
+    height: 500px;
     border-radius: 10px;
 }
 
 header {
     width: 100%;
     height: 150px;
-    background-color: rgb(214, 214, 214);
+    background-color: rgb(62, 99, 153);
+    background: linear-gradient(rgb(44, 70, 110), rgb(62, 99, 153));
 }
 
 .headline {
@@ -88,7 +210,7 @@ header {
     font-size: 200px;
     font-family: "Bonheur Royale", cursive;
     font-weight: 400;
-    color: black;
+    color: rgba(0, 0, 0, 0.85);
 }
 
 .center {
@@ -118,6 +240,9 @@ input[type="range"] {
     width: 200px;
     height: 150px;
     object-fit: contain;
+    position: absolute;
+    right: 0px;
+    bottom: 0px;
 }
 
 .logo1 {
@@ -171,7 +296,7 @@ input[type="range"] {
 
 @keyframes hover {
     100% {
-        scale: 1.05;
+        scale: 1.03;
     }
 }
 
@@ -206,14 +331,133 @@ input[type="range"] {
     }
 }
 
+.magicDiv {
+    width: 350px;
+    height: 350px;
+    background-image: url(img/background/magic_background.png);
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: absolute;
+    top: 32px;
+    left: 45%;
+
+}
+
+.innerMagicDiv {
+    display: grid;
+    margin-top: 40px;
+    margin-left: 40px;
+    grid-template-columns: repeat(3, 60px);
+    grid-template-rows: repeat(3, 60px);
+    gap: 40px;
+}
+
+.magicSlot {
+    width: 70px;
+    height: 70px;
+    cursor: grabmagic;
+    background-image: url(img/background/magic_slot.png);
+    background-repeat: no-repeat;
+    background-size: cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.selectedSpell {
+    scale: 1.1;
+    filter: brightness(0.9);
+}
+
+.selectedSpellDiv {
+    width: 100px;
+    height: 100px;
+    cursor: grabmagic;
+    background-image: url(img/background/magic_slot.png);
+    background-repeat: no-repeat;
+    background-size: cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    left: 150px;
+    top: 100px;
+}
+
+.magicSlot:hover {
+    animation: hover 0.25s ease-in-out forwards;
+}
+
+.closeBtn {
+    width: 70px;
+    height: 70px;
+    background: none;
+    background-image: url(img/icons/closeBtn.png);
+    background-repeat: no-repeat;
+    background-size: cover;
+    border: none;
+    cursor: pointer;
+}
+
+.closeBtn:hover {
+    animation: hover 0.25s ease-in-out forwards;
+}
+
+.exitBtn {
+    width: 200px;
+    height: 200px;
+    background: none;
+    background-image: url(img/icons/exitBtn.png);
+    background-repeat: no-repeat;
+    background-size: cover;
+    border: none;
+    cursor: pointer;
+}
+
+.exitBtn:hover {
+    animation: hover 0.25s ease-in-out forwards;
+}
+
 .bar {
-    height: 280px;
+    height: 400px;
     width: 100%;
+    position: relative;
+    top: -8px;
     /* background-color: rgb(49, 101, 95); */
-    background-image: url(img/background/ground.png);
-    background-position: 50%;
+    /* background-image: url(img/background/ground.png); */
+    background-repeat: repeat-x;
+    background-size: contain;
     display: flex;
     justify-content: space-between;
+}
+
+.scrollRight {
+    animation: scrollBackgroundRight 10s linear infinite forwards;
+}
+
+.scrollLeft {
+    animation: scrollBackgroundLeft 10s linear infinite forwards;
+}
+
+@keyframes scrollBackgroundRight {
+    from {
+        background-position: 0 0;
+    }
+
+    to {
+        background-position: 100% 0;
+    }
+}
+
+@keyframes scrollBackgroundLeft {
+    from {
+        background-position: 0 0;
+    }
+
+    to {
+        background-position: -100% 0;
+    }
 }
 
 .slot-div {
@@ -223,6 +467,7 @@ input[type="range"] {
     width: 40%;
     gap: 16px;
     margin-left: 32px;
+    margin-right: 16px;
 }
 
 .slot {
@@ -259,7 +504,16 @@ input[type="range"] {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.cooldownDiv {
+    z-index: 10000;
     position: relative;
+    top: 110px;
+    left: 240px;
+    background-color: rgba(250, 250, 250, 0.389);
+    width: 80px;
+    height: 80px;
 }
 
 .slots-div {
@@ -368,8 +622,26 @@ input {
     background-color: transparent;
 }
 
+.next-btn {
+    height: 75px;
+    width: 75px;
+    margin-top: 5px;
+    margin: 16px;
+    background-image: url(img/icons/nextBtn.png);
+    background-position: 50%;
+    background-size: 90%;
+    background-repeat: no-repeat;
+    border: none;
+    background-color: transparent;
+}
+
 .speakBtn {
     margin-top: 0px;
+}
+
+.next-btn:hover {
+    cursor: pointer;
+    animation: hover 0.25s ease-in-out forwards;
 }
 
 .confirm-btn:hover {
@@ -381,15 +653,219 @@ input {
     margin-top: 32px;
 }
 
-.speaking-div {
-    margin: 16px;
-    background-color: rgb(165, 165, 165);
-    /* background-image: url(img/background/leaves.png); */
-    background-position: 10%;
-    border: 3px solid black;
+#portrait {
+    width: 200px;
+    height: 180px;
+    background-repeat: no-repeat !important;
+    background-size: contain !important;
     border-radius: 25px;
-    width: 40%;
-    height: 80%;
+}
+
+.speak-wrapper {
+    margin-left: 10px;
+    width: 250px;
+}
+
+#healthbar-container {
+    position: absolute;
+    bottom: 220px;
+    left: 250px;
+    width: 200px;
+    height: 40px;
+    scale: 3;
+}
+
+#manaBar-container {
+    position: absolute;
+    bottom: 100px;
+    left: 270px;
+    width: 200px;
+    height: 40px;
+    scale: 3;
+}
+
+.logo {
+    width: 224px;
+    height: 224px;
+    background-repeat: no-repeat;
+    background-size: contain;
+    scale: 0.5;
+}
+
+.logo:hover {
+    cursor: pointer;
+}
+
+#heart {
+    position: absolute;
+    bottom: -5px;
+    left: 2px;
+    scale: 1.0;
+}
+
+.socials {
+    position: absolute;
+    bottom: 20px;
+    left: 200px;
+    width: 200px;
+    height: 100px;
+}
+
+.slot:hover {
+    cursor: grab;
+}
+
+.AchievementsWrapper {
+    position: absolute;
+    top: 16px;
+    right: -200px;
+    width: auto;
+    min-width: 300px;
+    height: auto;
+    min-height: 90px;
+    background-image: url(img/icons/invBackground.png);
+    background-repeat: no-repeat;
+    background-size: cover;
+    border-radius: 10px;
+    padding: 16px;
+}
+
+.achievements {
+    margin: 8px;
+    height: 360px;
+    overflow: hidden;
+    overflow-y: scroll;
+}
+
+.AchievementsWrapperMain {
+    width: auto;
+    min-width: 300px;
+    height: auto;
+    min-height: 90px;
+    background-image: url(img/icons/invBackground.png);
+    background-repeat: no-repeat;
+    background-size: cover;
+    border-radius: 10px;
+    padding: 16px;
+}
+
+.achievementIcon {
+    margin-right: 16px;
+    width: auto;
+    min-width: 64px;
+    min-height: 64px;
+    height: auto;
+    max-width: 90px;
+    max-height: 90px;
+    border-radius: 10px;
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+
+.animateLeft {
+    animation: animateLeft 2 forwards ease-in;
+}
+
+@keyframes animateLeft {
+    0% {
+        top: 16px;
+        right: -200px;
+    }
+
+    100% {
+        top: 16px;
+        right: 200px;
+    }
+}
+
+#healthbar-fill {
+    position: absolute;
+    top: 10px;
+    left: 47px;
+    width: 147px;
+    height: 10px;
+    background: url(img/icons/healthbar_health.png);
+    background-repeat: no-repeat;
+    background-size: cover;
+    transition: width 0.2s ease;
+}
+
+#healthbar-sprite {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    image-rendering: pixelated;
+    /* Für Pixel-Art */
+}
+
+.unusable {
+    filter: brightness(0.4);
+}
+
+#manaBar-fill {
+    position: absolute;
+    top: 15px;
+    left: 47px;
+    width: 106px;
+    height: 10px;
+    background: url(img/icons/manaBar-fill.png);
+    background-repeat: no-repeat;
+    background-size: cover;
+    transition: width 0.2s ease;
+}
+
+#manaBar-sprite {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    image-rendering: pixelated;
+    /* Für Pixel-Art */
+}
+
+.link:hover {
+    animation: btnHover3 0.75s ease-in-out forwards;
+}
+
+@keyframes btnHover3 {
+    100% {
+        filter: brightness(1.2);
+    }
+}
+
+.bottom-right {
+    position: absolute;
+    right: 40px;
+    bottom: 300px;
+}
+
+.speaking-div {
+    width: 450px;
+    min-height: 220px;
+    height: auto;
+
+    border-radius: 15px;
+    background: url(img/background/craftingBackground.png);
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.settingsBtn {
+    width: 100px;
+    height: 100px;
+    background: none;
+    border: none;
+    background: url(img/icons/settingsBtn.png);
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.settingsBtn:hover {
+    cursor: pointer;
+    animation: btnHover2 0.75s ease-in-out forwards;
 }
 
 .speak {
@@ -499,10 +975,23 @@ input {
     width: 20%;
     background-color: rgba(0, 0, 0, 0.137);
     box-shadow: 3px 3px 3px black;
+
 }
 
 .crafting-slot:hover,
 .armorSlot:hover,
 .inv-slot:hover {
     scale: 1.1;
+}
+
+.rounded {
+    border-radius: 25px;
+}
+
+.red-color {
+    background: linear-gradient(rgb(176, 5, 5), rgb(223, 47, 47));
+}
+
+.green-color {
+    background: linear-gradient(rgb(1, 197, 1), green);
 }

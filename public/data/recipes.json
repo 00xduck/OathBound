@@ -43,7 +43,7 @@
     },
     {
         "recipe": [
-            "",
+            "   ",
             "A A",
             "A A"
         ],
@@ -187,5 +187,117 @@
         "output": "knights_helm",
         "A": "silver_ingot",
         "B": "iron_ingot"
+    },
+    {
+        "recipe": [
+            "   ",
+            " AB",
+            "   "
+        ],
+        "output": "ice_scroll",
+        "A": "ice_gem",
+        "B": "blank_scroll"
+    },
+    {
+        "recipe": [
+            "   ",
+            " AB",
+            "   "
+        ],
+        "output": "void_scroll",
+        "A": "void_gem",
+        "B": "blank_scroll"
+    },
+    {
+        "recipe": [
+            "   ",
+            " AB",
+            "   "
+        ],
+        "output": "earth_scroll",
+        "A": "earth_gem",
+        "B": "blank_scroll"
+    },
+    {
+        "recipe": [
+            "   ",
+            " AB",
+            "   "
+        ],
+        "output": "fire_scroll",
+        "A": "fire_gem",
+        "B": "blank_scroll"
+    },
+    {
+        "recipe": [
+            "   ",
+            " AB",
+            "   "
+        ],
+        "output": "lightning_scroll",
+        "A": "lightning_gem",
+        "B": "blank_scroll"
+    },
+    {
+        "recipe": [
+            " A ",
+            "A A",
+            "BAB"
+        ],
+        "output": "blank_scroll",
+        "A": "leather",
+        "B": "string"
+    },
+    {
+        "recipe": [
+            "   ",
+            " AB",
+            "   "
+        ],
+        "output": "blood_scroll",
+        "A": "blood_gem",
+        "B": "blank_scroll"
+    },
+    {
+        "recipe": [
+            "  A",
+            " B ",
+            "A  "
+        ],
+        "output": "iron_staff",
+        "A": "iron_ingot",
+        "B": "stick"
+    },
+    {
+        "recipe": [
+            "  A",
+            " B ",
+            "A  "
+        ],
+        "output": "gold_staff",
+        "A": "gold_ingot",
+        "B": "stick"
+    },
+    {
+        "recipe": [
+            " CA",
+            " BC",
+            "A  "
+        ],
+        "output": "advanced_staff",
+        "A": "gold_ingot",
+        "B": "stick",
+        "C": "copper_ingot"
+    },
+    {
+        "recipe": [
+            " AA",
+            "CBA",
+            "AC "
+        ],
+        "output": "master_staff",
+        "A": "gold_ingot",
+        "B": "stick",
+        "C": "copper_ingot"
     }
 ]

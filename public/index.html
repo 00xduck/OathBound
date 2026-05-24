@@ -11,66 +11,95 @@
     <link rel="icon" type="image/jpg" sizes="32x32" href="/img/favicon.jpg">
     <title>Oathbound</title>
 </head>
-<body>
+<body style="background-color: white;">
     <div class="blur-div">
-        <header class="flex-between">
-            <div class="margin-left-32">
+        <header class="flex-between" >
+            <div class="margin-left-32 margin-top-32">
                 <h1 class="headline">Oathbound</h1>
             </div>
             <div class="margin-32">
                 <div class="logo-container">
-                    <img class="logo1" src="img/title.jpg" alt="Couldnt load image">
-                    <img class="logo" src="img/logo.png" alt="Couldnt load image">
-                    <h2 style="color: rgb(88, 88, 88);margin-top: 120px;">v0.4.0</h2>
+                    <!-- <img class="logo1" src="img/title.jpg" alt="Couldnt load image"> -->
+                    
+                    <div class="logo"><button class="exitBtn" onclick="window.api.exitGame()"></button></div>
+                    <h2 style="color: rgb(96, 96, 96);margin-top: 120px; position: absolute; bottom: 32px; left: 64px;">v0.5.3</h2>
                 </div>
+
             </div>
+                <div style="position: absolute; top: 32px; right: 32px;">
+                    <button class="settingsBtn" onclick="menu.toggleMenu()"></button>
+                 </div>
+                 <div style="position: absolute; top: 32px; right: 150px;">
+                    <button onclick="displayStats('global')" class="statsBtn" style="width: 100px !important; height: 100px !important;"></button>
+                 </div>
         </header>
         <div class="background-div">
-
-            <div class="flex-center">
+            <div class="flex-center" style="position: relative; top:80px;">
                 <div class="flex-center">
                     <div class="shadow box">
                         <div class="flex-center shadow border-radius title">
                             <h1>Saves</h1>    
                         </div>
-                        <div class="save-div shadow margin-16 padding-16" id="save1"></div>
-                        <div class="save-div shadow margin-16 padding-16" id="save2"></div>
-                        <div class="save-div shadow margin-16 padding-16" id="save3"></div>
+                        <div class="save-div shadow margin-16 padding-16" onpointerover="displayStatsBtn(1)" onpointerleave="removeStatsBtn()" id="1"><div class="flex-space-arround"><div class="save-div-inner" id="save1"></div><div class="flex-center" id="statsBtn-div1"></div></div></div>
+                        <div class="save-div shadow margin-16 padding-16" onpointerover="displayStatsBtn(2)" onpointerleave="removeStatsBtn()" id="2"><div class="flex-space-arround"><div class="save-div-inner" id="save2"></div><div id="statsBtn-div2"></div></div></div>
+                        <div class="save-div shadow margin-16 padding-16" onpointerover="displayStatsBtn(3)" onpointerleave="removeStatsBtn()" id="3"><div class="flex-space-arround"><div class="save-div-inner" id="save3"></div><div id="statsBtn-div3"></div></div></div>
                     </div>
                 </div>
                 <div class="flex-center">
                     <div class="shadow box">                
                         <div class="flex-center shadow border-radius title">
-                            <h1>Stats</h1>    
+                            <h1>Achievements</h1>    
                         </div>
-                        <div class="padding-16">
-                            <h1>Under construction</h1>
+                        <div class="padding-16 achievements">
+                            <div id="achievements">
+                                <h1>Go get some Achievements!</h1>
+                            </div>
                         </div>
                     </div>
                 </div>
-
                 <div class="flex-center margin-right-64">
                     <div class="shadow box">                
                         <div class="flex-center shadow border-radius title">
-                            <h1>Gameplay</h1>    
+                            <h2>Under Development</h2>
                         </div>
                         <div class="padding-16">
                             <div class="flex-center">
-                                <button onclick="startTutorial()" class="btn-big" style="color: black;">Tutorial</button>
+                                <button onclick="" class="btn-big rounded" style="color: rgb(0, 0, 0);">Tutorial?</button>
                             </div>
-                            <div class="flex-center">
-                                <h1>Under construction</h1>
-                            </div>
+
                         </div>
                     </div>
                 </div>
             </div>
+
+        
+        <div class="socials flex-between">
+            <img style="position: absolute; left: -200px;scale:1.5;" class="logo link"src="img/logo.png" alt="Couldnt load image" onclick="window.api.openLink('https://github.com/00xduck/OathBound')">
+            <div class="logo link" style="background: url(img/icons/discord.png);" onclick="window.api.openLink('https://discord.gg/n3VGru49')"></div>
+            <div class="logo link" style="background: url(img/icons/itch.png); left: 100px;" onclick="window.api.openLink('https://duckar.itch.io/oathbound')"></div>
         </div>
     </div>
+
+
+
+    </div>
+
+            <div class="menuDiv center display-none" id="menu">
+            <div class="flex-center">
+                <h2>Menu</h2>
+            </div>
+            <div class="flex-center margin-top-16"><button class="btn-small background-color-gray" onclick="menu.toggleOptionsScreen()">Options</button></div>
+            <div class="flex-center margin-top-16"><button class="closeBtn" onclick="menu.toggleMenu()"></button></div>
+        </div>
+
+        <div class="optionsDiv center display-none" id="options">
+        </div>
+
+        <div class="settingsDiv center display-none" id="settings">
+        </div>
         <div class="center-true display-none" id="popup">
             <div class="popup border-radius">
-                <div class="flex-center shadow border-radius">
-                    <h1 id="title"></h1>
+                <div class="flex-center border-radius" id="title" style="background-color: rgba(0, 0, 0, .2);">
                 </div>
                 <div id="content" class="margin-top-16">
 
@@ -78,50 +107,245 @@
             </div>
         </div>
 
+        <div class="center-true display-none statsDiv" id="statsDiv">
+            <!-- <div class="shadow statHeadline flex-center"><h2 style="font-size: 60px;">Stats</h2></div> -->
+            <div class="menuStatDiv " id="statHeaders">
+                <div class="statHeader shadow margin-left-16" id="general">General</div>
+                <div class="statHeader shadow margin-left-16" id="entities">Entities</div>
+                <div class="statHeader shadow margin-left-16" id="items">Items</div>
+                <div class="statHeader shadow margin-left-16" id="sorcery">Sorcery</div>
+            </div>
+            <div id="statsDivInner" class="shadow">
+                <div id="statsInsert"></div>
+            </div>
+            <div class="statHeader" style="border-radius: 0px 0px 10px 10px !important; margin-left: 16px;"  id="statHeaders" onclick="closeStats()">Exit</div>
+        </div>
+
+        <div class="AchievementsWrapper display-none flex-center">
+            <div class="achievementIcon" id="achievementIconPopup">
+                
+            </div>
+            <div class="achievementText">
+                <div class="flex-center" id="achievementNamePopup" style="font-size: 35px;"></div>
+                <hr>
+                <div class="flex-center" id="achievementDescPopup" style="font-size: 20px;"></div>
+            </div>
+        </div>
+
+        <div style="width: 100px;height: 100px;position:absolute; bottom: 64px;left: 700px;" onclick="grantAchievement('you_werent_supposed_to_see_that')">
+
+        </div>
+
     <script>
         const info = sessionStorage.getItem('user')
-        const isloggedIn = sessionStorage.getItem('user')
-        if(isloggedIn) {
-            /* loggedIn(info) */
-        }else {
-            loggedOut()
+        let statsBtn = false
+
+        const sounds = {
+            click: new Audio('sound/blipSelect.mp3'),
+            drop: new Audio('sound/drop.wav'),
+            pickup: new Audio('sound/pickup.wav'),
+            equip: new Audio('sound/equip.wav'),
+            speak: new Audio('sound/speak.wav'),
+            takeDamage: new Audio('sound/takeDamage.wav'),
+            UIopen: new Audio('sound/UIOpen.wav'),
+            UIclose: new Audio('sound/UIclose.wav'),
+            completeAchievement: new Audio('sound/completeAchievement.wav'),
         }
 
-        function loggedOut() {
+        function playSound(sound, volume, isInRegistry) {
+            if (!menu.checkSetting('Master Sound')) return
+
+            if (isInRegistry) {
+                sounds[sound].volume = sound === 'UIopen' || sound === 'UIclose' ? volume / 10 : volume;
+                sounds[sound].currentTime = 0;
+                sounds[sound].play();
+                return;
+            }
+
+            const audio = new Audio(`sound/${sound}`);
+            audio.volume = volume;
+            audio.play();
+        }
+
+        let achievements = {
+            oathbound: { granted: false, desc: "- the start...", name: "OathBound", icon: "img/icons/healthboost_icon.png" },
+            goblin_kill: { granted: false, desc: "Blood - green or red?", name: "Goblin Blood!", icon: "img/icons/killed_goblins.png" },
+            deal: { granted: false, desc: "Trade with a NPC", name: "Deal!", icon: "img/icons/talked_to_NPC.png" },
+            stone_age: { granted: false, desc: "Wait, I remember that!", name: "Stone Age!", icon: "img/icons/stone_age.png" },
+            afk: { granted: false, desc: "You know that you can save the game, right?", name: "AFK", icon: "img/icons/afk.png" },
+            beast: { granted: false, desc: "Kill an enemy with your bare hands!", name: "You Beast!", icon: "img/icons/beast.png" },
+            close_call: { granted: false, desc: "Kill an enemy with less than 5% of your health", name: "Close Call", icon: "img/icons/close_call.png" },
+            goblin_demolisher: { granted: false, desc: "Kill 75 Goblins", name: "Goblin Demolisher", icon: "img/icons/goblin_demolisher.png" },
+            free_nate: { granted: false, desc: "You still have no idea who he is, but sure, why not", name: "Who Even Is Nate?", icon: "img/portraits/nate.png" },
+            knock_knock: { granted: false, desc: "No Trespassing!", name: "Knock Knock!", icon: "img/blocks/door_1.png" },
+            cheater: {
+                "granted": true,
+                "desc": "What's the fun in that?",
+                "name": "You Cheated!",
+                "icon": "img/icons/cheater.png"
+            },
+            craft: { granted: false, desc: "Getting your hand dirty!", name: "Let's Craft!", icon: "img/icons/craft.png" },
+            heal: { granted: false, desc: "Trying best to stay alive!", name: "Healthy Diet!", icon: "img/icons/regeneration_icon.png" },
+            goblin_kingdom: { granted: false, desc: "The goblins don't take kindly to visitors", name: "Bold Move!", icon: "img/icons/goblin_kingdom.png" },
+            are_we_there_yet: { granted: false, desc: "Still no idea where you're going?", name: "Are we there yet?", icon: "img/icons/goblin_kingdom.png" },
+            hoarder: { granted: false, desc: "Have a full inventory", name: "Hoarder", icon: "img/icons/hoarder.png" },
+            you_werent_supposed_to_see_that: { granted: false, desc: "How did you find this?", name: "You weren't supposed to see that!", icon: "img/icons/see.png" },
+            new_look: { granted: false, desc: "You look like a strong warrior!", name: "Getting a new look!", icon: "img/icons/armor.png" }
+        }
+
+        window.api.changeDCState('idle')
+
+        document.querySelectorAll('.save-div-inner').forEach(div => {
+            div.addEventListener("mousedown",async e => {
+                let value = div.id.split('')[4]
+                if(e.button === 0) {
+                    const data = await window.api.checkForSaves(value)
+                    if(data.exists) {
+                        startGame(Number(value))
+                    }else {
+                        showPopupWorld(Number(value))
+                    }
+                }else {
+                    showPopup(Number(value))
+                }
+            })
+        })
+
+        async function displayStartBtn(save) {
+            const div = document.querySelector(`save${save}`)
+        }
+
+        async function updateSaves() {
             for(let i = 1;i<4;i++) {
                 const saveDiv = document.querySelector(`#save${i}`);
-                saveDiv.addEventListener('click',() => {
-                    showPopup(i)
-                })
-                saveDiv.innerHTML = `<h1>Play without saving</h1><br><h2 style="font-style: italic;">Log in to save your progress</h2>`
+
+                const data = await window.api.checkForSaves(i)
+                const saveExits = data.exists
+                
+                if(saveExits) {
+                    saveDiv.innerHTML = `<h1><span style="font-style: italic;">${data.meta.name}</span></h1><br><h2 style="font-style: italic;">${data.meta.description}</h2>`
+                }else {
+                    saveDiv.innerHTML = `<h1>Start a new world</h1><br><h2 style="font-style: italic;">Good luck</h2>`
+                }  
+            }
+
+            const achievementData = await window.api.fetchAchievements()
+            const div = document.querySelector('#achievements');
+            if(!(Object.values(achievementData).some(a => a.granted))) return
+            div.innerHTML = ""
+            Object.values(achievementData).forEach(achievement => {
+                if(achievement.granted) {
+                    div.innerHTML += `<div class="AchievementsWrapperMain flex-left shadow" style="margin-top: 16px">
+                        <div class="achievementIcon" style="background-image: url(${achievement.icon});">
+
+                        </div>
+                        <div class="achievementText">
+                            <div class="flex-center" id="achievementName" style="font-size: 35px;">${achievement.name}</div>
+                            <hr>
+                            <div class="flex-center" id="achievementDesc" style="font-size: 25px;">${achievement.desc}</div>
+                        </div>
+                    </div>`
+                }
+            })
+        
+            const statsData = await window.api.fetchGlobalStats()
+            if(statsData.general.distance.value >= 1000000) grantAchievement('are_we_there_yet')
+        
+        }
+
+        async function showPopup(save) {
+            const popup = document.querySelector('#popup');
+            const blur = document.querySelector('.blur-div');
+            blur.classList.add('blur')
+            popup.classList.remove('display-none')
+
+            const data = await window.api.checkForSaves(save)
+            const exists = data.exists
+
+            playSound('UIopen', menu.sounds.effects / 100, true)
+
+            const title = document.querySelector('#title');
+            const content = document.querySelector('#content');
+
+            if(exists) {
+                title.innerHTML = '<h2 class="title-big">Options</h2>'
+                content.innerHTML = `<div class="flex-center margin-top-32"><button style="color: black;" class="rounded btn-big background-color-white" onclick="window.api.openFolder()">Open Folder</button></div><div class="flex-center margin-top-32"><button style="color: black;" class="rounded btn-big background-color-white" onclick="openEditPopup(${save})">Edit</button></div><div class="flex-center margin-top-32"><button style="color: black;" class="rounded btn-big red-color" onclick="deleteSave(${save})">Delete</button></div><div class="flex-center margin-top-64"><button style="color: black;" class="closeBtn" onclick="closePopup()"></button></div>`
+            }else {
+                title.innerHTML = '<h2 class="title-big">Options</h2>'
+                content.innerHTML = `<div class="flex-center margin-top-32"><button style="color: black;" class="rounded btn-big background-color-white" onclick="window.api.openFolder()">Open Folder</button></div><div class="flex-center margin-top-64"><button style="color: black;" class="closeBtn" onclick="closePopup()"></button></div>`
             }
         }
 
-        function showPopup(save) {
+        async function openEditPopup(save) {
             const popup = document.querySelector('#popup');
+            const blur = document.querySelector('.blur-div');
+            blur.classList.add('blur')
+            popup.classList.remove('display-none')
+            const title = document.querySelector('#title');
+            const content = document.querySelector('#content');
+            const data = await window.api.checkForSaves(save)
+            const exists = data.exists
+            playSound('UIopen', menu.sounds.effects / 100, true)
+            if(exists) {
+                const {name, description} = data.meta
+                
+                const title = document.querySelector('#title');
+                const content = document.querySelector('#content');
+                title.innerHTML = '<h2 class="title-big">Edit</h2>'
+                content.innerHTML =`<div class="flex-center margin-top-32"><input type="text" id="name" value="${name}" class="padding-16 border-black-1" placeholder="name..."></div><div class="flex-center margin-top-16"><input value="${description}" type="text" id="description" class="padding-16 border-black-1" placeholder="description..."></div><div class="flex-space-arround margin-top-128"><button style="color: black;" class="rounded btn-big background-color-white" onclick="saveEdit(${save})">Save</button><button style="color: black;" class="closeBtn" onclick="closePopup()"</button></div>`
+           } else {
+                title.innerHTML = '<h2 class="title-big">Edit</h2>' 
+                content.innerHTML = '<h3>No world data found!</h3>'
+           }
+        }
+
+        function saveEdit(save) {
+            const name = document.querySelector('#name').value
+            const description = document.querySelector('#description').value
+
+            if(!name || !description) return
+            window.api.saveNameAndDesc(name, description, save)
+            closePopup()
+        }
+
+        function showPopupWorld(save) {
+            const popup = document.querySelector('#popup');
+            const blur = document.querySelector('.blur-div');
+            blur.classList.add('blur')
+
+            playSound('UIopen', menu.sounds.effects / 100, true)
 
             popup.classList.remove('display-none')
 
             const title = document.querySelector('#title');
             const content = document.querySelector('#content');
 
-            if(isloggedIn) {
-                // TODO
-            }else {
-                title.innerHTML = '<h2 class="title">Not logged in!</h2>'
-                content.innerHTML = `<div class="flex-center"><h2>Playing won't save the game!<h2></div><div class="flex-center margin-top-32"><button style="color: black;" class="btn-small background-color-white" onclick="startGame(${save})">Proceed</button><button style="color: black;" class="btn-small background-color-white margin-left-16" onclick="closePopup()">Quit</button></div>`
-            }
+            title.innerHTML = '<h2 class="title-big">World Creation</h2>'
+            content.innerHTML = `<div class="flex-center margin-top-32"><input type="text" id="name" class="padding-16 border-black-1" placeholder="name..."></div><div class="flex-center margin-top-16"><input type="text" id="description" class="padding-16 border-black-1" placeholder="description..."></div><div class="flex-space-arround margin-top-128"><button style="color: black;" class="rounded btn-big background-color-white" onclick="startGame(${save})">Start</button><button style="color: black;" class="closeBtn" onclick="closePopup()"></button></div>`
         }
         
         function startGame(save) {
-            sessionStorage.setItem('save', save)
+            const nameInput = document.querySelector('#name')
+            const descInput = document.querySelector('#description')
 
-            location.href = '/game'
+            if(nameInput && descInput) {
+                sessionStorage.setItem('name', nameInput.value.trim() || "World")
+                sessionStorage.setItem('description', descInput.value.trim() || "World")
+            }
+            sessionStorage.setItem('save', save)
+            location.href = 'game.html'
+        }
+
+        function deleteSave(save) { 
+            closePopup()
+            window.api.deleteSave(save)
+            updateSaves()
         }
 
         function closePopup() {
-
-            
+            const blur = document.querySelector('.blur-div');
+            blur.classList.remove('blur')
+            playSound('UIopen', menu.sounds.effects / 100, true)
             const popup = document.querySelector('#popup');
 
             popup.classList.add('display-none')
@@ -130,6 +354,361 @@
         function startTutorial() {
             location.href = '/tutorial'
         }
+        
+        async function displayStatsBtn(save) {
+            if(!statsBtn) {
+                const data = await window.api.checkForSaves(save)
+                if(!data.exists) return
+
+                const div = document.querySelector(`#statsBtn-div${save}`);
+
+                const btn = `<button id="statsBtn" onclick="displayStats(${save})" class="statsBtn"></button>`
+
+                div.innerHTML = btn
+                statsBtn = true
+            }
+        }
+
+        async function removeStatsBtn() {
+            if(document.querySelector('#statsBtn')) {
+                document.querySelector('#statsBtn').remove()
+            }
+            statsBtn = false
+        }
+
+        async function displayStats(save) {
+            const div = document.querySelector('#statsDiv');
+            const statHeaders = document.querySelector('#statHeaders');
+            const blur = document.querySelector('.blur-div');
+            blur.classList.add('blur')
+            div.classList.remove('display-none')
+            playSound('UIopen', menu.sounds.effects / 100, true)
+
+            document.querySelector('#general').addEventListener('click', () => {
+                displayStatsHeader('general', save)
+            })
+            document.querySelector('#entities').addEventListener('click', () => {
+                displayStatsHeader('entities', save)
+            })
+            document.querySelector('#items').addEventListener('click', () => {
+                displayStatsHeader('items', save)
+            })
+            document.querySelector('#sorcery').addEventListener('click', () => {
+                displayStatsHeader('sorcery', save)
+            })
+
+            displayStatsHeader('general', save)
+        }
+
+        async function displayStatsHeader(header, save) {
+            const insert = document.querySelector('#statsInsert');
+            insert.innerHTML = ''
+            document.querySelector(`#general`).classList.remove('selectedHeader')
+            document.querySelector(`#entities`).classList.remove('selectedHeader')
+            document.querySelector(`#items`).classList.remove('selectedHeader')
+            document.querySelector(`#sorcery`).classList.remove('selectedHeader')
+            document.querySelector(`#${header}`).classList.add('selectedHeader')
+            playSound('UIopen', menu.sounds.effects / 100, true)
+            let statData
+            if(save !== 'global') {
+                statData = await window.api.getStats(save)
+            }else {
+                statData = await window.api.fetchGlobalStats()
+            }
+            Object.values(statData[header]).forEach(stat => {
+                insert.innerHTML += `<div class="statIcon margin-top-32 shadow" style="background-image: url(${stat.icon}); border-bottom: 3px solid black"></div><div style="border-bottom: 3px solid black;" class="shadow margin-top-32 padding-16"><h1>${stat.name}</h1><hr><h4>${stat.desc}</h4></div><div class="shadow flex align-center flex-center margin-top-32" style="border-bottom: 3px solid black; width: 120px;height:200px;overflow: hidden;"><p class="stat-value">${Math.round(stat.value)}</p></div>`
+            })
+
+            document.querySelectorAll('.stat-value').forEach(el => fitText(el))
+        }
+
+        function closeStats() {
+            document.querySelector('#statsDiv').classList.add('display-none')
+            document.querySelector('#statsDiv').innerHTML = `<div class="menuStatDiv " id="statHeaders"><div class="statHeader shadow margin-left-16" id="general">General</div><div class="statHeader shadow margin-left-16" id="entities">Entities</div><div class="statHeader shadow margin-left-16" id="items">Items</div><div class="statHeader shadow margin-left-16" id="sorcery">Sorcery</div></div><div id="statsDivInner" class="shadow"><div id="statsInsert"></div></div><div class="statHeader" style="border-radius: 0px 0px 10px 10px !important; margin-left: 16px;"  id="statHeaders" onclick="closeStats()">Exit</div>`
+            const blur = document.querySelector('.blur-div');
+            blur.classList.remove('blur')
+            playSound('UIopen', menu.sounds.effects / 100, true)
+        }
+
+        function fitText(el) {
+            const parent = el.parentElement;
+            let size = 80;
+            el.style.fontSize = size + 'px';
+
+            while (
+                (el.scrollWidth > parent.clientWidth || el.scrollHeight > parent.clientHeight) 
+                && size > 1
+            ) {
+                size--;
+                el.style.fontSize = size + 'px';
+            }
+        }
+
+        async function grantAchievement(achievement) {
+            const achievementData = await window.api.fetchAchievements()
+            if (achievementData[achievement].granted) return;
+
+            const AchievementsWrapper = document.querySelector('.AchievementsWrapper');
+            const data = achievements[achievement];
+            console.log(data.icon);
+            document.querySelector('#achievementIconPopup').style.backgroundImage = `url(${data.icon})`
+            document.querySelector('#achievementNamePopup').innerHTML = data.name
+            document.querySelector('#achievementDescPopup').innerHTML = data.desc
+
+            AchievementsWrapper?.classList.remove('display-none')
+            playSound('completeAchievement', menu.sounds.effects / 100, true)
+
+            let counter = -400
+            const interval = setInterval(() => {
+                counter++
+                AchievementsWrapper.style.right = `${counter}px`
+                if (counter === 100) {
+                    clearInterval(interval)
+                    setTimeout(() => {
+                        const innerInterval = setInterval(() => {
+                            counter--
+                            AchievementsWrapper.style.right = `${counter}px`
+                            if (counter < -400) {
+                                clearInterval(innerInterval)
+                                AchievementsWrapper.classList.add('display-none')
+                            }
+                        }, 2.5)
+                    }, 3000)
+                }
+            }, 5)
+        
+        
+            window.api.grantAchievement(achievement)
+        }
+
+        class menuClass {
+            constructor() {
+                this.states = {
+                    menu: false,
+                    options: false,
+                    settings: false
+                } // keep track of which menu screens are open
+                this.settings = { // keeps track of all settings
+                    audio: {
+                        name: 'audio',
+                        settings: [
+                            { name: 'Master Sound', state: false },
+                        ]
+                    },
+                    video: {
+                        name: 'video',
+                        settings: [
+                            { name: 'Fullscreen', state: false },
+                            { name: 'FPS', state: true },
+                        ]
+                    },
+                    dev: {
+                        name: 'dev',
+                        settings: [
+                            { name: 'No Clip', state: false },
+                            { name: 'Inf Damage', state: false },
+                            { name: 'No Aggro', state: false },
+                            { name: 'Hitboxes', state: false },
+                            { name: 'Speed', state: false },
+                            { name: 'Insta Skip', state: false },
+                        ]
+                    
+                    },
+                    accessibility: {
+                        name: 'accessibility',
+                        settings: [
+                            { name: 'labels', state: true }
+                        ]
+                    }
+                }
+                this.sounds = {
+                    music: 100,
+                    effects: 50
+                }
+            }
+        
+            toggleMenu() {
+                const menu = document.querySelector('#menu');
+                playSound('UIopen', this.sounds.effects / 100, true)
+                if (this.states.menu) {
+                    const options = document.querySelector('#options');
+                    const settings = document.querySelector('#settings');
+                    menu?.classList.add('display-none')
+                    options?.classList.add('display-none')
+                    settings?.classList.add('display-none')
+                    document.querySelector('.blur-div').classList.remove('blur')
+                    this.states.menu = false
+                    this.states.options = false
+                    this.states.settings = false
+                } else {
+                    
+                    menu?.classList.remove('display-none')
+                    this.states.menu = true
+                    document.querySelector('.blur-div').classList.add('blur')
+                }
+
+                window.api.saveSettings(this.settings)
+            }
+        
+            toggleOptionsScreen() {
+                playSound('UIopen', menu.sounds.effects / 100, true)
+                const div = document.querySelector('#options');
+                if (this.states.options) {
+                    div?.classList.add('display-none')
+                    this.states.options = false
+                } else {
+                    this.states.options = true
+                    const settingsArr = Object.values(this.settings)
+                    div.innerHTML = ''
+                    div.classList.remove('display-none')
+                    div.innerHTML += `<div class="flex-center"><h2>Options</h2></div><hr>`
+                
+                    settingsArr.forEach(setting => {
+                        div.innerHTML += `<div class="flex-center margin-top-16"><button class="btn-small background-color-gray" onclick="menu.toggleSettingsScreen('${setting.name}')">${setting.name.toUpperCase()}</button></div>`
+                    });
+                
+                    div.innerHTML += `<div class="flex-between margin-top-32"><button onclick="menu.toggleMenu()" class="btn-small background-color-gray">Close</button><button onclick="menu.toggleOptionsScreen()" class="btn-small background-color-gray">Back</button></div>`
+                }
+            }
+        
+            quit() {
+                location.href = 'index.html'
+            }
+        
+            async save() {
+                const save = sessionStorage.getItem("save")
+                const name = sessionStorage.getItem('name')
+                const description = sessionStorage.getItem('description')
+                if (!save || !name || !description) { menu.quit(); return }
+                const temp = await window.api.checkForSaves(save)
+                const alreadySavedMeta = temp.meta
+                const settings = this.settings
+                let meta = {
+                    name: "World",
+                    description: "World",
+                    world: currentWorld,
+                    quest: activeQuests
+                }
+            
+                if (alreadySavedMeta) {
+                    meta.name = alreadySavedMeta.name,
+                        meta.description = alreadySavedMeta.description
+                } else {
+                    meta.name = name,
+                        meta.description = description
+                }
+            
+                window.api.saveGame(worlds, player, save, meta, stats, settings)
+            }
+        
+            toggleSettingsScreen(setting) {
+                const div = document.querySelector('#settings');
+                playSound('UIopen', menu.sounds.effects / 100, true)
+                if (this.states.settings) {
+                    this.states.settings = false
+                    div?.classList.add('display-none')
+                } else {
+                    this.states.settings = true
+                    div?.classList.remove('display-none')
+                    div.innerHTML = ''
+                    div.classList.remove('display-none')
+                    div.innerHTML += `<div class="flex-center"><h2>${setting.toUpperCase()} Settings</h2></div><hr>`
+                
+                    const settings = this.settings[setting].settings
+                
+                    settings.forEach(set => {
+                        div.innerHTML += `<div class="flex-center margin-top-16"><button id="${set.name.replace(' ', '')}" class="btn-small background-color-gray" onclick="menu.toggleSetting('${set.name}', '${setting}')">${set.name}</button></div>`
+                        const btn = document.querySelector(`#${set.name.replace(' ', '')}`);
+                        if (set.state) {
+                            btn?.classList.add('setting-true')
+                            btn?.classList.remove('setting-false')
+                        } else {
+                            btn?.classList.remove('setting-true')
+                            btn?.classList.add('setting-false')
+                        }
+                    })
+                    if (setting === 'dev') {
+                        div.innerHTML += `<div class="flex-center margin-top-16"><input id="command" placeholder="command..." type="text"><button class="gradientBtn btn-small margin-left-16" onclick="menu.runCommand()">Send</button></div>`
+                    } else if (setting === 'audio') {
+                        div.innerHTML += `<div class="flex-center margin-top-16"><h3>Music: </h3><input id="musicRange" value="menu.sounds.music" type="range" max="100" min="0" onchange="music.volume = Number(document.querySelector('#musicRange').value)/100; menu.sounds.music = Number(document.querySelector('#musicRange').value)"></div><div class="flex-center margin-top-16"><h3>Effects: </h3><input id="effectsRange" value="menu.sounds.effects" type="range" max="100" min="0" onchange="menu.sounds.effects = Number(document.querySelector('#effectsRange').value)"></div>`
+                    }
+                    div.innerHTML += `<div class="flex-between margin-top-32"><button onclick="menu.toggleMenu()" class="btn-small background-color-gray">Close</button><button onclick="menu.toggleSettingsScreen()" class="btn-small background-color-gray">Back</button></div>`
+                }
+            }
+        
+            toggleSetting(setting, group) {
+                this.settings[group].settings.forEach(set => {
+                
+                    const btn = document.querySelector(`#${set.name.replace(' ', '')}`);
+                    if (set.name === setting) {
+                        if (set.state) {
+                            btn?.classList.remove('setting-true')
+                            btn?.classList.add('setting-false')
+                            if (setting === 'Fullscreen') {
+                                document.exitFullscreen();
+                            }
+                            set.state = false
+                        } else {
+                            set.state = true
+                            if (setting === 'Fullscreen') {
+                                document.documentElement.requestFullscreen()
+                            }
+                            btn.classList.add('setting-true')
+                            btn.classList.remove('setting-false')
+                        }
+                    }
+                })
+
+                window.api.saveSettings(this.settings)
+            }
+            checkSetting(setting) {
+                const allGroups = Object.values(this.settings)
+            
+                for (const group of allGroups) {
+                    for (const set of group.settings) {
+                        if (set.name === setting && set.state) {
+                            return true
+                        }
+                    }
+                }
+            
+                return false
+            }
+            runCommand() {
+                const input = (document.querySelector('#command')).value;
+                (document.querySelector('#command')).value = ''
+            
+                const command = input.split(/-(.+)/)
+            
+                if (!menu.commands[command[0].split(" ")[0]]) {
+                    displayInfo(`Unknown Command: ${command}`)
+                    return;
+                }
+            
+                if (command[1] !== '') {
+                    menu.commands[command[0].split(" ")[0]](command[1])
+                } else {
+                    menu.commands[command[0].split(" ")[0]]()
+                }
+            }
+        }
+        
+
+        const menu = new menuClass();
+        console.log();
+        (async () => {
+            const settings = await window.api.fetchSettings()
+
+            if(settings) {
+                menu.settings = settings
+            }
+        })()
+
+        updateSaves()
+        setInterval(() => {
+            updateSaves()
+            window.api.saveSettings(menu.settings)
+        }, 1000)
     </script>
 </body>
 </html>

@@ -1,5 +1,5 @@
 # OathBound
-### Latest Version: [0.6.0 (Alpha)](https://github.com/00xduck/OathBound/releases/tag/v0.6.0)
+### Latest Version: [0.5.5 (Alpha)](https://github.com/00xduck/OathBound/releases/tag/v0.5.5)
 ## About
 **OathBound** is a singleplayer pixel-art side-scroller progression-based story game currently in development.
 It is a semi open world game with intentional limitations.
@@ -36,9 +36,7 @@ I am planning on releasing **OathBound** on a few platforms. This will include a
 - Close UI/open main Menu: `Escape`
 ## Installation
 1. download a [setup for OathBound](https://github.com/00xduck/OathBound/releases) (v0.5.0 or above)
-2. you could use the hash to check for any data corruption
-3. open the setup
-4. follow the setup instructions
+2. follow the setup instructions
 ## Tech Stack
 - HTML5
 - CSS

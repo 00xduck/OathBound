@@ -8,23 +8,43 @@
     <link rel="icon" type="image/jpg" sizes="32x32" href="/img/favicon.jpg">
     <title>Oathbound</title>
 </head>
-<body>
+<body style="background-color: rgb(89, 101, 25);
+    background-position: 50%;
+    filter: brightness(0.75);">
     <div id="game">
         <canvas id="canvas"></canvas>
         <div class="bar">
-            <div class="slot-div">
-                <div class="slot selected" id="hotbar1"></div>
-                <div class="slot" id="hotbar2"></div>
-                <div class="slot" id="hotbar3"></div>
-                <div class="slot" id="hotbar4"></div>
-                <div class="slot" id="hotbar5"></div>
-            </div>
-            <div class="speaking-div">
-                <div id="speakWrapper" class="display-none">
-                    <h1 class="speak"></h1>
-                    <button class="speakBtn confirm-btn display-none" id="speakBtn"></button>
+            <div class="">
+                <div id="healthbar-container">
+                    <img id="healthbar-sprite" src="img/icons/healthbar.png"/>
+                    <img src="img/icons/red_heart.png" id="heart">
+                    <div id="healthbar-fill"></div>
                 </div>
             </div>
+            <div class="">
+                <div id="manaBar-container">
+                    <img id="manaBar-sprite" src="img/icons/manaBar.png"/>
+                    <div id="manaBar-fill"></div>
+                </div>
+            </div>
+            <div class="flex-center">
+                <div class="cooldownDiv display-none">
+
+                </div>
+                <div class="selectedSpellDiv">
+
+                </div>
+
+            </div>
+
+            <div class="slot-div" style="margin-right: 200px;">
+                <div class="slot selected slot-03" id="hotbar1"></div>
+                <div class="slot slot-13"  id="hotbar2"></div>
+                <div class="slot slot-23"  id="hotbar3"></div>
+                <div class="slot slot-33"  id="hotbar4"></div>
+                <div class="slot slot-43" id="hotbar5"></div>
+            </div>
+
         </div>
 
         <div class="effect-icons-div">
@@ -80,6 +100,33 @@
             </div>
         </div>
 
+        <div class="bottom-right speaking-div display-none" id="speakingDiv">
+            
+            <div class="flex-space-arround padding-16">
+                <div id="portrait" class="shadow"></div>
+                <div class="speak-wrapper">
+                    <div id="speak" style="font-size: 30px;"></div>
+                    <button class="next-btn display-none" id="speakBtn"></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="AchievementsWrapper display-none flex-center">
+            <div class="achievementIcon">
+                
+            </div>
+            <div class="achievementText">
+                <div class="flex-center" id="achievementName" style="font-size: 35px;"></div>
+                <hr>
+                <div class="flex-center" id="achievementDesc" style="font-size: 20px;"></div>
+            </div>
+        </div>
+
+        <div class="magicDiv display-none">
+            <div class="innerMagicDiv">
+
+            </div>
+        </div>
 
 
     </div>
@@ -87,7 +134,20 @@
     <div class="info-div">
         <h1 id="info"></h1>
     </div>
-    
+    <script>
+        document.querySelectorAll('.slot').forEach((slot, i) => {
+            slot.addEventListener('click', e => {
+                console.log(i);
+                switchHotbarSlot(e, i)
+            })
+        })
+    </script>
+    <script src="player.js"></script>
+    <script src="spells.js"></script>
+    <script src="enemies.js"></script>
+    <script src="otherClasses.js"></script>
+    <script src="blocks.js"></script>
+    <script src="GUI.js"></script>
     <script src="index.js"></script>
 </body>
 </html>
