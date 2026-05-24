@@ -1442,6 +1442,9 @@ class NPC extends Entity {
             }, 550);
         }
     }
+    get bottom() {
+        return (this.pos.y + this.hitbox.offsetY + this.hitbox.height);
+    }
 }
 //
 function removeWorldElements(properties, elementValue, dim) {

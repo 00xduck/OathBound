@@ -1,0 +1,40 @@
+
+0.5.-
+  0.5.5
+    -> the user is now able to directly change some properties by going into AppData and opening configs.json, in which you can change many           values! Just play around for a bit and you'll be able to create your own difficulties! (cheats are automaticly enabled if configs are           changed)
+    -> Pickaxes and Ores
+    -> the player can die now
+    -> ground for goblin houses has been updated
+    -> new brightness slider in video settings
+  0.5.4
+    -> new passive entities (cow, chicken)
+    -> mob spawning of passive entities
+    -> new companions GUI
+    -> new companion (cat)
+    -> worlds with cheats enabled now appear red
+  0.5.3
+    -> magic system
+      12 spells, 6 subclasses, new magic wands, new rune, mana crystals
+    -> new ground design
+    -> new font
+    -> new ogre enemy
+    -> sharper graphics
+    -> some story adjustments
+    -> new statistic header
+  0.5.2
+    -> added the ability to drop items
+    -> global statistics
+    -> achievements
+  0.5.1
+    -> added statistics for individual saves
+    -> new speaking design for NPCs
+    -> options are now saved in AppData
+    -> added links for Discord, Itch and GitHub 
+    -> new healthbar design
+    -> added mana bar
+  0.5.0
+    -> OathBound can be downloaded as a desktop app
+    -> you can save your playthroughs in AppData
+    -> you can edit the name and description of your saves
+    -> you can delete saves
+    -> new homepage design

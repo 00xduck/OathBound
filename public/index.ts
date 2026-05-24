@@ -1436,6 +1436,10 @@ class trader extends Entity implements entity {
     interact(): void {
         openTradingMenu(this.trade)
     }
+
+    get bottom() {
+        return (this.pos.y + this.hitbox.offsetY + this.hitbox.height)
+    }
 }
 
 type actionType = 'destroy' | 'spawn'
