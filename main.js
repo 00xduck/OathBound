@@ -2,9 +2,12 @@ const { app, BrowserWindow, ipcMain, screen, shell, globalShortcut } = require("
 const Store = require("electron-store")
 const path = require("path");
 const fs = require('fs')
+const os = require('os')
 const { spawn } = require('child_process')
 const discord = require("./discord");
 const crypto = require("crypto")
+const { SerialPort } = require('serialport')
+const { ReadlineParser } = require('@serialport/parser-readline');
 
 const save1 = new Store({
     name: 'save1'
@@ -23,12 +26,22 @@ const config = new Store({
 })
 
 const globalStats = new Store({
-    name: "stats"
+    name: "stats",
+    encryptionKey: "adwPieps323ayxderyQQ3Goodboy"
 })
 
 const achievementsStore = new Store({
     name: "achievements",
-    encryptionKey: process.env.ENCRYPTIONKEY
+    encryptionKey: "adwPieps323ayxderyQQ3Goodboy"
+})
+
+const accountStore = new Store({
+    name: "account"
+})
+
+const skinsStore = new Store({
+    name: "skins",
+    encryptionKey: "adwPieps323ayxderyQQ3Goodboy"
 })
 
 const achievementsDefault = {
@@ -85,7 +98,10 @@ function openAppFolder() {
     }
 }
 
+let port = null;
+let parser = null;
 let mainWindow;
+
 
 function createWindow() {
     const display = screen.getPrimaryDisplay()
@@ -113,6 +129,13 @@ function createWindow() {
             mainWindow.webContents.send('data', { error: { text: "Refreshrate is too high!", type: "refreshRate", addInfo: "Refreshrate needs to be 60Hz" }, severity: "medium" });
         }
     });
+}
+
+if(!skinsStore.get('skins')) {
+    const skinsPath = path.join(__dirname, 'public', 'data', 'skins.json')
+    const raw = fs.readFileSync(skinsPath, 'utf-8')
+    skins = JSON.parse(raw)
+    skinsStore.set('skins', skins)
 }
 
 let configs;
@@ -180,7 +203,6 @@ ipcMain.on('saveGame', (event, worlds, playerData, save, meta, stats, settings, 
     saves[Number(save)].set("meta", meta)
     /* saves[Number(save)].set("stats", stats) */
     saves[Number(save)].set("droppedItems", droppedItems)
-    config.set('settings', settings)
 
     const oldStats = saves[Number(save)].get("stats")
 
@@ -239,11 +261,12 @@ ipcMain.on('grantAchievement', (event, achievement) => {
     }
 })
 
-ipcMain.on('saveSettings', (event, settings) => {
+ipcMain.on('saveSettings', (event, settings, values) => {
     config.set("settings", settings)
+    config.set("values", values)
 })
 
-ipcMain.on('saveNameAndDesc', (event, name, description, save) => {
+ipcMain.on('saveNamurleAndDesc', (event, name, description, save) => {
     saves[Number(save)].set('meta.name', name)
     saves[Number(save)].set('meta.description', description)
 })
@@ -307,7 +330,90 @@ ipcMain.handle('fetchGlobalStats', (event) => {
 
 ipcMain.handle('fetchSettings', (event) => {
     const settings = config.get('settings')
-    return settings
+    const values = config.get('values')
+    return {settings: settings,values: values }
+})
+
+ipcMain.handle('connectToDevice', (event) => {
+    try {
+        if(port && port.isOpen) {
+            return {success: false, err: 'Port is alreay open'}
+        }
+
+        if(os.platform() === 'win32') {
+            port = new SerialPort({
+                path: 'COM3',
+                baudRate: 9600
+            })
+        }else if(os.platform() === 'linux'){
+            port = new SerialPort({
+                path: '/dev/ttyUSB0',
+                baudRate: 9600
+            })
+        }
+
+        parser = port.pipe(new ReadlineParser({ delimiter: '\r\n' }));
+
+        
+        parser.on('data', (ln) => {
+            console.log(`[ARDUINO] ${ln}`)
+            mainWindow.webContents.send('arduinoData', ln.trim())
+        })  
+
+        port.on('error', (err) => {
+            console.error(err)
+        })
+
+        console.info('Connenction succesfull!')
+    }catch(err) {
+        console.log(err)
+        return {success: false, err: err.message}
+    }
+
+    port.on('open', () => {
+        setTimeout(() => {
+            port.write("CONNECT\r\n", (err) => {
+                if (err) console.error('Write error:', err.message)
+                else console.log('CONNECT sent!')
+            })
+        }, 2000)
+    })
+    return {success: true}
+})
+
+
+ipcMain.on('sendMSGToDevice', (event, msg) => {
+    if(port && port.isOpen && parser) {
+        port.write(msg)
+    }
+})
+
+ipcMain.handle('disconnentFromDevice', event => {
+    port.write("DISCONNECT\r\n", (err) => {
+        if (err) console.error('Write error:', err.message)
+        else console.log('DISCONNECT sent!')
+    })
+    try {
+        if(port && port.isOpen) {
+
+            port.close(err => {
+                port = null
+                parser = null
+                if(err) {
+                    console.error(err.message)
+                    return { success: false, err: err.message}
+                }else {
+                    console.log('Successfully disconnected!')
+                }
+            })
+        }else {
+            return {success: false, err: 'Port was already closed!'}
+        }
+    }catch(err) {
+        return {success: false, err: err.message}
+    }
+
+    return {success: true}
 })
 
 ipcMain.handle('fetchAchievements', (event) => {
@@ -332,6 +438,107 @@ ipcMain.handle('getWorldData', (event, save) => {
     const metaData = saves[save].get("meta")
     const droppedItemsData = saves[save].get("droppedItems")
     return { intermediatWorld: currentSave, playerData: playerData, metaData: metaData, droppedItemsData: droppedItemsData }
+})
+
+ipcMain.handle('postStats', async (event, url) => {
+    if(!accountStore.get('uuid') || !accountStore.get('username') || !globalStats.get('stats')) return {success: false, err: "Please create an account and have at least one world!"}
+
+    console.log("UUID: " + accountStore.get('uuid'))
+    try {
+        const response = await fetch(`${url}/oathbound/postStats`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                username: accountStore.get('username'),
+                uuid:  accountStore.get('uuid'),
+                stats: globalStats.get('stats')
+            })
+        });
+    }catch(err) {
+        return {success: false, err: err.message}
+    }
+
+    return {success: true}
+})
+
+ipcMain.handle('fetchSkins', (event) => {
+    if(!skinsStore.get('skins')) {
+        const skinsPath = path.join(__dirname, 'public', 'data', 'skins.json')
+        const raw = fs.readFileSync(skinsPath, 'utf-8')
+        skins = JSON.parse(raw)
+        skinsStore.set('skins', skins)
+    }
+
+    const skins = skinsStore.get('skins')
+
+    const skinsArr = Object.values(skins)
+    let formattedArr = [];
+
+    skinsArr.forEach(skin => {
+        if(skin.hasSkin) {
+            formattedArr.push({
+                path: skin.path,
+                name: skin.name,
+                rarity: skin.rarity,
+                selected: skin.selected,
+                index: skin.index
+            })
+        }
+    })
+
+    return formattedArr
+})
+
+ipcMain.on('selectSkin', (event, index) => {
+    if(!skinsStore.get('skins')) {
+        const skinsPath = path.join(__dirname, 'public', 'data', 'skins.json')
+        const raw = fs.readFileSync(skinsPath, 'utf-8')
+        skins = JSON.parse(raw)
+        skinsStore.set('skins', skins)
+    }
+
+    const skins = skinsStore.get('skins')
+
+
+    Object.values(skins).forEach(skin => skin.selected = false)
+
+    skins[index].selected = true
+    
+
+    skinsStore.set('skins', skins)
+})
+
+ipcMain.on('checkCode', (event, code) => {
+    if(!skinsStore.get('skins')) {
+        const skinsPath = path.join(__dirname, 'public', 'data', 'skins.json')
+        const raw = fs.readFileSync(skinsPath, 'utf-8')
+        skins = JSON.pharse(raw)
+        skinsStore.set('skins', skins)
+    }
+
+    const skins = skinsStore.get('skins')
+    console.log(code)
+    Object.values(skins).forEach(skin => {
+        console.log(skin.code)
+        if(code === skin.code) {
+            skin.hasSkin = true
+            console.log('?')
+        }
+    })
+
+    skinsStore.set('skins', skins)
+})
+
+ipcMain.handle('fetchName', event => {
+    const name = accountStore.get('username')
+    return name
+})
+
+ipcMain.on('rename', (event, name) => {
+    accountStore.set('username', name)
+    accountStore.set('uuid', crypto.randomUUID())
 })
 
 app.on("window-all-closed", () => {

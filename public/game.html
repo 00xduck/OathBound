@@ -130,8 +130,12 @@
 
         <div class="display-none companionDiv center-true" id="companionDiv">
             <div class="companionInnerDiv" id="companionInnerDiv"></div>
-            <div class="margin-left-32" style="margin-top: -50px;">
-                <button class="closeBtn" onclick="player.companions.forEach(com => { com.selected = false })"></button>
+            <div class="margin-left-32" style="margin-top: -90px; align-items: start;">
+                <div>
+                    <h2>Reset Companion:</h2>
+                    <button class="closeBtn" onclick="player.companions.forEach(com => { com.selected = false })"></button>
+                </div>
+
             </div>
         </div>
 
@@ -167,6 +171,7 @@
     <script src="otherClasses.js"></script>
     <script src="blocks.js"></script>
     <script src="GUI.js"></script>
+    <script src="device.js"></script>
     <script src="index.js"></script>
 </body>
 </html>

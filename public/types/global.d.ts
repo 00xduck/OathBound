@@ -11,11 +11,13 @@ declare global {
             saveNameAndDesc: (name: string, description: string, save: string) => undefined,
             getStats: (save: string) => any,
             fetchSettings: () => any,
-            saveSettings: (settings: any) => undefined,
+            saveSettings: (settings: any, values: any) => undefined,
             fetchAchievements: () => any,
             grantAchievement: (achievement: string) => undefined,
             fetchGlobalStats: () => any,
-            getConfigs: () => any
+            getConfigs: () => any,
+            onArduinoData: (callback: (msg: string) => void) => void,
+            sendMSGToDevice: (msg: string) => void
         };
     }
 }

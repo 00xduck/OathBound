@@ -1100,7 +1100,7 @@ class scorchSpell implements spellType {
         this.startFrame = 0
         this.spellCooldown = 50
         this.manaCost = 20
-        this.class = 'iceSpikeSpell'
+        this.class = 'scorchSpell'
         this.tier = 'RARE'
     }
 
@@ -1223,7 +1223,7 @@ class chainBoltSpell implements spellType {
         this.startFrame = 0
         this.spellCooldown = 50
         this.manaCost = 20
-        this.class = 'iceSpikeSpell'
+        this.class = 'chainBoltSpell'
         this.tier = 'MYTHIC'
     }
 

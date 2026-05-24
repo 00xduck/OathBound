@@ -108,7 +108,7 @@ function renderStaffGUI(staffTier: string) {
             e.preventDefault();
             document.querySelector('body')?.classList.remove('grab')
 
-            if (menu.checkSetting('Master Sound')) playSound('click', menu.sounds.effects / 100, true)
+            if (menu.checkSetting('Master Sound')) playSound('click', menu.values.effects / 100, true)
 
             if (!player.data.dragging) return;
 
@@ -165,7 +165,7 @@ function renderStaffGUI(staffTier: string) {
                 player.data.magicInventory[dragSlot.x] = temp
             }
 
-            if (menu.checkSetting('Master Sound')) playSound('equipSpell', menu.sounds.effects / 100, true)
+            if (menu.checkSetting('Master Sound')) playSound('equipSpell', menu.values.effects / 100, true)
 
             player.data.dragging = null
             renderInventory();
@@ -192,7 +192,7 @@ function openInventory() {
     const craftingDiv = document.querySelector('.crafting-div');
     inventoryDiv?.classList.remove('display-none')
 
-    playSound('UIopen', menu.sounds.effects / 100, true)
+    playSound('UIopen', menu.values.effects / 100, true)
 
 
     craftingDiv?.classList.remove('display-none')
@@ -245,9 +245,15 @@ function updateHotbar() {
     }
 }
 
-function advanceConversation(NPC: entity): void {
+function advanceConversation(NPC: entity, left?: boolean): void {
     const speakBtn = document.querySelector('#speakBtn') as HTMLButtonElement;
     const speak = document.querySelector('#speak') as HTMLElement;
+    const speakDiv = document.querySelector('#speakingDiv') as HTMLElement;
+    if(left) {
+        speakDiv.style.left = "32px"
+    }else {
+        speakDiv.style.right = "32px"
+    }
 
     let currentConversation: string[];
     if (!NPC.hasGivenPresent && NPC.conversation) {
@@ -274,12 +280,15 @@ function advanceConversation(NPC: entity): void {
         return
     }
 
+    window.api.sendMSGToDevice(currentConversation![NPC.conversationCounter!])
+
     const charArray = currentConversation![NPC.conversationCounter!].split('')
     let counter = 0
     let interval = setInterval(() => {
-        if (menu.checkSetting('Master Sound') && counter % 2 === 0) playSound('speak', menu.sounds.effects / 150, true)
+        if (menu.checkSetting('Master Sound') && counter % 2 === 0) playSound('speak', menu.values.effects / 150, true)
         speak.innerHTML += charArray[counter]
         counter++
+        if(NPC.sprite.currentState !== 'speak' && NPC.sprite.spriteAnimations.speak) NPC.changeState('speak')
         if (counter >= charArray.length) {
             clearInterval(interval)
             NPC.conversationCounter!++
@@ -317,7 +326,7 @@ function renderInventory() {
         slot.id = `armorSlot${i}0`
         armorDiv?.appendChild(slot)
     }
-    // add each armor itemplaySound('click', menu.sounds.effects / 100, true)
+    // add each armor itemplaySound('click', menu.values.effects / 100, true)
     for (let i = 0; i < 3; i++) {
         if (player.data.armor[i] !== null) {
             const itemDiv = document.createElement('div')
@@ -395,7 +404,7 @@ function renderInventory() {
                     }
                     player.data.dragging = (e.target as HTMLDivElement).parentElement!.id
                     document.querySelector('body')?.classList.add('grab')
-                    if (menu.checkSetting('Master Sound')) playSound('click', menu.sounds.effects / 100, true)
+                    if (menu.checkSetting('Master Sound')) playSound('click', menu.values.effects / 100, true)
                     if (player.data.inventory[y][x] !== null) {
                         if (items[player.data.inventory[y][x]!].type === 'armor') {
                             playerDiv!.innerHTML = `<h2>${player.data.inventory[y][x]!.replace(/_/g, ' ').toUpperCase()}</h2> <br><h3>Protection: ${items[player.data.inventory[y][x]!].protection}%</h3>${items[player.data.inventory[y][x]!].onUse !== '' ? '<br><h2>On use: ' + items[player.data.inventory[y][x]!].onUse + '</h2>' : ''}<br><h2 style="font-weight: 200; font-family: cursive;">${items[player.data.inventory[y][x]!].description} </h2>`
@@ -601,7 +610,7 @@ function renderInventory() {
             e.preventDefault();
             document.querySelector('body')?.classList.remove('grab')
 
-            if (menu.checkSetting('Master Sound')) playSound('click', menu.sounds.effects / 100, true)
+            if (menu.checkSetting('Master Sound')) playSound('click', menu.values.effects / 100, true)
 
             if (!player.data.dragging) return;
 
@@ -647,7 +656,7 @@ function renderInventory() {
             e.preventDefault();
             document.querySelector('body')?.classList.remove('grab')
 
-            if (menu.checkSetting('Master Sound')) playSound('click', menu.sounds.effects / 100, true)
+            if (menu.checkSetting('Master Sound')) playSound('click', menu.values.effects / 100, true)
 
             if (!player.data.dragging) return;
 
@@ -705,7 +714,7 @@ function renderInventory() {
                 renderStaffGUI('')
             }
 
-            if (menu.checkSetting('Master Sound')) playSound('equip', menu.sounds.effects / 100, true)
+            if (menu.checkSetting('Master Sound')) playSound('equip', menu.values.effects / 100, true)
 
             player.data.dragging = null
             renderInventory();
@@ -717,7 +726,7 @@ function renderInventory() {
         slot.addEventListener('click', e => {
             e.preventDefault();
             document.querySelector('body')?.classList.remove('grab')
-            if (menu.checkSetting('Master Sound')) playSound('click', menu.sounds.effects / 100, true)
+            if (menu.checkSetting('Master Sound')) playSound('click', menu.values.effects / 100, true)
 
             if (!player.data.dragging) return;
 
@@ -793,7 +802,7 @@ function closeInventory() {
     inventoryDiv?.classList.add('display-none')
     document.querySelector('.slots-div')!.innerHTML = ''
     document.querySelector('.player-data')!.innerHTML = ''
-    playSound('UIclose', menu.sounds.effects / 100, true)
+    playSound('UIclose', menu.values.effects / 100, true)
     player.data.onInventory = false
     if (player.data.onSecondaryInventory) {
         const container = document.querySelector('.container')
@@ -841,7 +850,7 @@ function renderSecondaryContainer(container: container) {
                     }
                     player.data.dragging = (e.target as HTMLDivElement).parentElement!.id
                     document.querySelector('body')?.classList.add('grab')
-                    if (menu.checkSetting('Master Sound')) playSound('click', menu.sounds.effects / 100, true)
+                    if (menu.checkSetting('Master Sound')) playSound('click', menu.values.effects / 100, true)
                     if (player.data.inventory[y][x] !== null) {
 
                         if (items[container.inventory[y][x]!].type === 'armor') {
@@ -907,7 +916,7 @@ function renderSecondaryContainer(container: container) {
             e.preventDefault();
 
             if (!player.data.dragging) return;
-            if (menu.checkSetting('Master Sound')) playSound('click', menu.sounds.effects / 100, true)
+            if (menu.checkSetting('Master Sound')) playSound('click', menu.values.effects / 100, true)
             document.querySelector('body')?.classList.remove('grab')
 
             const targetElement = (e.target as HTMLElement).closest('.inv-slot') as HTMLDivElement;
@@ -965,7 +974,7 @@ function openTradingMenu(trades: Trade[][]) {
     tradingMenu!.classList.remove('display-none')
     tradingMenu!.innerHTML = ''
 
-    playSound('UIopen', menu.sounds.effects / 100, true)
+    playSound('UIopen', menu.values.effects / 100, true)
     let i = 0
     trades.forEach(trade => {
         const itemGiveDiv = document.createElement('div')
@@ -1014,7 +1023,7 @@ function closeTradingMenu() {
     document.querySelector('#trading-menu')!.innerHTML = ''
     document.querySelector('#trading-menu')!.classList.add('display-none')
     player.data.onTradingMenu = false
-    playSound('UIclose', menu.sounds.effects / 100, true)
+    playSound('UIclose', menu.values.effects / 100, true)
 }
 
 function confirmTrade(trade: Trade[]) {
@@ -1043,7 +1052,10 @@ function confirmTrade(trade: Trade[]) {
         }
     }
 
+    renderInventory()
     updateHotbar()
+
+    closeTradingMenu()
 }
 
 function openCompanionGUI() {

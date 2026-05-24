@@ -762,7 +762,7 @@ class scorchSpell {
         this.startFrame = 0;
         this.spellCooldown = 50;
         this.manaCost = 20;
-        this.class = 'iceSpikeSpell';
+        this.class = 'scorchSpell';
         this.tier = 'RARE';
     }
     async castSpell() {
@@ -847,7 +847,7 @@ class chainBoltSpell {
         this.startFrame = 0;
         this.spellCooldown = 50;
         this.manaCost = 20;
-        this.class = 'iceSpikeSpell';
+        this.class = 'chainBoltSpell';
         this.tier = 'MYTHIC';
     }
     async castSpell() {

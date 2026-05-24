@@ -1,0 +1,119 @@
+{
+    "regular": {
+        "path": "img/skins/player.png",
+        "index": "regular",
+        "name": "Elric",
+        "code": "",
+        "rarity": "Rare",
+        "hasSkin": true,
+        "selected": true
+    },
+    "red_cape_elric": {
+        "path": "img/skins/red_cape_elric.png",
+        "index": "red_cape_elric",
+        "name": "Red Cape Elric",
+        "code": "06e25375-b328-4623-ae71-163c073094b7",
+        "rarity": "Rare",
+        "hasSkin": false,
+        "selected": false
+    },
+    "green_cape_elric": {
+        "path": "img/skins/green_cape_elric.png",
+        "index": "green_cape_elric",
+        "name": "Green Cape Elric",
+        "code": "93e70939-0d85-4e8a-93e5-48ee7857187b",
+        "rarity": "Rare",
+        "hasSkin": false,
+        "selected": false
+    },
+    "yellow_cape_elric": {
+        "path": "img/skins/yellow_cape_elric.png",
+        "index": "yellow_cape_elric",
+        "name": "Yellow Cape Elric",
+        "code": "4d292416-b149-4e40-b929-86af33748197",
+        "rarity": "Rare",
+        "hasSkin": false,
+        "selected": false
+    },
+    "toxic_elric": {
+        "path": "img/skins/toxic_elric.png",
+        "index": "toxic_elric",
+        "name": "Toxic Elric",
+        "code": "d3f135eb-9e9a-4990-a93b-1f221f5d4b3f",
+        "rarity": "Epic",
+        "hasSkin": false,
+        "selected": false
+    },
+    "magician_elric": {
+        "path": "img/skins/magician_elric.png",
+        "index": "magician_elric",
+        "name": "Magician Elric",
+        "code": "f434eccc-8925-4ae1-9345-11e22667b125",
+        "rarity": "Mythic",
+        "hasSkin": false,
+        "selected": false
+    },
+    "invincible_elric": {
+        "path": "img/skins/invincible_elric.png",
+        "index": "invincible_elric",
+        "name": "Invincible Elric",
+        "code": "7efb1bea-89c3-412a-9a49-8e01e1f4da13",
+        "rarity": "Mythic",
+        "hasSkin": false,
+        "selected": false
+    },
+    "demonic_elric": {
+        "path": "img/skins/demonic_elric.png",
+        "index": "demonic_elric",
+        "name": "Demonic Elric",
+        "code": "8fd7b4b3-ed09-49be-bbf9-169c8c76d4f6",
+        "rarity": "Mythic",
+        "hasSkin": false,
+        "selected": false
+    },
+    "imperial_elric": {
+        "path": "img/skins/imperial_elric.png",
+        "index": "imperial_elric",
+        "name": "Imperial Elric",
+        "code": "f8651251-ead3-4bd3-9e01-4b84cef46d77",
+        "rarity": "Mythic",
+        "hasSkin": false,
+        "selected": false
+    },
+    "superhero_elric": {
+        "path": "img/skins/superhero_elric.png",
+        "index": "superhero_elric",
+        "name": "Superhero Elric",
+        "code": "c9426236-9f4d-4024-b602-d0d836a0df6b",
+        "rarity": "Legendary",
+        "hasSkin": false,
+        "selected": false
+    },
+    "cyborg_elric": {
+        "path": "img/skins/cyborg_elric.png",
+        "index": "cyborg_elric",
+        "name": "Cyborg Elric",
+        "code": "b4cf7c26-da75-4db0-8ba2-c4c0f7230ee8",
+        "rarity": "Legendary",
+        "hasSkin": false,
+        "selected": false
+    },
+    "void_magician_elric": {
+        "path": "img/skins/void_magician_elric.png",
+        "index": "void_magician_elric",
+        "name": "Void Magician Elric",
+        "code": "10dcbdad-7c8d-44a8-b0f3-8350696c4bde",
+        "rarity": "Ultimate",
+        "hasSkin": false,
+        "selected": false
+    },
+    "golden_elric": {
+        "path": "img/skins/golden_elric.png",
+        "index": "golden_elric",
+        "name": "Golden Elric",
+        "code": "7a093910-8a25-4835-a131-1ce3393ac911",
+        "rarity": "Ultimate",
+        "hasSkin": false,
+        "selected": false
+    }
+}

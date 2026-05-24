@@ -22,7 +22,8 @@
                     <!-- <img class="logo1" src="img/title.jpg" alt="Couldnt load image"> -->
                     
                     <div class="logo"><button class="exitBtn" onclick="window.api.exitGame()"></button></div>
-                    <h2 style="color: rgb(96, 96, 96);margin-top: 120px; position: absolute; bottom: 32px; left: 64px;">v0.5.5</h2>
+                    <div class="logo" style="right: 140px !important;"><button class="lockerBtn" onclick="openLockerRoom()"></button></div>
+                    <h2 style="color: rgb(96, 96, 96);margin-top: 120px; position: absolute; bottom: 32px; left: 64px;">v0.6.0</h2>
                 </div>
 
             </div>
@@ -32,6 +33,12 @@
                  <div style="position: absolute; top: 32px; right: 150px;">
                     <button onclick="displayStats('global')" class="statsBtn" style="width: 100px !important; height: 100px !important;"></button>
                  </div>
+                <div style="position: absolute; top: 32px; right: 270px;">
+                    <button class="accountBtn" onclick="openAccountMenu()"></button>
+                </div>
+                <div style="position: absolute; top: 140px; right: 70px;">
+                    <h1 id="login"></h1>
+                </div>
         </header>
         <div class="background-div">
             <div class="flex-center" style="position: relative; top:80px;">
@@ -60,11 +67,12 @@
                 <div class="flex-center margin-right-64">
                     <div class="shadow box">                
                         <div class="flex-center shadow border-radius title">
-                            <h2>Under Development</h2>
+                            <h1>Multiplayer
+                            </h1>
                         </div>
                         <div class="padding-16">
                             <div class="flex-center">
-                                <button onclick="" class="btn-big rounded" style="color: rgb(0, 0, 0);">Tutorial?</button>
+                                <h1>Under Development</h1>
                             </div>
 
                         </div>
@@ -87,6 +95,8 @@
             </div>
             <div class="flex-center margin-top-16"><button class="btn-small background-color-gray" onclick="menu.toggleOptionsScreen()">Options</button></div>
             <div class="flex-center margin-top-16"><button class="btn-small background-color-gray" onclick="window.api.resetConfigs()">Reset Configs</button></div>
+            <div class="flex-center margin-top-16"><button class="btn-small background-color-gray" onclick="connectToDevice()">Connect to Device</button></div>
+            <div class="flex-center margin-top-16"><button class="btn-small background-color-gray" onclick="disconnectFromDevice()">Disconnect from Device</button></div>
             <div class="flex-center margin-top-16"><button class="closeBtn" onclick="menu.toggleMenu()"></button></div>
         </div>
 
@@ -130,6 +140,81 @@
             </div>
         </div>
 
+        <div class="center-true display-none shadow" id="deviceInfo">
+            <div class="flex-center">
+                <h1>Device</h1>
+            </div>
+            <hr>
+            <div id="deviceInfoDiv">
+                <h1>Loading...</h1>
+            </div>
+            <div class="flex-center">
+                <button class="closeBtn" onclick="closedeviceInfo()"></button>
+            </div>
+        </div>
+
+        <div class="display-none center-true shadow" id="postInfo">
+            <div class="flex-center">
+                <h1>Share your Stats!</h1>
+            </div>
+            <hr>
+            <div class="flex-center margin-top-16">
+                <h3>Currently we are not able to afford a server, which is up all the time!<br> Therefore a developer needs to send you a url, which you can paste here.</h3>
+            </div>
+            <div class="flex-center margin-top-16">
+                <input type="text" class="input" placeholder="url..." id="url">
+            </div>
+            <div class="flex-center margin-top-16">
+                <h2 id="postRes"></h2>
+            </div>
+            <div class="flex-space-arround margin-top-32">
+                <button class="gradientBtn btn-medium" onclick="postStats()">Post</button>
+                <button class="closeBtn" onclick="closePost()"></button>
+            </div>
+        </div>
+
+        <div class="display-none center-true shadow" id="accountInfo">
+            <div class="flex-center">
+                <h1>Account</h1>
+            </div>
+            <hr>
+            <div>
+                <div class="flex-center margin-top-16">
+                    <h2>WARNING: When you rename yourself the old username is lost forever!</h2>
+                </div>
+                <div class="flex-center margin-top-16 padding-16">
+                    <input type="text" class="input" id="name" placeholder="Username...">
+                </div>
+                <div class="flex-center">
+                    <h2 id="accountRes" style="color: green;"></h2>
+                </div>
+                <div class="flex-center margin-top-32"><button class="btn-small background-color-gray" onclick="openPost()">Post Stats</button></div>
+                <div class="flex-space-arround margin-top-32">
+                    <button class="gradientBtn btn-medium" onclick="renameAccount()">Create</button>
+                    <button class="closeBtn" onclick="closeAccount()"></button>
+                </div>
+                
+            </div>
+        </div>
+
+        <div class="center-true display-none lockerRoom-div" id="lockerRoomDiv">
+            <div class="skin-preview-div">
+                <div  id="skinPreview"></div>
+            </div>
+            <div>
+                <div class="margin-left-32 margin-top-16 align-center">
+                    <button class="codeBtn" id="codeBtn" onclick="toggleCodeinput()"></button>
+                    <input style="position: relative;top: -40px;" id="codeInput" type="text" class="inputCode margin-left-16 display-none" placeholder="Skin Code...">
+                </div>
+                <div class="skin-list margin-left-32 margin-right-16" id="skinList">
+                    <h1>Loading skins...</h1>
+                </div>
+                <div class="margin-top-16" style="margin-left: 600px">
+                    <button class="exitBtn2" onclick="closeLockerRoom()"></button>
+                </div>
+            </div>
+        </div>
+
         <div style="width: 100px;height: 100px;position:absolute; bottom: 64px;left: 700px;" onclick="grantAchievement('you_werent_supposed_to_see_that')">
 
         </div>
@@ -137,6 +222,16 @@
     <script>
         const info = sessionStorage.getItem('user')
         let statsBtn = false
+        const cheats = false
+
+        document.querySelector('#codeInput').addEventListener('keydown', e => {
+            if(e.code === 'Enter') {
+                window.api.checkCode(document.querySelector('#codeInput').value); 
+                closeLockerRoom(); 
+                openLockerRoom()
+                document.querySelector('#codeInput').value = ""
+            }
+        })
 
         const sounds = {
             click: new Audio('sound/blipSelect.mp3'),
@@ -209,6 +304,33 @@
             })
         })
 
+        async function connectToDevice() {
+            menu.toggleMenu()
+
+            document.querySelector('#deviceInfo').classList.remove('display-none')
+
+            const info = await window.api.connectToDevice()
+
+            document.querySelector('#deviceInfoDiv').innerHTML = `<h2 class="flex-center margin-top-32">${info.success ? "Successful!" : "Fail!"}</h2><h3 class="flex-center margin-top-32">${info.err  ? info.err : ""}</h3>`
+        }
+
+        async function disconnectFromDevice() {
+            menu.toggleMenu()
+
+            document.querySelector('#deviceInfo').classList.remove('display-none')
+
+            const info = await window.api.disconnentFromDevice()
+
+            document.querySelector('#deviceInfoDiv').innerHTML = `<h2 class="flex-center margin-top-32">${info.success ? "Successful!" : "Fail!"}</h2><h3 class="flex-center margin-top-32">${info.err ? info.err : ""}</h3>`
+        }
+
+        function closedeviceInfo() {
+            menu.toggleMenu()
+
+            document.querySelector('#deviceInfo').classList.add('display-none')
+            document.querySelector('#deviceInfoDiv').innerHTML = "<h1>Loading...</h1>"
+        }
+
         async function displayStartBtn(save) {
             const div = document.querySelector(`save${save}`)
         }
@@ -268,7 +390,7 @@
             const data = await window.api.checkForSaves(save)
             const exists = data.exists
 
-            playSound('UIopen', menu.sounds.effects / 100, true)
+            playSound('UIopen', menu.values.effects / 100, true)
 
             const title = document.querySelector('#title');
             const content = document.querySelector('#content');
@@ -291,7 +413,7 @@
             const content = document.querySelector('#content');
             const data = await window.api.checkForSaves(save)
             const exists = data.exists
-            playSound('UIopen', menu.sounds.effects / 100, true)
+            playSound('UIopen', menu.values.effects / 100, true)
             if(exists) {
                 const {name, description} = data.meta
                 
@@ -319,7 +441,7 @@
             const blur = document.querySelector('.blur-div');
             blur.classList.add('blur')
 
-            playSound('UIopen', menu.sounds.effects / 100, true)
+            playSound('UIopen', menu.values.effects / 100, true)
 
             popup.classList.remove('display-none')
 
@@ -360,7 +482,7 @@
         function closePopup() {
             const blur = document.querySelector('.blur-div');
             blur.classList.remove('blur')
-            playSound('UIopen', menu.sounds.effects / 100, true)
+            playSound('UIopen', menu.values.effects / 100, true)
             const popup = document.querySelector('#popup');
 
             popup.classList.add('display-none')
@@ -403,7 +525,7 @@
             const blur = document.querySelector('.blur-div');
             blur.classList.add('blur')
             div.classList.remove('display-none')
-            playSound('UIopen', menu.sounds.effects / 100, true)
+            playSound('UIopen', menu.values.effects / 100, true)
 
             document.querySelector('#general').addEventListener('click', () => {
                 displayStatsHeader('general', save)
@@ -429,7 +551,7 @@
             document.querySelector(`#items`).classList.remove('selectedHeader')
             document.querySelector(`#sorcery`).classList.remove('selectedHeader')
             document.querySelector(`#${header}`).classList.add('selectedHeader')
-            playSound('UIopen', menu.sounds.effects / 100, true)
+            playSound('UIopen', menu.values.effects / 100, true)
             let statData
             if(save !== 'global') {
                 statData = await window.api.getStats(save)
@@ -448,10 +570,10 @@
             document.querySelector('#statsDiv').innerHTML = `<div class="menuStatDiv " id="statHeaders"><div class="statHeader shadow margin-left-16" id="general">General</div><div class="statHeader shadow margin-left-16" id="entities">Entities</div><div class="statHeader shadow margin-left-16" id="items">Items</div><div class="statHeader shadow margin-left-16" id="sorcery">Sorcery</div></div><div id="statsDivInner" class="shadow"><div id="statsInsert"></div></div><div class="statHeader" style="border-radius: 0px 0px 10px 10px !important; margin-left: 16px;"  id="statHeaders" onclick="closeStats()">Exit</div>`
             const blur = document.querySelector('.blur-div');
             blur.classList.remove('blur')
-            playSound('UIopen', menu.sounds.effects / 100, true)
+            playSound('UIopen', menu.values.effects / 100, true)
         }
 
-        function fitText(el) {
+        function fitText(el) {blur
             const parent = el.parentElement;
             let size = 80;
             el.style.fontSize = size + 'px';
@@ -477,7 +599,7 @@
             document.querySelector('#achievementDescPopup').innerHTML = data.desc
 
             AchievementsWrapper?.classList.remove('display-none')
-            playSound('completeAchievement', menu.sounds.effects / 100, true)
+            playSound('completeAchievement', menu.values.effects / 100, true)
 
             let counter = -400
             const interval = setInterval(() => {
@@ -500,6 +622,117 @@
         
         
             window.api.grantAchievement(achievement)
+        }
+
+
+        function openPost() {
+            closeAccount()
+
+            document.querySelector('#postInfo').classList.remove('display-none')
+        }
+
+        function closePost() {
+            openAccountMenu()
+
+            document.querySelector('#postInfo').classList.add('display-none')
+        }
+
+        async function openAccountMenu() {
+            const res = await window.api.fetchName()
+            document.querySelector('#name').value = res
+            document.querySelector('#accountInfo').classList.remove('display-none')
+        }
+
+        function closeAccount() {
+            document.querySelector('#accountInfo').classList.add('display-none')
+        }
+
+        async function renameAccount() {
+            const username = document.querySelector('#name').value
+            await window.api.rename(username)
+            username = ""
+
+            document.querySelector('#accountRes').innerHTML = "Success!"
+        }
+
+        async function postStats() {
+            const url = document.querySelector('#url').value
+
+            document.querySelector('#postRes').innerHTML = "Loading..."
+
+            const res = await window.api.postStats(url)
+
+            if(res.success) {
+                document.querySelector('#postRes').innerHTML = '<span style="color: green;">Success!</span>'
+            }else {
+                document.querySelector('#postRes').innerHTML = `<span style="color: red;">Failed!<br>Error: ${res.err}<span>`
+            }
+        }
+
+        async function openLockerRoom() {
+            document.querySelector('.blur-div').classList.add('blur')
+            document.querySelector('#lockerRoomDiv').classList.remove('display-none')
+
+            const skinList = document.querySelector('#skinList')
+
+            skinList.innerHTML = "<h1>Loading skins...</h1>"
+            skinList.innerHTML = ""
+
+            const preview = document.querySelector('#skinPreview')
+
+            preview.style.animation = 'none'
+            preview.offsetHeight
+            preview.style.animation = ''
+
+            const skins = await window.api.fetchSkins();
+            console.log(skins)
+            let counter = 1
+            skins.forEach(skin => {
+                skinList.innerHTML += `<div class="skinItem margin-top-32" id="skin${counter}" onclick="selectSkin('${skin.index}', ${counter}, '${skin.path}')"><h1 style="margin-top: 5px; font-size:60px;" class="margin-left-16">${skin.name}</h1><div class="${skin.rarity} rarityDiv margin-left-64"><h1 style="margin-top: 15px; margin-left: 16px;"> ${skin.rarity}</h1></div></div>`
+                if(skin.selected) {
+                    document.querySelector(`#skin${counter}`).classList.add('selectedSkin')
+                    preview.style.backgroundImage = `url(${skin.path})`
+                }
+                counter++
+            })
+
+
+
+            
+        }
+
+        async function selectSkin(index, counter, path) {
+            document.querySelectorAll('.skinItem').forEach(i => {i.classList.remove('selectedSkin')})
+
+            document.querySelector(`#skin${counter}`).classList.add('selectedSkin')
+
+            localStorage.setItem('skinPath', path)
+
+            const preview = document.querySelector('#skinPreview')
+
+            preview.style.animation = 'none'
+            preview.offsetHeight
+            preview.style.animation = ''
+
+            preview.style.backgroundImage = `url(${path})`
+
+            window.api.selectSkin(index)
+        }
+
+        function closeLockerRoom() {
+            document.querySelector('.blur-div').classList.remove('blur')
+            document.querySelector('#lockerRoomDiv').classList.add('display-none')
+        }
+
+        function toggleCodeinput() {
+            const input = document.querySelector('#codeInput')
+            if(input.classList.contains('display-none')) {
+                input.classList.remove('display-none')
+                document.querySelector('#codeBtn').classList.add('clicked')
+            }else {
+                input.classList.add('display-none')
+                document.querySelector('#codeBtn').classList.remove('clicked')
+            }
         }
 
         class menuClass {
@@ -533,7 +766,7 @@
                             { name: 'Speed', state: false },
                             { name: 'Insta Skip', state: false },
                         ]
-                    
+
                     },
                     accessibility: {
                         name: 'accessibility',
@@ -542,37 +775,68 @@
                         ]
                     }
                 }
-                this.sounds = {
+
+                this.values = {
                     music: 100,
-                    effects: 50
+                    effects: 50,
+                    brightness: 100
+                }
+
+                this.commands = {
+                    heal: (arg) => { player.heal(Number(arg)) },
+                    effect: (arg) => { player.addEffect(arg, 1000, 1) },
+                    give: (arg) => { if (items[arg]) { player.addItem(arg, 1) } else { displayInfo('Unknown Item') } },
+                    damage: (arg) => { player.takeHit(Number(arg)) },
+                    summon: (arg) => {
+                        if (!elemRegistry[arg] || (arg !== 'skeleton' && arg !== 'goblin' && arg !== 'ogre')) {
+                            displayInfo(`Unknown or Unsummonable entity`)
+                            return
+                        }
+
+                        const entity = new elemRegistry[arg](player.pos.x, StaticPositions.OnGround, arg, 0)
+
+                        worlds[currentWorld].elements.push(entity)
+                    },
+                    world: (arg) => {
+                        if(worlds[arg])
+                            changeWorld(arg)
+                        else {
+                            displayInfo('Unknown World')
+                        }
+                    },
+                    story: (arg) => {
+                        if(!(player.story)[arg.trim()]) {
+                            displayInfo('Unknown Story Flag')
+                            return
+                        }else {
+                            (player.story)[arg.trim()] = true 
+                        }
+                    }
                 }
             }
-        
+
             toggleMenu() {
                 const menu = document.querySelector('#menu');
-                playSound('UIopen', this.sounds.effects / 100, true)
+                playSound('UIopen', this.values.effects / 100, true)
                 if (this.states.menu) {
                     const options = document.querySelector('#options');
                     const settings = document.querySelector('#settings');
                     menu?.classList.add('display-none')
                     options?.classList.add('display-none')
                     settings?.classList.add('display-none')
-                    document.querySelector('.blur-div').classList.remove('blur')
                     this.states.menu = false
                     this.states.options = false
                     this.states.settings = false
                 } else {
-                    
                     menu?.classList.remove('display-none')
                     this.states.menu = true
-                    document.querySelector('.blur-div').classList.add('blur')
                 }
 
-                window.api.saveSettings(this.settings)
+                window.api.saveSettings(this.settings, this.values)
             }
-        
+
             toggleOptionsScreen() {
-                playSound('UIopen', menu.sounds.effects / 100, true)
+                playSound('UIopen', this.values.effects / 100, true)
                 const div = document.querySelector('#options');
                 if (this.states.options) {
                     div?.classList.add('display-none')
@@ -583,60 +847,68 @@
                     div.innerHTML = ''
                     div.classList.remove('display-none')
                     div.innerHTML += `<div class="flex-center"><h2>Options</h2></div><hr>`
-                
+
                     settingsArr.forEach(setting => {
-                        div.innerHTML += `<div class="flex-center margin-top-16"><button class="btn-small background-color-gray" onclick="menu.toggleSettingsScreen('${setting.name}')">${setting.name.toUpperCase()}</button></div>`
+                        if (setting.name === 'dev' && !cheats) {
+
+                        } else
+                            div.innerHTML += `<div class="flex-center margin-top-16"><button class="btn-small background-color-gray" onclick="menu.toggleSettingsScreen('${setting.name}')">${setting.name.toUpperCase()}</button></div>`
                     });
-                
+
                     div.innerHTML += `<div class="flex-between margin-top-32"><button onclick="menu.toggleMenu()" class="btn-small background-color-gray">Close</button><button onclick="menu.toggleOptionsScreen()" class="btn-small background-color-gray">Back</button></div>`
                 }
             }
-        
+
             quit() {
                 location.href = 'index.html'
             }
-        
+
             async save() {
                 const save = sessionStorage.getItem("save")
                 const name = sessionStorage.getItem('name')
                 const description = sessionStorage.getItem('description')
-                if (!save || !name || !description) { menu.quit(); return }
+                if (!save) { menu.quit(); return }
                 const temp = await window.api.checkForSaves(save)
                 const alreadySavedMeta = temp.meta
-                const settings = this.settings
                 let meta = {
                     name: "World",
                     description: "World",
                     world: currentWorld,
-                    quest: activeQuests
+                    quest: activeQuests,
+                    cheats: cheats,
+                    date: date
                 }
-            
+
                 if (alreadySavedMeta) {
                     meta.name = alreadySavedMeta.name,
                         meta.description = alreadySavedMeta.description
+                    meta.date = alreadySavedMeta.date
                 } else {
-                    meta.name = name,
-                        meta.description = description
+                    meta.name = name ?? "World"
+                    meta.description = description ?? "World"
+                    meta.date = date
                 }
-            
-                window.api.saveGame(worlds, player, save, meta, stats, settings)
+
+                window.api.saveSettings(this.settings, this.values)
+
+                window.api.saveGame(worlds, player, save, meta, stats, settings, droppedItems)
             }
-        
+
             toggleSettingsScreen(setting) {
+                playSound('UIopen', this.values.effects / 100, true)
                 const div = document.querySelector('#settings');
-                playSound('UIopen', menu.sounds.effects / 100, true)
                 if (this.states.settings) {
                     this.states.settings = false
-                    div?.classList.add('display-none')
+                    div.classList.add('display-none')
                 } else {
                     this.states.settings = true
-                    div?.classList.remove('display-none')
+                    div.classList.remove('display-none')
                     div.innerHTML = ''
                     div.classList.remove('display-none')
                     div.innerHTML += `<div class="flex-center"><h2>${setting.toUpperCase()} Settings</h2></div><hr>`
-                
+
                     const settings = this.settings[setting].settings
-                
+
                     settings.forEach(set => {
                         div.innerHTML += `<div class="flex-center margin-top-16"><button id="${set.name.replace(' ', '')}" class="btn-small background-color-gray" onclick="menu.toggleSetting('${set.name}', '${setting}')">${set.name}</button></div>`
                         const btn = document.querySelector(`#${set.name.replace(' ', '')}`);
@@ -651,15 +923,18 @@
                     if (setting === 'dev') {
                         div.innerHTML += `<div class="flex-center margin-top-16"><input id="command" placeholder="command..." type="text"><button class="gradientBtn btn-small margin-left-16" onclick="menu.runCommand()">Send</button></div>`
                     } else if (setting === 'audio') {
-                        div.innerHTML += `<div class="flex-center margin-top-16"><h3>Music: </h3><input id="musicRange" value="menu.sounds.music" type="range" max="100" min="0" onchange="music.volume = Number(document.querySelector('#musicRange').value)/100; menu.sounds.music = Number(document.querySelector('#musicRange').value)"></div><div class="flex-center margin-top-16"><h3>Effects: </h3><input id="effectsRange" value="menu.sounds.effects" type="range" max="100" min="0" onchange="menu.sounds.effects = Number(document.querySelector('#effectsRange').value)"></div>`
+                        div.innerHTML += `<div class="flex-center margin-top-16"><h3>Effects: </h3><input id="effectsRange" value="${menu.values.effects}" type="range" max="100" min="0" onchange="menu.values.effects = Number(document.querySelector('#effectsRange').value)"></div>`
+                    } else if (setting === 'video') {
+                        div.innerHTML += `<div class="flex-center margin-top-16"><h3>Brightness: </h3><input id="brightnessRange" value="${menu.values.brightness}" type="range" max="100" min="10" onchange="menu.values.brightness = document.querySelector('#brightnessRange').value;document.body.style.filter = 'brightness(${this.values.brightness}%)'"></div>`
                     }
                     div.innerHTML += `<div class="flex-between margin-top-32"><button onclick="menu.toggleMenu()" class="btn-small background-color-gray">Close</button><button onclick="menu.toggleSettingsScreen()" class="btn-small background-color-gray">Back</button></div>`
                 }
             }
-        
-            toggleSetting(setting, group) {
+
+            toggleSetting(setting/* keyof menuClass['settings']['dev'] */, group) {
+                if (group === 'dev') { grantAchievement('cheater') }
                 this.settings[group].settings.forEach(set => {
-                
+
                     const btn = document.querySelector(`#${set.name.replace(' ', '')}`);
                     if (set.name === setting) {
                         if (set.state) {
@@ -674,38 +949,39 @@
                             if (setting === 'Fullscreen') {
                                 document.documentElement.requestFullscreen()
                             }
-                            btn.classList.add('setting-true')
-                            btn.classList.remove('setting-false')
+                            btn?.classList.add('setting-true')
+                            btn?.classList.remove('setting-false')
                         }
                     }
                 })
-
-                window.api.saveSettings(this.settings)
             }
             checkSetting(setting) {
                 const allGroups = Object.values(this.settings)
-            
+
                 for (const group of allGroups) {
                     for (const set of group.settings) {
+                        if (group.name === 'dev' && !cheats) {
+                            return false
+                        };
                         if (set.name === setting && set.state) {
                             return true
                         }
                     }
                 }
-            
+
                 return false
             }
             runCommand() {
                 const input = (document.querySelector('#command')).value;
                 (document.querySelector('#command')).value = ''
-            
+
                 const command = input.split(/-(.+)/)
-            
+
                 if (!menu.commands[command[0].split(" ")[0]]) {
                     displayInfo(`Unknown Command: ${command}`)
                     return;
                 }
-            
+
                 if (command[1] !== '') {
                     menu.commands[command[0].split(" ")[0]](command[1])
                 } else {
@@ -713,23 +989,33 @@
                 }
             }
         }
-        
+                
 
         const menu = new menuClass();
-        console.log();
+
         (async () => {
             const settings = await window.api.fetchSettings()
 
-            if(settings) {
-                menu.settings = settings
-            }
+            if (settings?.settings) menu.settings = settings.settings
+            if (settings?.values) menu.values = settings.values
         })()
 
         updateSaves()
-        setInterval(() => {
+        setInterval(async () => {
             updateSaves()
-            window.api.saveSettings(menu.settings)
+            window.api.saveSettings(menu.settings, menu.values)
+            document.body.style.filter = `brightness(${menu.values.brightness}%)`
+
+            const username = await window.api.fetchName()
+
+            if(username) {
+                document.querySelector('#login').innerHTML = `Logged in as: ${username}!`
+            }else {
+                document.querySelector('#login').innerHTML = 'Not logged in!'
+            }
         }, 1000)
+
+        document.body.style.filter = `brightness(${menu.values.brightness}%)`
     </script>
 </body>
 </html>

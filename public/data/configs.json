@@ -1,6 +1,6 @@
 {
     "mobSpawning": {
-        "mobSpawningRateDefault": 36000
+        "mobSpawningRateDefault": 14400
     },
     "worlds": {
         "jungle": {
@@ -95,7 +95,7 @@
                 "attackRange": 150
             },
             "sprite": {
-                "img": "img/player.png",
+                "img": "img/skins/player.png",
                 "spriteWidth": 162,
                 "spriteHeight": 162,
                 "scale": 1,
@@ -147,7 +147,7 @@
         },
         "goblin": {
             "data": {
-                "health": 50,
+                "health": 40,
                 "attackDamage": 4,
                 "attackRange": 75,
                 "drops": [
@@ -297,6 +297,73 @@
                     {
                         "name": "death",
                         "frames": 6
+                    }
+                ],
+                "hitbox": {
+                    "height": 200,
+                    "width": 100,
+                    "offsetX": 100,
+                    "offsetY": 60
+                }
+            }
+        },
+        "stoneGolem": {
+            "data": {
+                "health": 80,
+                "attackDamage": 10,
+                "attackRange": 120,
+                "drops": [
+                    {
+                        "amount": 1,
+                        "drop": "stone",
+                        "chance": 100
+                    },
+                    {
+                        "amount": 1,
+                        "drop": "iron_ingot",
+                        "chance": 5
+                    },
+                    {
+                        "amount": 1,
+                        "drop": "copper_ingot",
+                        "chance": 5
+                    }
+                ],
+                "seeRange": 600
+            },
+            "sprite": {
+                "img": "img/enemies/stoneGolem.png",
+                "spriteWidth": 100,
+                "spriteHeight": 100,
+                "scale": 1,
+                "animationStates": [
+                    {
+                        "name": "idle",
+                        "frames": 4
+                    },
+                    {
+                        "name": "take_hit",
+                        "frames": 8
+                    },
+                    {
+                        "name": "attack",
+                        "frames": 9
+                    },
+                    {
+                        "name": "immune",
+                        "frames": 8
+                    },
+                    {
+                        "name": " ",
+                        "frames": 7
+                    },
+                    {
+                        "name": "head_glow",
+                        "frames": 7
+                    },
+                    {
+                        "name": "death",
+                        "frames": 14
                     }
                 ],
                 "hitbox": {

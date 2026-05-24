@@ -18,6 +18,9 @@ const globalGravity = 8 // gravity affecting the player
 const groundY = 535 // is the y-coordinate of the ground
 let isLoading = true
 let bgPosition = 0
+let shakeX = 0
+let shakeY = 0
+let shakeIntensity = 0
 
 let cheats = false
 let date = sessionStorage.getItem('date')
@@ -125,6 +128,7 @@ const sounds = {
     completeAchievement: new Audio('sound/completeAchievement.wav'),
     equipSpell: new Audio('sound/equipSpell.wav'),
     teleport: new Audio('sound/teleport.wav'),
+    rumble: new Audio('sound/rumble.mp3'),
 }
 
 function playSound(sound: string, volume: number, isInRegistry?: boolean) {
@@ -144,7 +148,7 @@ function playSound(sound: string, volume: number, isInRegistry?: boolean) {
 }
 
 // interfaces && types
-type item = 'cow_flesh' | 'chicken_flesh' | 'cleansing_rune' | 'blank_scroll' | 'blood_gem' | 'blood_scroll' | "iron_staff" | 'ice_scroll' | 'earth_scroll' | 'void_scroll' | 'fire_scroll' | 'lightning_scroll' | 'goblin_mask' | 'coffee' | 'key' | 'fruit' | 'horn' | 'cloth' | 'silver_ingot' | 'stone' | 'string' | 'leather' | 'hardened_boots' | 'copper_ingot' | 'gold_ingot' | 'iron_ingot' | 'stick' | 'mushroom' | 'lightning_potion' | 'healthboost_potion' | 'icing_rapier' | 'big_regeneration_potion' | 'regeneration_potion' | 'peasants_robe' | 'steel_robe' | 'null' | 'supernova' | 'poisoned_staff' | 'holy_longsword' | 'flaming_saber' | 'knights_helm' | 'berserker_helmet' | 'leather_boots' | 'leather_hood' | 'gold_crown' | 'iron_boots' | 'iron_chestplate_tier_3' | 'iron_chestplate_tier_2' | 'iron_chestplate_tier_1' | 'iron_helmet' | 'pappbanditem' | 'wood_sword' | 'brocken_sword' | 'stone_sword' | 'beer' | 'coin' | 'iron_sword' | 'gold_sword' | 'copper_sword' | 'heal_potion' | 'big_heal_potion' | 'wood_rapier' | 'stone_rapier' | 'iron_rapier' | 'gold_rapier' | 'copper_rapier' | 'wood_sickle' | 'stone_sickle' | 'iron_sickle' | 'gold_sickle' | 'copper_sickle'
+type item = 'earth_gem'|'wood_pickaxe'|'stone_pickaxe'|'iron_pickaxe'|'copper_pickaxe'|'gold_pickaxe'|'cow_flesh' | 'chicken_flesh' | 'cleansing_rune' | 'blank_scroll' | 'blood_gem' | 'blood_scroll' | "iron_staff" | 'ice_scroll' | 'earth_scroll' | 'void_scroll' | 'fire_scroll' | 'lightning_scroll' | 'goblin_mask' | 'coffee' | 'key' | 'fruit' | 'horn' | 'cloth' | 'silver_ingot' | 'stone' | 'string' | 'leather' | 'hardened_boots' | 'copper_ingot' | 'gold_ingot' | 'iron_ingot' | 'stick' | 'mushroom' | 'lightning_potion' | 'healthboost_potion' | 'icing_rapier' | 'big_regeneration_potion' | 'regeneration_potion' | 'peasants_robe' | 'steel_robe' | 'null' | 'supernova' | 'poisoned_staff' | 'holy_longsword' | 'flaming_saber' | 'knights_helm' | 'berserker_helmet' | 'leather_boots' | 'leather_hood' | 'gold_crown' | 'iron_boots' | 'iron_chestplate_tier_3' | 'iron_chestplate_tier_2' | 'iron_chestplate_tier_1' | 'iron_helmet' | 'pappbanditem' | 'wood_sword' | 'brocken_sword' | 'stone_sword' | 'beer' | 'coin' | 'iron_sword' | 'gold_sword' | 'copper_sword' | 'heal_potion' | 'big_heal_potion' | 'wood_rapier' | 'stone_rapier' | 'iron_rapier' | 'gold_rapier' | 'copper_rapier' | 'wood_sickle' | 'stone_sickle' | 'iron_sickle' | 'gold_sickle' | 'copper_sickle'
 type effect = 'speed' | 'stun' | 'burning' | 'regeneration' | 'ice' | 'strength' | 'electrocute' | 'healthboost' | 'deaths_curse' | 'poison'
 
 type ItemData = {
@@ -210,6 +214,7 @@ let items: Record<item, ItemData>
 let recipes: recipe[];
 let worlds: Record<string, {
     mobCap: number
+    music?: string
     background: {
         imgs: string[]
         spriteWidth: number
@@ -294,7 +299,7 @@ const itemFunctions = {
     beer: {
         use: () => {
             player.heal(5)
-            if (menu.checkSetting('Master Sound')) playSound('drink.wav', menu.sounds.effects / 100)
+            if (menu.checkSetting('Master Sound')) playSound('drink.wav', menu.values.effects / 100)
             return
         },
     },
@@ -312,7 +317,7 @@ const itemFunctions = {
         use: () => {
             player.heal(35)
             grantAchievement('heal')
-            if (menu.checkSetting('Master Sound')) playSound('drink.wav', menu.sounds.effects / 100)
+            if (menu.checkSetting('Master Sound')) playSound('drink.wav', menu.values.effects / 100)
             return
         },
     },
@@ -320,7 +325,7 @@ const itemFunctions = {
         use: () => {
             player.heal(50)
             grantAchievement('heal')
-            if (menu.checkSetting('Master Sound')) playSound('drink.wav', menu.sounds.effects / 100)
+            if (menu.checkSetting('Master Sound')) playSound('drink.wav', menu.values.effects / 100)
             return
         },
     },
@@ -343,14 +348,14 @@ const itemFunctions = {
         use: () => {
             player.addEffect('regeneration', 600, 1)
             grantAchievement('heal')
-            if (menu.checkSetting('Master Sound')) playSound('drink.wav', menu.sounds.effects / 100)
+            if (menu.checkSetting('Master Sound')) playSound('drink.wav', menu.values.effects / 100)
         },
     },
     big_regeneration_potion: {
         use: () => {
             player.addEffect('regeneration', 1000, 1)
             grantAchievement('heal')
-            if (menu.checkSetting('Master Sound')) playSound('drink.wav', menu.sounds.effects / 100)
+            if (menu.checkSetting('Master Sound')) playSound('drink.wav', menu.values.effects / 100)
             return
         },
     },
@@ -358,13 +363,13 @@ const itemFunctions = {
         use: () => {
             player.addEffect('healthboost', 3000, 1)
             grantAchievement('heal')
-            if (menu.checkSetting('Master Sound')) playSound('drink.wav', menu.sounds.effects / 100)
+            if (menu.checkSetting('Master Sound')) playSound('drink.wav', menu.values.effects / 100)
         },
     },
     lightning_potion: {
         use: () => {
             player.addEffect('electrocute', 1500, 1)
-            if (menu.checkSetting('Master Sound')) playSound('drink.wav', menu.sounds.effects / 100)
+            if (menu.checkSetting('Master Sound')) playSound('drink.wav', menu.values.effects / 100)
         },
     },
     fruit: {
@@ -388,7 +393,7 @@ const itemFunctions = {
         use: () => {
             player.heal(5)
             player.addEffect('speed', 600, 1)
-            if (menu.checkSetting('Master Sound')) playSound('drink.wav', menu.sounds.effects / 100)
+            if (menu.checkSetting('Master Sound')) playSound('drink.wav', menu.values.effects / 100)
             return
         },
     },
@@ -478,6 +483,25 @@ const itemFunctions = {
     cat_whistle: {
         use: () => {
             player.companions.push(new catCompanion())
+        }
+    },
+    mana_crystal: {
+        use: () => {
+            if(player.data.mana + 50 > 100) {
+                player.data.mana = 100
+            }else {
+                player.data.mana += 50
+            }
+        }
+    },
+    cooked_chicken: {
+        use: () => {
+            player.heal(15)
+        }
+    },
+    cooked_beef: {
+        use: () => {
+            player.heal(15)
         }
     }
 }
@@ -618,6 +642,7 @@ interface container {
     spriteWidth: number
     inventory: Inventory
     currentState: string
+    id: number
     worldElem: worldElementNames
 }
 
@@ -631,7 +656,8 @@ interface typeObject {
     attackType?: {
         type: 'rangedCombat' | 'melee', projectile: { spriteWidth: number, scale: number, range: number, speed: number, damage: number, spriteHeight: number, pathToImage: string, animationStates: AnimationState[], hitbox: { offsetY: number, offsetX: number, width: number, height: number } }
     }
-    isNotTurning?: boolean
+    isNotTurning?: boolean,
+    bossbar?: boolean
 }
 
 interface AnimationState {
@@ -643,9 +669,19 @@ interface framesObj {
     loc: Array<{ x: number; y: number }>
 }
 
+const observer = new ResizeObserver(() => {
+    CANVAS_WIDTH = canvas.width = window.innerWidth
+    ctx.imageSmoothingEnabled = false
+})
+
+observer.observe(document.body)
+
 setInterval(() => {
     if (!player) return
     const newWidth = window.innerWidth
+    if (canvas.width !== newWidth) {
+        CANVAS_WIDTH = canvas.width = newWidth
+    }
     if (canvas.width !== newWidth) {
         CANVAS_WIDTH = canvas.width = newWidth
         ctx.imageSmoothingEnabled = false
@@ -791,9 +827,10 @@ class menuClass {
         dev: { name: string, settings: { name: string, state: boolean }[] }
         accessibility: { name: string, settings: { name: string, state: boolean }[] }
     }
-    sounds: {
+    values: {
         effects: number
         music: number
+        brightness: number
     }
     commands: any
     constructor() {
@@ -835,9 +872,11 @@ class menuClass {
                 ]
             }
         }
-        this.sounds = {
+
+        this.values = {
             music: 100,
-            effects: 50
+            effects: 50,
+            brightness: 100
         }
 
         this.commands = {
@@ -874,6 +913,7 @@ class menuClass {
     }
 
     toggleMenu() {
+        playSound('UIopen', this.values.effects / 100, true)
         const menu = document.querySelector('#menu');
         if (this.states.menu) {
             const options = document.querySelector('#options');
@@ -889,10 +929,11 @@ class menuClass {
             this.states.menu = true
         }
 
-        window.api.saveSettings(this.settings)
+        window.api.saveSettings(this.settings, this.values)
     }
 
     toggleOptionsScreen() {
+        playSound('UIopen', menu.values.effects / 100, true)
         const div = document.querySelector('#options');
         if (this.states.options) {
             div?.classList.add('display-none')
@@ -947,9 +988,11 @@ class menuClass {
         }
 
         window.api.saveGame(worlds, player, save, meta, stats, settings, droppedItems)
+        window.api.saveSettings(menu.settings, menu.values)
     }
 
     toggleSettingsScreen(setting: keyof menuClass['settings']) {
+        playSound('UIopen', menu.values.effects / 100, true)
         const div = document.querySelector('#settings');
         if (this.states.settings) {
             this.states.settings = false
@@ -977,9 +1020,9 @@ class menuClass {
             if (setting === 'dev') {
                 div!.innerHTML += `<div class="flex-center margin-top-16"><input id="command" placeholder="command..." type="text"><button class="gradientBtn btn-small margin-left-16" onclick="menu.runCommand()">Send</button></div>`
             } else if (setting === 'audio') {
-                div!.innerHTML += `<div class="flex-center margin-top-16"><h3>Music: </h3><input id="musicRange" value="menu.sounds.music" type="range" max="100" min="0" onchange="music.volume = Number(document.querySelector('#musicRange').value)/100; menu.sounds.music = Number(document.querySelector('#musicRange').value)"></div><div class="flex-center margin-top-16"><h3>Effects: </h3><input id="effectsRange" value="menu.sounds.effects" type="range" max="100" min="0" onchange="menu.sounds.effects = Number(document.querySelector('#effectsRange').value)"></div>`
+                div!.innerHTML += `<div class="flex-center margin-top-16"><h3>Music: </h3><input id="musicRange" value="${menu.values.music}" type="range" max="100" min="0" onchange="music.volume = Number(document.querySelector('#musicRange').value)/100; menu.values.music = Number(document.querySelector('#musicRange').value)"></div><div class="flex-center margin-top-16"><h3>Effects: </h3><input id="effectsRange" value="${menu.values.effects}" type="range" max="100" min="0" onchange="menu.values.effects = Number(document.querySelector('#effectsRange').value)"></div>`
             } else if (setting === 'video') {
-                div!.innerHTML += `<div class="flex-center margin-top-16"><h3>Brightness: </h3><input id="brightnessRange" value="menu.sounds.music" type="range" max="100" min="10" onchange="document.querySelector('body').style.filter = 'brightness(' + document.querySelector('#brightnessRange').value + '%)'"></div>`
+                div!.innerHTML += `<div class="flex-center margin-top-16"><h3>Brightness: </h3><input id="brightnessRange" value="${menu.values.music}" type="range" max="100" min="10" onchange="menu.values.brightness = document.querySelector('#brightnessRange').value;document.querySelector('body').style.filter = 'brightness(${this.values.brightness}%)'"></div>`
             }
             div!.innerHTML += `<div class="flex-between margin-top-32"><button onclick="menu.toggleMenu()" class="btn-small background-color-gray">Close</button><button onclick="menu.toggleSettingsScreen()" class="btn-small background-color-gray">Back</button></div>`
         }
@@ -1123,6 +1166,45 @@ class quest {
 
         if (this.text === "Pay the wizard two coins in order to learn magery.") {
             player.story.learntMagic = true
+        } else if(this.text === "List: cow flesh, 2 string, chicken_flesh") {
+            let market = worlds.jungle.elements.find(el => el instanceof trader && el.id === 70000)
+            if(market) {
+                (market as any).trade = [
+                        [
+                            {
+                                "amount": 1,
+                                "item": "chicken_flesh"
+                            },
+                            {
+                                "amount":1,
+                                "item": "cooked_chicken"
+                            }
+                        ],
+                        [
+                            {
+                                "amount": 1,
+                                "item": "cow_flesh"
+                            },
+                            {
+                                "amount": 1,
+                                "item": "cooked_beef"
+                            }
+                        ],
+                        [
+                            {
+                                "amount": 1,
+                                "item": "coin"
+                            },
+                            {
+                                "amount": 2,
+                                "item": "string"
+                            }
+                        ]
+                    ]
+            }
+        } else if(this.text === "Find and defeat the goblin king!") {
+            deleteElement(70001, "block", "jungle") // delete border
+            deleteElement(70002, "NPC", "jungle") // delete guard
         }
 
         let index: number = -1
@@ -1367,16 +1449,11 @@ class passiveEntity extends Entity {
             } else if (this.data.name === 'skeleton') {
                 stats.entities.killed_skeleton.value++
             }
-            this.data.drops.forEach(drop => {
-                if (Math.floor(Math.random() * 100) <= drop.chance) {
-                    droppedItems.push(new droppedItem({ x: this.pos.x + this.sprite.hitbox.offsetX + Math.round(Math.random() * 80) - 40, y: this.pos.y + this.sprite.hitbox.offsetY }, drop.drop, currentWorld))
-                }
-            })
             this.changeState('death')
             this.data.onCooldown = true
             currentEvents.push({ event: 'kill', entity: this })
             isQuestUIupdated = false
-            if (menu.checkSetting('Master Sound')) playSound('death.mp3', menu.sounds.effects / 100)
+            if (menu.checkSetting('Master Sound')) playSound('death.mp3', menu.values.effects / 100)
         }
 
         if (this.data.health <= 0) return
@@ -1589,7 +1666,7 @@ class catCompanion {
         this.pos.y = 550
         this.Xdirec = player.data.Xdirec
 
-        if (gameFrame % this.cooldown === 0) {
+        if (gameFrame + 1 % this.cooldown === 0) {
             const drop = this.lootPool[Math.floor(Math.random() * this.lootPool.length)]
 
             droppedItems.push(new droppedItem({ x: this.pos.x + this.sprite.hitbox.offsetX + this.sprite.hitbox.width * Math.random(), y: this.pos.y - 30 }, drop, currentWorld))
@@ -1869,7 +1946,7 @@ class trader extends Entity implements entity {
             this.data.onCooldown = true
             currentEvents.push({ event: 'kill', entity: this })
             isQuestUIupdated = false
-            if (menu.checkSetting('Master Sound')) playSound('death.mp3', menu.sounds.effects / 100)
+            if (menu.checkSetting('Master Sound')) playSound('death.mp3', menu.values.effects / 100)
         }
 
         if (this.data.health <= 0) return
@@ -1946,11 +2023,11 @@ class trader extends Entity implements entity {
             ctx!.save() // save current state of the canvas
             const drawX = -(this.pos.x + 400 * this.sprite.scale)
             ctx!.scale(-1, 1) // invert orientatian of the entity
-            ctx!.drawImage(image, frameX, frameY, this.sprite.spriteWidth, this.sprite.spriteHeight, drawX, this.pos.y, 400 * this.sprite.scale, 400 * this.sprite.scale)
+            ctx!.drawImage(image, frameX, frameY, this.sprite.spriteWidth, this.sprite.spriteHeight, drawX + shakeX, this.pos.y + shakeY, 400 * this.sprite.scale, 400 * this.sprite.scale)
             ctx!.restore()
         } else {
             this.data.Xdirec = 1
-            ctx!.drawImage(image, frameX, frameY, this.sprite.spriteWidth, this.sprite.spriteHeight, this.pos.x, this.pos.y, 400 * this.sprite.scale, 400 * this.sprite.scale)
+            ctx!.drawImage(image, frameX, frameY, this.sprite.spriteWidth, this.sprite.spriteHeight, this.pos.x + shakeX, this.pos.y + shakeY, 400 * this.sprite.scale, 400 * this.sprite.scale)
         }
 
     }
@@ -2202,6 +2279,12 @@ class NPC extends Entity implements entity {
             })
             this.hasGivenPresent = true
         }
+
+        if(this.data.name === 'nate') {
+            player.data.immune = false
+        }
+
+        window.api.sendMSGToDevice("CLEAR\n")
     }
 
     speak(): void {
@@ -2345,7 +2428,7 @@ class NPC extends Entity implements entity {
             this.data.onCooldown = true
             currentEvents.push({ event: 'kill', entity: this })
             isQuestUIupdated = false
-            if (menu.checkSetting('Master Sound')) playSound('death.mp3', menu.sounds.effects / 100)
+            if (menu.checkSetting('Master Sound')) playSound('death.mp3', menu.values.effects / 100)
         }
 
         if (this.data.health <= 0) return
@@ -2422,11 +2505,11 @@ class NPC extends Entity implements entity {
             ctx!.save() // save current state of the canvas
             const drawX = -(this.pos.x + 400 * this.sprite.scale)
             ctx!.scale(-1, 1) // invert orientatian of the entity
-            ctx!.drawImage(image, frameX, frameY, this.sprite.spriteWidth, this.sprite.spriteHeight, drawX, this.pos.y, 400 * this.sprite.scale, 400 * this.sprite.scale)
+            ctx!.drawImage(image, frameX, frameY, this.sprite.spriteWidth, this.sprite.spriteHeight, drawX + shakeX, this.pos.y + shakeY, 400 * this.sprite.scale, 400 * this.sprite.scale)
             ctx!.restore()
         } else {
             this.data.Xdirec = 1
-            ctx!.drawImage(image, frameX, frameY, this.sprite.spriteWidth, this.sprite.spriteHeight, this.pos.x, this.pos.y, 400 * this.sprite.scale, 400 * this.sprite.scale)
+            ctx!.drawImage(image, frameX, frameY, this.sprite.spriteWidth, this.sprite.spriteHeight, this.pos.x + shakeX, this.pos.y + shakeY, 400 * this.sprite.scale, 400 * this.sprite.scale)
         }
 
     }
@@ -2471,6 +2554,8 @@ class NPC extends Entity implements entity {
         if (this.type.name === 'trader' && this.sprite.currentState === 'open') {
             this.changeState('dialogue')
         }
+
+        
     }
 
     attack(): void {
@@ -2553,6 +2638,8 @@ function teleport(distance: number) {
     player.worldPosX[currentWorld] += distance
 }
 
+
+
 function sleep(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms))
 }
@@ -2614,7 +2701,7 @@ async function grantAchievement(achievement: AchievementKey) {
     document.querySelector('#achievementDesc')!.innerHTML = data.desc
 
     AchievementsWrapper?.classList.remove('display-none')
-    playSound('completeAchievement', menu.sounds.effects / 100, true)
+    playSound('completeAchievement', menu.values.effects / 100, true)
     let counter = -400
     const interval = setInterval(() => {
         counter++
@@ -2649,8 +2736,35 @@ const elemRegistry: Record<string, new (...args: any[]) => any> = {
     teleporter: teleporter,
     enemyArcher: enemyArcher,
     ogre: ogre,
-    passiveEntity: passiveEntity
+    passiveEntity: passiveEntity,
+    storyStarter: storyStarter,
+    goblinKing: goblinKing,
+    stoneGolem: stoneGolem
 };
+
+const companionRegistry: Record<string, new (...args: any[]) => any> = {
+    catCompanion: catCompanion
+}
+
+function deleteElement(id: number, elemClass: keyof typeof elemRegistry, dim: string): void {
+    const world = worlds[dim]
+
+
+    const index = world.elements.findIndex(el => {
+        return el instanceof elemRegistry[elemClass] &&  el.id === id
+    })
+
+    const elem = world.elements[index]
+
+    const healthbarIndex = nonWorldElems.findIndex(
+        nwe => nwe.type.name === 'healthbar' && (nwe as healthbar).entity === elem
+    )
+    if (healthbarIndex !== -1) nonWorldElems.splice(healthbarIndex, 1)
+
+    particles = particles.filter(p => p.entity !== elem)
+
+    world.elements.splice(index, 1)
+}
 
 async function initialise() {
     // import data
@@ -2689,11 +2803,16 @@ async function initialise() {
     configs = configsRes.data
 
     loadingBar!.value += 5
-
-    const settings = await window.api.fetchSettings()
+    
+    const configsData = await window.api.fetchSettings()
+    const settings = configsData.settings
+    const values = configsData.values
 
     if (settings)
         menu.settings = settings
+    
+    if(values)
+        menu.values = values
 
     const save = sessionStorage.getItem("save")
     let isOldSave
@@ -2709,6 +2828,7 @@ async function initialise() {
         interface WorldData {
             name: string
             mobCap: number
+            music?: string
             background: { imgs: string[], spriteWidth: number, spriteHeight: number, ground: string }
             elements: WorldElement[];
         }
@@ -2734,6 +2854,7 @@ async function initialise() {
                 spriteHeight: world.background.spriteHeight,
                 ground: world.background.ground
             }
+            worlds[world.name as any].music = world.music
             worlds[world.name as any].mobCap = world.mobCap
             world.elements.forEach((element: WorldElement) => {
                 const ElemClass = elemRegistry[element.class];
@@ -2794,11 +2915,27 @@ async function initialise() {
 
                 elem.init()
 
+
+
                 if ('onCooldown' in elem) {
                     elem.onCooldown = false
                 }
+                if(elem.data.class === 'goblinKing') {
+                    const king = new goblinKing(elem.pos.x, elem.pos.y, elem.worldElem, elem.id)
+                    king.data.health = elem.data.health
+                    king.data.maxHealth = elem.data.maxHealth
+                    king.hasGivenPresent = elem.hasGivenPresent
+                    worlds[worldName].elements.push(king)
+                } else {
+                    const ElemClass = elemRegistry[elem.data?.class]
+                    if (!ElemClass) {
+                        console.warn(`Unknown class: ${elem.data?.class}, skipping`)
+                        return
+                    }
+                    worlds[worldName].elements.push(elem)
+                }
 
-                worlds[worldName].elements.push(elem)
+                
             })
         })
 
@@ -2808,12 +2945,22 @@ async function initialise() {
         player.data = playerData.data
         player.story = playerData.story
 
+        playerData.companions.forEach((comp: any) => {
+            const RegistryClass = companionRegistry[comp.portrait?.includes('cat') ? 'catCompanion' : comp.constructor?.name]
+            if (RegistryClass) {
+                Object.setPrototypeOf(comp, RegistryClass.prototype)
+            }
+        })
+
+        player.companions = playerData.companions
+
         player.data.spells.forEach(spell => {
             if (spell) {
                 Object.setPrototypeOf(spell, spellRegistry[spell!.class].prototype)
             }
         })
         player.sprite = playerData.sprite
+        player.sprite.img = sessionStorage.getItem('skinPath') as string
         player.pos = playerData.pos
 
         player.data.onCooldown = false
@@ -2833,6 +2980,7 @@ async function initialise() {
         achievements = savedAchievements;
 
         (droppedItemsData as any).forEach((item: any) => {
+            item.spawnFrame = 0
             Object.setPrototypeOf(item, droppedItem.prototype)
         });
 
@@ -2854,6 +3002,7 @@ function handleMovement(): boolean {
     let isBlocked = false;
     // check for keydown/up inputs
     if ((keys['KeyD'] || keys['KeyW']) && !player.data.onInventory && !player.data.onTradingMenu && !player.data.onSecondaryInventory && !player.data.isAttacking && player.data.canMove && !player.data.onCooldown && !player.data.castingSpell) {
+        
         AFKCounter = 0
         // check for obstacles
         if (!menu.checkSetting('No Clip') && !player.data.onBlock.isOnBlock) {
@@ -2968,7 +3117,7 @@ function mobSpawning() {
     if (!(configs!.worlds[currentWorld])) return;
     if (!(configs!.worlds[currentWorld].canSpawn)) return;
     const spawnRate = configs!.mobSpawning!.mobSpawningRateDefault
-    if (gameFrame % spawnRate === 0) {
+    if (gameFrame + 1 % spawnRate === 0) {
         let tally = 0
         worlds[currentWorld].elements.forEach(el => {
             if (el instanceof passiveEntity) tally++
@@ -2979,16 +3128,16 @@ function mobSpawning() {
         const ranMob = configs!.worlds[currentWorld].mobSpawns[Math.floor(Math.random() * configs!.worlds[currentWorld].mobSpawns.length)]
         let x;
         if (Math.random() > 0.5) {
-            x = -(Math.round(Math.random() * configs!.worlds[currentWorld].worldSize.left))
+            x = -((Math.round(Math.random() * configs!.worlds[currentWorld].worldSize.left) - player.worldPosX))
         } else {
-            x = Math.round(Math.random() * configs!.worlds[currentWorld].worldSize.right)
+            x = Math.round(Math.random() * configs!.worlds[currentWorld].worldSize.right) - player.worldPosX
         }
         if (ranMob === 'chicken') {
             const positions = { x: x, y: 645 }
             worlds[currentWorld].elements.push(new passiveEntity(positions, { pathToImage: 'img/passiveEntities/chicken.png', animationStates: [{ frames: 4, name: 'run' }, { frames: 4, name: 'idle' }, { frames: 4, name: 'take_hit' }, { frames: 4, name: 'death' }], hitbox: { offsetX: 0, offsetY: 0, height: 35, width: 35 }, scale: 0.15, spriteHeight: 32, spriteWidth: 32, invertOrientation: false }, { health: 13 }, [{ drop: 'chicken_flesh', amount: 1, chance: 75 }], "NPC", -1, currentWorld))
         } else if (ranMob === 'cow') {
             const positions = { x: x, y: 575 }
-            worlds[currentWorld].elements.push(new passiveEntity(positions, { pathToImage: 'img/passiveEntities/cow.png', animationStates: [{ frames: 1, name: 'take_hit' }, { frames: 4, name: 's' }, { frames: 6, name: 'run' }, { frames: 9, name: 'idle' }, { frames: 5, name: 'death' }], hitbox: { offsetX: 10, offsetY: 20, height: 95, width: 115 }, scale: 0.35, spriteHeight: 32, spriteWidth: 48, invertOrientation: true }, { health: 25 }, [{ drop: 'cow_flesh', amount: 1, chance: 50 }, { drop: 'leather', amount: 1, chance: 50 }], "NPC", -1, currentWorld))
+            worlds[currentWorld].elements.push(new passiveEntity(positions, { pathToImage: 'img/passiveEntities/cow.png', animationStates: [{ frames: 1, name: 'take_hit' }, { frames: 4, name: 's' }, { frames: 6, name: 'run' }, { frames: 9, name: 'idle' }, { frames: 5, name: 'death' }], hitbox: { offsetX: 10, offsetY: 20, height: 95, width: 115 }, scale: 0.35, spriteHeight: 32, spriteWidth: 48, invertOrientation: true }, { health: 25 }, [{ drop: 'cow_flesh', amount: 1, chance: 50 }, { drop: 'leather', amount: 1, chance: 50 }, { drop: 'horn', amount: 1, chance: 10 }], "NPC", -1, currentWorld))
         } else if (ranMob === 'goblin') {
             worlds[currentWorld].elements.push(new goblin(x, StaticPositions.OnGround, 'goblin', -1))
         }
@@ -3055,16 +3204,32 @@ function handleWorldElements(isBlocked: boolean) {
         const VIEW_RIGHT = CANVAS_WIDTH + 600;
 
         if ((keys['KeyD'] || keys['KeyW']) && element.type.moving === true && !isBlocked && !player.data.isDead) {
-            element.pos.x -= gameSpeed;
+            if(!(element as any).x) {
+                element.pos.x -= gameSpeed;
+            }else {
+                (element as any).x -= gameSpeed;
+            }
+            
         } else if ((keys['KeyA'] || keys['KeyS']) && element.type.moving === true && !isBlocked && !player.data.isDead) {
-            element.pos.x -= gameSpeed;
+            if(!(element as any).x) {
+                element.pos.x -= gameSpeed;
+            }else {
+                (element as any).x -= gameSpeed;
+            }
         }
 
         element.update();
 
-        if (element.pos.x >= VIEW_LEFT && element.pos.x <= VIEW_RIGHT) {
-            element.draw();
+        if(!(element as any).x) {
+            if (element.pos.x >= VIEW_LEFT && element.pos.x <= VIEW_RIGHT) {
+                element.draw();
+            }
+        }else {
+            if ((element as any).x >= VIEW_LEFT && (element as any).x <= VIEW_RIGHT) {
+                element.draw();
+            }
         }
+
     });
 
     nonWorldElems.forEach(elem => {
@@ -3168,9 +3333,12 @@ function update(timestamp: number = 0) {
 
     // spawn logic
     mobSpawning()
-
+    // check for screenshake
+    updateShake()
     // player logic
     player.data.isMoving = false;
+
+    document.body.style.filter = `brightness(${menu.values.brightness}%)`
 
 
     const isBlocked = handleMovement()
@@ -3199,7 +3367,11 @@ async function changeWorld(world: worldName, fromInit?: boolean) {
     if (world === 'goblin_kingdom') {
         grantAchievement('goblin_kingdom')
     }
-
+    if(worlds[world].music) {
+        music.src = worlds[world].music
+    }else {
+        music.src = 'sound/music.ogg'
+    }
 
     if (!fromInit) {
         const loadingInfo = document.querySelector('#loadingInfo');
@@ -3268,10 +3440,13 @@ async function changeWorld(world: worldName, fromInit?: boolean) {
         const spriteHeight = worlds[world].background.spriteHeight
         const base_path = 'img/background/'
         let speedModifier = 0.2;
+        let lastImg = "rgb(89, 101, 25)";
         (document.querySelector('.bar') as HTMLElement).style.backgroundImage = `url(img/background/${worlds[world].background.ground})`
         for (let i = 0; i < worlds[world].background.imgs.length; i++) {
             let currentLayer = new Image()
             currentLayer.src = `${base_path}${worlds[world].background.imgs[i]}`
+
+            lastImg = `${base_path}${worlds[world].background.imgs[i]}`
 
             backgroundLayers.push(new Layer(currentLayer, speedModifier, spriteWidth, spriteHeight))
             speedModifier += 0.2
@@ -3285,6 +3460,26 @@ async function changeWorld(world: worldName, fromInit?: boolean) {
         window.api.changeDCState('playing', currentWorld)
     }
 
+}
+function updateShake() {
+    if (shakeIntensity > 0) {
+        shakeX = (Math.random() - 0.5) * shakeIntensity
+        shakeY = (Math.random() - 0.5) * shakeIntensity
+        shakeIntensity *= 0.9
+        if (shakeIntensity < 0.5) {
+            shakeIntensity = 0
+            shakeX = 0
+            shakeY = 0
+        }
+
+        const bar = document.querySelector('.bar') as HTMLElement
+        if (bar) {
+            bar.style.transform = `translate(${shakeX}px, ${shakeY}px)`
+        }
+    }
+}
+function screenShake(intensity: number) {
+    shakeIntensity = intensity
 }
 
 // declare player
@@ -3316,7 +3511,7 @@ async function start() {
     loadingScreen?.classList.add('display-none')
     isLoading = false
 
-    music.volume = menu.sounds.music / 100
+    music.volume = menu.values.music / 100
     music.loop = true
 
     grantAchievement('oathbound')

@@ -505,7 +505,7 @@
         "description": "A shiny helmet!",
         "type": "armor",
         "slot": "helmet",
-        "protection": 10,
+        "protection": 20,
         "rendering": {
             "pos": {
                 "x": 0,
@@ -530,7 +530,7 @@
         "description": "Tier One",
         "type": "armor",
         "slot": "chestplate",
-        "protection": 15,
+        "protection": 30,
         "rendering": {
             "pos": {
                 "x": 0,
@@ -555,7 +555,7 @@
         "description": "Tier Two",
         "type": "armor",
         "slot": "chestplate",
-        "protection": 20,
+        "protection": 35,
         "rendering": {
             "pos": {
                 "x": 0,
@@ -580,7 +580,7 @@
         "description": "Tier Three",
         "type": "armor",
         "slot": "chestplate",
-        "protection": 25,
+        "protection": 40,
         "rendering": {
             "pos": {
                 "x": 0,
@@ -605,7 +605,7 @@
         "description": "",
         "type": "armor",
         "slot": "boots",
-        "protection": 7.5,
+        "protection": 12,
         "rendering": {
             "pos": {
                 "x": 0,
@@ -2065,6 +2065,54 @@
                 "x": 5,
                 "y": -20,
                 "x2": -5
+            },
+            "isMirrored": false,
+            "scale": 3
+        }
+    },
+    "cooked_chicken": {
+        "spriteX": 768,
+        "spriteY": 1920,
+        "height": 64,
+        "width": 64,
+        "scale": 1,
+        "attackDamage": 1,
+        "src": "itemsSheet.png",
+        "onUse": "",
+        "clearsAfterUse": true,
+        "attackRange": 150,
+        "attackCooldown": 2000,
+        "description": "Now you burn'em too?! - Duckar",
+        "type": "item",
+        "rendering": {
+            "pos": {
+                "x": 5,
+                "y": -10,
+                "x2": 5
+            },
+            "isMirrored": false,
+            "scale": 3
+        }
+    },
+    "cooked_beef": {
+        "spriteX": 832,
+        "spriteY": 1920,
+        "height": 64,
+        "width": 64,
+        "scale": 1,
+        "attackDamage": 1,
+        "src": "itemsSheet.png",
+        "onUse": "",
+        "clearsAfterUse": true,
+        "attackRange": 150,
+        "attackCooldown": 2000,
+        "description": "",
+        "type": "item",
+        "rendering": {
+            "pos": {
+                "x": 5,
+                "y": -10,
+                "x2": 5
             },
             "isMirrored": false,
             "scale": 3

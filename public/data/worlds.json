@@ -662,6 +662,34 @@
                 "class": "block",
                 "args": [
                     {
+                        "x": -11000,
+                        "y": 610
+                    },
+                    {
+                        "pathToImage": "img/blocks/bush_2.png",
+                        "spriteWidth": 101,
+                        "spriteHeight": 40,
+                        "scale": 2.4,
+                        "hitbox": {
+                            "offsetX": 0,
+                            "offsetY": 0,
+                            "width": 230,
+                            "height": 100
+                        }
+                    },
+                    null,
+                    {
+                        "isBlocking": false,
+                        "removeItem": null
+                    },
+                    "bush_2",
+                    0
+                ]
+            },
+            {
+                "class": "block",
+                "args": [
+                    {
                         "x": -1600,
                         "y": 190
                     },
@@ -683,6 +711,34 @@
                         "removeItem": null
                     },
                     "house",
+                    0
+                ]
+            },
+            {
+                "class": "block",
+                "args": [
+                    {
+                        "x": 600,
+                        "y": 610
+                    },
+                    {
+                        "pathToImage": "img/blocks/bush_2.png",
+                        "spriteWidth": 101,
+                        "spriteHeight": 40,
+                        "scale": 2.4,
+                        "hitbox": {
+                            "offsetX": 0,
+                            "offsetY": 0,
+                            "width": 230,
+                            "height": 100
+                        }
+                    },
+                    null,
+                    {
+                        "isBlocking": false,
+                        "removeItem": null
+                    },
+                    "bush_2",
                     0
                 ]
             },
@@ -1607,20 +1663,37 @@
                     {
                         "first": [
                             "You need a way to go to the goblin kingdom?",
-                            "Hahaha... good joke!",
-                            "You're not joking?",
-                            "Uhmm, my horse is way to precious for this type of job!"
+                            "Uhmm, my horse is way to precious for this type of job!",
+                            "Uh… fine!",
+                            "But only for one gold ingot, haha!"
                         ],
                         "second": [
-                            "Uh… fine!",
-                            "But only for one gold ingot, haha!",
-                            "(He definetly can't afford that...)"
+                            "I knew you couldn't afford that!"
+                        ],
+                        "questCompleted": [
+                            "i guess there are rich people in this city!"
                         ]
                     },
                     "elder",
                     [],
                     -2,
-                    null,
+                    [
+                        "give",
+                        [],
+                        "The farmer wants one gold ingot for the horse.",
+                        [
+                            {
+                                "item": "key",
+                                "amount": 1
+                            }
+                        ],
+                        [
+                            {
+                                "item": "gold_ingot",
+                                "amount": 1
+                            }
+                        ]
+                    ],
                     null
                 ]
             },
@@ -1646,7 +1719,7 @@
                     null,
                     {
                         "isBlocking": true,
-                        "removeItem": "gold_ingot"
+                        "removeItem": "key"
                     },
                     "door_1",
                     0
@@ -1926,6 +1999,120 @@
                 ]
             },
             {
+                "class": "block",
+                "args": [
+                    {
+                        "x": -11260,
+                        "y": 370
+                    },
+                    {
+                        "pathToImage": "img/blocks/tree_1.png",
+                        "spriteWidth": 65,
+                        "spriteHeight": 60,
+                        "scale": 6,
+                        "hitbox": {
+                            "offsetX": 0,
+                            "offsetY": 0,
+                            "width": 300,
+                            "height": 400
+                        }
+                    },
+                    {
+                        "cooldown": 100,
+                        "output": [
+                            {
+                                "amount": 1,
+                                "item": "stick"
+                            }
+                        ],
+                        "isInfinite": true,
+                        "healthBarScale": 2.5
+                    },
+                    {
+                        "isBlocking": false,
+                        "removeItem": null
+                    },
+                    "tree_1",
+                    0
+                ]
+            },
+            {
+                "class": "block",
+                "args": [
+                    {
+                        "x": -13260,
+                        "y": 390
+                    },
+                    {
+                        "pathToImage": "img/blocks/tree_5.png",
+                        "spriteWidth": 33,
+                        "spriteHeight": 35,
+                        "scale": 9,
+                        "hitbox": {
+                            "offsetX": 0,
+                            "offsetY": 0,
+                            "width": 300,
+                            "height": 400
+                        }
+                    },
+                    {
+                        "cooldown": 100,
+                        "output": [
+                            {
+                                "amount": 1,
+                                "item": "stick"
+                            }
+                        ],
+                        "isInfinite": true,
+                        "healthBarScale": 2.5
+                    },
+                    {
+                        "isBlocking": false,
+                        "removeItem": null
+                    },
+                    "tree_1",
+                    0
+                ]
+            },
+            {
+                "class": "block",
+                "args": [
+                    {
+                        "x": -12260,
+                        "y": 530
+                    },
+                    {
+                        "pathToImage": "img/blocks/tree_4.png",
+                        "spriteWidth": 35,
+                        "spriteHeight": 28,
+                        "scale": 6,
+                        "hitbox": {
+                            "offsetX": 0,
+                            "offsetY": 0,
+                            "width": 200,
+                            "height": 200
+                        }
+                    },
+                    {
+                        "cooldown": 100,
+                        "output": [
+                            {
+                                "amount": 1,
+                                "item": "stick"
+                            }
+                        ],
+                        "isInfinite": true,
+                        "healthBarScale": 2.5
+                    },
+                    {
+                        "isBlocking": false,
+                        "removeItem": null
+                    },
+                    "tree_1",
+                    0
+                ]
+            },
+            {
                 "class": "teleporter",
                 "args": [
                     {
@@ -1966,7 +2153,159 @@
                 "class": "NPC",
                 "args": [
                     {
-                        "x": -9100,
+                        "x": -11700,
+                        "y": 580
+                    },
+                    {
+                        "pathToImage": "img/passiveEntities/barkeep.png",
+                        "spriteWidth": 34,
+                        "spriteHeight": 34,
+                        "frameAmount": 5,
+                        "scale": 0.4,
+                        "hitbox": {
+                            "offsetX": -40,
+                            "offsetY": 0,
+                            "width": 1,
+                            "height": 150
+                        }
+                    },
+                    "NPC",
+                    {},
+                    "idk",
+                    [],
+                    0,
+                    null,
+                    null
+                ]
+            },
+            {
+                "class": "trader",
+                "args": [
+                    {
+                        "x": -11760,
+                        "y": 505
+                    },
+                    {
+                        "img": "img/passiveEntities/marketStall_3.png",
+                        "spriteWidth": 47,
+                        "spriteHeight": 63,
+                        "frameAmount": 1,
+                        "scale": 0.6,
+                        "invertDirec": true
+                    },
+                    [
+                        [
+                            {
+                                "amount": 2,
+                                "item": "coin"
+                            },
+                            {
+                                "amount": 2,
+                                "item": "stone_pickaxe"
+                            }
+                        ],
+                        [
+                            {
+                                "amount": 1,
+                                "item": "coin"
+                            },
+                            {
+                                "amount": 2,
+                                "item": "horn"
+                            }
+                        ],
+                        [
+                            {
+                                "amount": 2,
+                                "item": "coin"
+                            },
+                            {
+                                "amount": 1,
+                                "item": "blank_scroll"
+                            }
+                        ]
+                    ],
+                    "NPC",
+                    false,
+                    70000
+                ]
+            },
+            {
+                "class": "NPC",
+                "args": [
+                    {
+                        "x": -11300,
+                        "y": 560
+                    },
+                    {
+                        "pathToImage": "img/passiveEntities/beardedMan.png",
+                        "spriteWidth": 40,
+                        "spriteHeight": 47,
+                        "frameAmount": 5,
+                        "scale": 0.4,
+                        "hitbox": {
+                            "offsetX": -40,
+                            "offsetY": 0,
+                            "width": 50,
+                            "height": 150
+                        }
+                    },
+                    "NPC",
+                    null,
+                    "idk",
+                    [],
+                    0,
+                    null,
+                    null
+                ]
+            },
+            {
+                "class": "trader",
+                "args": [
+                    {
+                        "x": -11360,
+                        "y": 505
+                    },
+                    {
+                        "img": "img/passiveEntities/marketStall_2.png",
+                        "spriteWidth": 47,
+                        "spriteHeight": 63,
+                        "frameAmount": 1,
+                        "scale": 0.6,
+                        "invertDirec": true
+                    },
+                    [
+                        [
+                            {
+                                "amount": 1,
+                                "item": "coin"
+                            },
+                            {
+                                "amount": 2,
+                                "item": "string"
+                            }
+                        ],
+                        [
+                            {
+                                "amount": 3,
+                                "item": "coin"
+                            },
+                            {
+                                "amount": 1,
+                                "item": "copper_ingot"
+                            }
+                        ]
+                    ],
+                    "NPC",
+                    false,
+                    70000
+                ]
+            },
+            {
+                "class": "NPC",
+                "args": [
+                    {
+                        "x": -9760,
                         "y": 550
                     },
                     {
@@ -2015,10 +2354,446 @@
                 ]
             },
             {
+                "class": "trader",
+                "args": [
+                    {
+                        "x": -10860,
+                        "y": 505
+                    },
+                    {
+                        "img": "img/passiveEntities/marketStall.png",
+                        "spriteWidth": 47,
+                        "spriteHeight": 63,
+                        "frameAmount": 1,
+                        "scale": 0.6,
+                        "invertDirec": true
+                    },
+                    [
+                        [
+                            {
+                                "amount": 1,
+                                "item": "coin"
+                            },
+                            {
+                                "amount": 1,
+                                "item": "coin"
+                            }
+                        ]
+                    ],
+                    "NPC",
+                    false,
+                    70000
+                ]
+            },
+            {
+                "class": "NPC",
+                "args": [
+                    {
+                        "x": -10700,
+                        "y": 550
+                    },
+                    {
+                        "pathToImage": "img/passiveEntities/merchant.png",
+                        "spriteWidth": 32,
+                        "spriteHeight": 32,
+                        "frameAmount": 5,
+                        "scale": 0.4,
+                        "hitbox": {
+                            "offsetX": 50,
+                            "offsetY": 40,
+                            "width": 100,
+                            "height": 90
+                        }
+                    },
+                    "NPC",
+                    {
+                        "first": [
+                            "I got robbed!",
+                            "Can you please help me restock my shop!",
+                            "There are a few things I need here's a list!"
+                        ],
+                        "second": [
+                            "I need all of these things not just a few!"
+                        ],
+                        "questCompleted": [
+                            "Thank you !"
+                        ]
+                    },
+                    "merchant",
+                    [],
+                    -2,
+                    [
+                        "give",
+                        [],
+                        "List: cow flesh, 2 string, chicken_flesh",
+                        [
+                            {
+                                "item": "iron_ingot",
+                                "amount": 2
+                            }
+                        ],
+                        [
+                            {
+                                "item": "cow_flesh",
+                                "amount": 1
+                            },
+                            {
+                                "item": "string",
+                                "amount": 2
+                            },
+                            {
+                                "item": "chicken_flesh",
+                                "amount": 1
+                            }
+                        ]
+                    ],
+                    null
+                ]
+            },
+            {
+                "class": "block",
+                "args": [
+                    {
+                        "x": -9400,
+                        "y": 560
+                    },
+                    {
+                        "pathToImage": "img/blocks/plant_1.png",
+                        "spriteWidth": 34,
+                        "spriteHeight": 61,
+                        "scale": 2.4,
+                        "hitbox": {
+                            "offsetX": 0,
+                            "offsetY": 0,
+                            "width": 100,
+                            "height": 160
+                        }
+                    },
+                    {
+                        "cooldown": 50,
+                        "output": [
+                            {
+                                "amount": 1,
+                                "item": "string"
+                            }
+                        ],
+                        "isInfinite": false,
+                        "healthBarScale": 1
+                    },
+                    {
+                        "isBlocking": false,
+                        "removeItem": null
+                    },
+                    "plant_1",
+                    0
+                ]
+            },
+            {
+                "class": "NPC",
+                "args": [
+                    {
+                        "x": -10000,
+                        "y": 560
+                    },
+                    {
+                        "pathToImage": "img/passiveEntities/captain.png",
+                        "spriteWidth": 32,
+                        "spriteHeight": 32,
+                        "frameAmount": 4,
+                        "scale": 0.4,
+                        "hitbox": {
+                            "offsetX": -40,
+                            "offsetY": 0,
+                            "width": 250,
+                            "height": 150
+                        },
+                        "portrait": "img/portraits/guard.png"
+                    },
+                    "NPC",
+                    {
+                        "first": [
+                            "Don't you have a quest from the king?!"
+                        ],
+                        "second": [
+                            "Turn around!",
+                            "Your horse is ready!"
+                        ]
+                    },
+                    "idk",
+                    [],
+                    70002,
+                    null,
+                    null
+                ]
+            },
+            {
+                "class": "block",
+                "args": [
+                    {
+                        "x": -10460,
+                        "y": 665
+                    },
+                    {
+                        "pathToImage": "img/blocks/rock_3.png",
+                        "spriteWidth": 45,
+                        "spriteHeight": 18,
+                        "scale": 2,
+                        "hitbox": {
+                            "offsetX": 0,
+                            "offsetY": 0,
+                            "width": 200,
+                            "height": 1000
+                        }
+                    },
+                    {
+                        "cooldown": 100,
+                        "output": [
+                            {
+                                "amount": 1,
+                                "item": "stone"
+                            }
+                        ],
+                        "isInfinite": false,
+                        "healthBarScale": 2.5,
+                        "brockenBy": [
+                            "wood_pickaxe",
+                            "stone_pickaxe",
+                            "iron_pickaxe",
+                            "copper_pickaxe",
+                            "gold_pickaxe"
+                        ]
+                    },
+                    {
+                        "isBlocking": false,
+                        "removeItem": null,
+                        "text": ""
+                    },
+                    "rock",
+                    0
+                ]
+            },
+            {
+                "class": "block",
+                "args": [
+                    {
+                        "x": -9800,
+                        "y": 628
+                    },
+                    {
+                        "pathToImage": "img/blocks/bush_3.png",
+                        "spriteWidth": 60,
+                        "spriteHeight": 31,
+                        "scale": 2.4,
+                        "hitbox": {
+                            "offsetX": 0,
+                            "offsetY": 0,
+                            "width": 100,
+                            "height": 100
+                        }
+                    },
+                    null,
+                    {
+                        "isBlocking": false,
+                        "removeItem": null
+                    },
+                    "bush_3",
+                    0
+                ]
+            },
+            {
+                "class": "block",
+                "args": [
+                    {
+                        "x": -14200,
+                        "y": 628
+                    },
+                    {
+                        "pathToImage": "img/blocks/bush_3.png",
+                        "spriteWidth": 60,
+                        "spriteHeight": 31,
+                        "scale": 2.4,
+                        "hitbox": {
+                            "offsetX": 0,
+                            "offsetY": 0,
+                            "width": 100,
+                            "height": 100
+                        }
+                    },
+                    null,
+                    {
+                        "isBlocking": false,
+                        "removeItem": null
+                    },
+                    "bush_3",
+                    0
+                ]
+            },
+            {
+                "class": "block",
+                "args": [
+                    {
+                        "x": -12900,
+                        "y": 628
+                    },
+                    {
+                        "pathToImage": "img/blocks/bush_3.png",
+                        "spriteWidth": 60,
+                        "spriteHeight": 31,
+                        "scale": 2.4,
+                        "hitbox": {
+                            "offsetX": 0,
+                            "offsetY": 0,
+                            "width": 100,
+                            "height": 100
+                        }
+                    },
+                    null,
+                    {
+                        "isBlocking": false,
+                        "removeItem": null
+                    },
+                    "bush_3",
+                    0
+                ]
+            },
+            {
+                "class": "block",
+                "args": [
+                    {
+                        "x": -10160,
+                        "y": 0
+                    },
+                    {
+                        "pathToImage": "",
+                        "spriteWidth": 1,
+                        "spriteHeight": 1,
+                        "scale": 1,
+                        "hitbox": {
+                            "offsetX": 0,
+                            "offsetY": 0,
+                            "width": 100,
+                            "height": 2000
+                        }
+                    },
+                    null,
+                    {
+                        "isBlocking": true,
+                        "removeItem": null,
+                        "text": ""
+                    },
+                    "invisWall",
+                    70001
+                ]
+            },
+            {
+                "class": "block",
+                "args": [
+                    {
+                        "x": -12000,
+                        "y": 625
+                    },
+                    {
+                        "pathToImage": "img/blocks/basket.png",
+                        "spriteWidth": 30,
+                        "spriteHeight": 26,
+                        "scale": 3,
+                        "hitbox": {
+                            "offsetX": 0,
+                            "offsetY": 0,
+                            "width": 100,
+                            "height": 2000
+                        }
+                    },
+                    null,
+                    {
+                        "isBlocking": false,
+                        "removeItem": null,
+                        "text": ""
+                    },
+                    "",
+                    0
+                ]
+            },
+            {
+                "class": "block",
+                "args": [
+                    {
+                        "x": -11920,
+                        "y": 625
+                    },
+                    {
+                        "pathToImage": "img/blocks/basket.png",
+                        "spriteWidth": 30,
+                        "spriteHeight": 26,
+                        "scale": 3,
+                        "hitbox": {
+                            "offsetX": 0,
+                            "offsetY": 0,
+                            "width": 100,
+                            "height": 2000
+                        }
+                    },
+                    null,
+                    {
+                        "isBlocking": false,
+                        "removeItem": null,
+                        "text": ""
+                    },
+                    "",
+                    0
+                ]
+            },
+            {
                 "class": "block",
                 "args": [
                     {
                         "x": -8700,
+                        "y": 665
+                    },
+                    {
+                        "pathToImage": "img/blocks/rock_3.png",
+                        "spriteWidth": 45,
+                        "spriteHeight": 18,
+                        "scale": 2,
+                        "hitbox": {
+                            "offsetX": 0,
+                            "offsetY": 0,
+                            "width": 200,
+                            "height": 1000
+                        }
+                    },
+                    {
+                        "cooldown": 100,
+                        "output": [
+                            {
+                                "amount": 1,
+                                "item": "stone"
+                            }
+                        ],
+                        "isInfinite": false,
+                        "healthBarScale": 2.5,
+                        "brockenBy": [
+                            "wood_pickaxe",
+                            "stone_pickaxe",
+                            "iron_pickaxe",
+                            "copper_pickaxe",
+                            "gold_pickaxe"
+                        ]
+                    },
+                    {
+                        "isBlocking": false,
+                        "removeItem": null,
+                        "text": ""
+                    },
+                    "rock",
+                    0
+                ]
+            },
+            {
+                "class": "block",
+                "args": [
+                    {
+                        "x": -13600,
                         "y": 665
                     },
                     {
@@ -2194,6 +2969,43 @@
                         "text": ""
                     },
                     "rock",
+                    0
+                ]
+            },
+            {
+                "class": "teleporter",
+                "args": [
+                    {
+                        "x": -14000,
+                        "y": 375
+                    },
+                    {
+                        "pathToImage": "img/blocks/caveEntrance.png",
+                        "spriteWidth": 167,
+                        "spriteHeight": 147,
+                        "scale": 1,
+                        "hitbox": {
+                            "offsetX": 0,
+                            "offsetY": 0,
+                            "width": 380,
+                            "height": 400
+                        }
+                    },
+                    {
+                        "cooldown": 25,
+                        "healthBarScale": 1,
+                        "interactCooldown": 200
+                    },
+                    {
+                        "isBlocking": false,
+                        "removeItem": null
+                    },
+                    {
+                        "dim": "cave_1",
+                        "x": 650,
+                        "y": 420
+                    },
+                    "door_1",
                     0
                 ]
             }
@@ -3320,13 +4132,30 @@
                             "Good luck, my friend!"
                         ],
                         "second": [
-                            "Now go!"
+                            "Now go, Elric!"
+                        ],
+                        "questCompleted": [
+                            "I heard you have done it?",
+                            "The news spread like wildfire!",
+                            "What did he say!",
+                            "Don't listen to him, he's trying to gain your trust!",
+                            "But he's only a mere goblin!",
+                            "He escaped?",
+                            "Well, then the war isn't over!",
+                            "Find and kill this liar, NOW!"
                         ]
                     },
                     "stranger",
                     [],
                     5111,
-                    null,
+                    [
+                        "kill",
+                        [
+                            60002
+                        ],
+                        "Find and defeat the goblin king!",
+                        []
+                    ],
                     [
                         {
                             "action": "destroy",
@@ -4503,7 +5332,7 @@
                 "plx-5-goblin_1.png",
                 "plx-4-goblin_1.png"
             ],
-            "spriteWidth": 1500,
+            "spriteWidth": 3141,
             "spriteHeight": 1000,
             "ground": "plx-5-goblin_1.png"
         },
@@ -4655,10 +5484,24 @@
                 ]
             },
             {
+                "class": "storyStarter",
+                "args": [
+                    1600,
+                    "nateEntry"
+                ]
+            },
+            {
+                "class": "storyStarter",
+                "args": [
+                    1800,
+                    "nateEntry"
+                ]
+            },
+            {
                 "class": "NPC",
                 "args": [
                     {
-                        "x": 2000,
+                        "x": 2100,
                         "y": 430
                     },
                     {
@@ -4681,11 +5524,11 @@
                         "first": [
                             "Wait, you're not a goblin?!",
                             "Please, help me!",
-                            "The goblins will attack you however once you've freed me!"
+                            "But the Goblins will attack you once you've freed me!"
                         ],
                         "second": [
                             "I can escape on my own!",
-                            "Just try to find the king!"
+                            "Just try to find the goblin king!"
                         ]
                     },
                     "nate",
@@ -4808,7 +5651,7 @@
                 "plx-5-goblin_1.png",
                 "plx-4-goblin_1.png"
             ],
-            "spriteWidth": 1500,
+            "spriteWidth": 3141,
             "spriteHeight": 1000,
             "ground": "plx-5-goblin_1.png"
         },
@@ -4993,12 +5836,13 @@
     "goblin_king_house": {
         "name": "goblin_king_house",
         "mobCap": 0,
+        "music": "sound/bossfight.ogg",
         "background": {
             "imgs": [
                 "plx-5-goblin_1.png",
                 "plx-4-goblin_1.png"
             ],
-            "spriteWidth": 1500,
+            "spriteWidth": 3141,
             "spriteHeight": 1000,
             "ground": "plx-5-goblin_1.png"
         },
@@ -5046,7 +5890,7 @@
                     1300,
                     -1,
                     "ogre",
-                    -1
+                    60001
                 ]
             },
             {
@@ -5055,7 +5899,23 @@
                     1700,
                     -1,
                     "goblin",
-                    0
+                    60000
+                ]
+            },
+            {
+                "class": "storyStarter",
+                "args": [
+                    3000,
+                    "goblinKingEntry"
+                ]
+            },
+            {
+                "class": "goblinKing",
+                "args": [
+                    3600,
+                    300,
+                    "goblin",
+                    60002
                 ]
             }
         ]
@@ -5325,6 +6185,161 @@
                     "trader",
                     false,
                     2
+                ]
+            }
+        ]
+    },
+    "cave_1": {
+        "name": "cave_1",
+        "mobCap": 5,
+        "background": {
+            "imgs": [
+                "cave_1.png",
+                "cave_2.png",
+                "cave_4.png",
+                "cave_5.png",
+                "cave_7.png",
+                "cave_9.png"
+            ],
+            "spriteWidth": 1900,
+            "spriteHeight": 700,
+            "ground": "brick_ground.png"
+        },
+        "elements": [
+            {
+                "class": "teleporter",
+                "args": [
+                    {
+                        "x": 650,
+                        "y": 375
+                    },
+                    {
+                        "pathToImage": "img/blocks/caveEntrance.png",
+                        "spriteWidth": 167,
+                        "spriteHeight": 147,
+                        "scale": 1,
+                        "hitbox": {
+                            "offsetX": 0,
+                            "offsetY": 0,
+                            "width": 380,
+                            "height": 400
+                        }
+                    },
+                    {
+                        "cooldown": 25,
+                        "healthBarScale": 1,
+                        "interactCooldown": 200
+                    },
+                    {
+                        "isBlocking": false,
+                        "removeItem": null
+                    },
+                    {
+                        "dim": "jungle",
+                        "x": 650,
+                        "y": 420
+                    },
+                    "door_1",
+                    0
+                ]
+            },
+            {
+                "class": "stoneGolem",
+                "args": [
+                    1400,
+                    410,
+                    "goblin",
+                    0
+                ]
+            },
+            {
+                "class": "block",
+                "args": [
+                    {
+                        "x": 2600,
+                        "y": 640
+                    },
+                    {
+                        "pathToImage": "img/blocks/iron_ore.png",
+                        "spriteWidth": 27,
+                        "spriteHeight": 28,
+                        "scale": 3,
+                        "hitbox": {
+                            "offsetX": 0,
+                            "offsetY": 0,
+                            "width": 200,
+                            "height": 1000
+                        }
+                    },
+                    {
+                        "cooldown": 100,
+                        "output": [
+                            {
+                                "amount": 1,
+                                "item": "iron_ingot"
+                            }
+                        ],
+                        "isInfinite": false,
+                        "healthBarScale": 2.5,
+                        "brockenBy": [
+                            "stone_pickaxe",
+                            "iron_pickaxe",
+                            "copper_pickaxe",
+                            "gold_pickaxe"
+                        ]
+                    },
+                    {
+                        "isBlocking": false,
+                        "removeItem": null,
+                        "text": ""
+                    },
+                    "rock",
+                    0
+                ]
+            },
+            {
+                "class": "block",
+                "args": [
+                    {
+                        "x": 1300,
+                        "y": 640
+                    },
+                    {
+                        "pathToImage": "img/blocks/iron_ore.png",
+                        "spriteWidth": 27,
+                        "spriteHeight": 28,
+                        "scale": 3,
+                        "hitbox": {
+                            "offsetX": 0,
+                            "offsetY": 0,
+                            "width": 200,
+                            "height": 1000
+                        }
+                    },
+                    {
+                        "cooldown": 100,
+                        "output": [
+                            {
+                                "amount": 1,
+                                "item": "iron_ingot"
+                            }
+                        ],
+                        "isInfinite": false,
+                        "healthBarScale": 2.5,
+                        "brockenBy": [
+                            "stone_pickaxe",
+                            "iron_pickaxe",
+                            "copper_pickaxe",
+                            "gold_pickaxe"
+                        ]
+                    },
+                    {
+                        "isBlocking": false,
+                        "removeItem": null,
+                        "text": ""
+                    },
+                    "rock",
+                    0
                 ]
             }
         ]

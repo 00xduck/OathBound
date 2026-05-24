@@ -112,7 +112,7 @@ function renderStaffGUI(staffTier) {
             e.preventDefault();
             (_a = document.querySelector('body')) === null || _a === void 0 ? void 0 : _a.classList.remove('grab');
             if (menu.checkSetting('Master Sound'))
-                playSound('click', menu.sounds.effects / 100, true);
+                playSound('click', menu.values.effects / 100, true);
             if (!player.data.dragging)
                 return;
             const targetElement = e.target.closest('.magicSlot');
@@ -168,7 +168,7 @@ function renderStaffGUI(staffTier) {
                 player.data.magicInventory[dragSlot.x] = temp;
             }
             if (menu.checkSetting('Master Sound'))
-                playSound('equipSpell', menu.sounds.effects / 100, true);
+                playSound('equipSpell', menu.values.effects / 100, true);
             player.data.dragging = null;
             renderInventory();
             openStaffGUI(staffTier);
@@ -189,7 +189,7 @@ function openInventory() {
     const playerDiv = document.querySelector('.player-data');
     const craftingDiv = document.querySelector('.crafting-div');
     inventoryDiv === null || inventoryDiv === void 0 ? void 0 : inventoryDiv.classList.remove('display-none');
-    playSound('UIopen', menu.sounds.effects / 100, true);
+    playSound('UIopen', menu.values.effects / 100, true);
     craftingDiv === null || craftingDiv === void 0 ? void 0 : craftingDiv.classList.remove('display-none');
     renderInventory();
 }
@@ -236,10 +236,17 @@ function updateHotbar() {
         }
     }
 }
-function advanceConversation(NPC) {
+function advanceConversation(NPC, left) {
     var _a, _b;
     const speakBtn = document.querySelector('#speakBtn');
     const speak = document.querySelector('#speak');
+    const speakDiv = document.querySelector('#speakingDiv');
+    if (left) {
+        speakDiv.style.left = "32px";
+    }
+    else {
+        speakDiv.style.right = "32px";
+    }
     let currentConversation;
     if (!NPC.hasGivenPresent && NPC.conversation) {
         currentConversation = NPC.conversation.first;
@@ -265,13 +272,16 @@ function advanceConversation(NPC) {
             NPC.endConversation();
         return;
     }
+    window.api.sendMSGToDevice(currentConversation[NPC.conversationCounter]);
     const charArray = currentConversation[NPC.conversationCounter].split('');
     let counter = 0;
     let interval = setInterval(() => {
         if (menu.checkSetting('Master Sound') && counter % 2 === 0)
-            playSound('speak', menu.sounds.effects / 150, true);
+            playSound('speak', menu.values.effects / 150, true);
         speak.innerHTML += charArray[counter];
         counter++;
+        if (NPC.sprite.currentState !== 'speak' && NPC.sprite.spriteAnimations.speak)
+            NPC.changeState('speak');
         if (counter >= charArray.length) {
             clearInterval(interval);
             NPC.conversationCounter++;
@@ -309,7 +319,7 @@ function renderInventory() {
         slot.id = `armorSlot${i}0`;
         armorDiv === null || armorDiv === void 0 ? void 0 : armorDiv.appendChild(slot);
     }
-    // add each armor itemplaySound('click', menu.sounds.effects / 100, true)
+    // add each armor itemplaySound('click', menu.values.effects / 100, true)
     for (let i = 0; i < 3; i++) {
         if (player.data.armor[i] !== null) {
             const itemDiv = document.createElement('div');
@@ -386,7 +396,7 @@ function renderInventory() {
                     player.data.dragging = e.target.parentElement.id;
                     (_b = document.querySelector('body')) === null || _b === void 0 ? void 0 : _b.classList.add('grab');
                     if (menu.checkSetting('Master Sound'))
-                        playSound('click', menu.sounds.effects / 100, true);
+                        playSound('click', menu.values.effects / 100, true);
                     if (player.data.inventory[y][x] !== null) {
                         if (items[player.data.inventory[y][x]].type === 'armor') {
                             playerDiv.innerHTML = `<h2>${player.data.inventory[y][x].replace(/_/g, ' ').toUpperCase()}</h2> <br><h3>Protection: ${items[player.data.inventory[y][x]].protection}%</h3>${items[player.data.inventory[y][x]].onUse !== '' ? '<br><h2>On use: ' + items[player.data.inventory[y][x]].onUse + '</h2>' : ''}<br><h2 style="font-weight: 200; font-family: cursive;">${items[player.data.inventory[y][x]].description} </h2>`;
@@ -594,7 +604,7 @@ function renderInventory() {
             e.preventDefault();
             (_a = document.querySelector('body')) === null || _a === void 0 ? void 0 : _a.classList.remove('grab');
             if (menu.checkSetting('Master Sound'))
-                playSound('click', menu.sounds.effects / 100, true);
+                playSound('click', menu.values.effects / 100, true);
             if (!player.data.dragging)
                 return;
             const targetElement = e.target.closest('.inv-slot');
@@ -640,7 +650,7 @@ function renderInventory() {
             e.preventDefault();
             (_a = document.querySelector('body')) === null || _a === void 0 ? void 0 : _a.classList.remove('grab');
             if (menu.checkSetting('Master Sound'))
-                playSound('click', menu.sounds.effects / 100, true);
+                playSound('click', menu.values.effects / 100, true);
             if (!player.data.dragging)
                 return;
             const targetElement = e.target.closest('.inv-slot');
@@ -695,7 +705,7 @@ function renderInventory() {
                 renderStaffGUI('');
             }
             if (menu.checkSetting('Master Sound'))
-                playSound('equip', menu.sounds.effects / 100, true);
+                playSound('equip', menu.values.effects / 100, true);
             player.data.dragging = null;
             renderInventory();
             if (player.data.onSecondaryInventory && player.data.interactionFocus instanceof chest)
@@ -708,7 +718,7 @@ function renderInventory() {
             e.preventDefault();
             (_a = document.querySelector('body')) === null || _a === void 0 ? void 0 : _a.classList.remove('grab');
             if (menu.checkSetting('Master Sound'))
-                playSound('click', menu.sounds.effects / 100, true);
+                playSound('click', menu.values.effects / 100, true);
             if (!player.data.dragging)
                 return;
             const targetElement = e.target.closest('.inv-slot');
@@ -782,7 +792,7 @@ function closeInventory() {
     inventoryDiv === null || inventoryDiv === void 0 ? void 0 : inventoryDiv.classList.add('display-none');
     document.querySelector('.slots-div').innerHTML = '';
     document.querySelector('.player-data').innerHTML = '';
-    playSound('UIclose', menu.sounds.effects / 100, true);
+    playSound('UIclose', menu.values.effects / 100, true);
     player.data.onInventory = false;
     if (player.data.onSecondaryInventory) {
         const container = document.querySelector('.container');
@@ -828,7 +838,7 @@ function renderSecondaryContainer(container) {
                     player.data.dragging = e.target.parentElement.id;
                     (_b = document.querySelector('body')) === null || _b === void 0 ? void 0 : _b.classList.add('grab');
                     if (menu.checkSetting('Master Sound'))
-                        playSound('click', menu.sounds.effects / 100, true);
+                        playSound('click', menu.values.effects / 100, true);
                     if (player.data.inventory[y][x] !== null) {
                         if (items[container.inventory[y][x]].type === 'armor') {
                             playerDiv.innerHTML = `<h2>${container.inventory[y][x].replace(/_/g, ' ').toUpperCase()}</h2> <br><h3>Protection: ${items[container.inventory[y][x]].protection}%</h3>${items[container.inventory[y][x]].onUse !== '' ? '<br><h2>On use: ' + items[container.inventory[y][x]].onUse + '</h2>' : ''}<br><h2 style="font-weight: 200; font-family: cursive;">${items[container.inventory[y][x]].description} </h2>`;
@@ -895,7 +905,7 @@ function renderSecondaryContainer(container) {
             if (!player.data.dragging)
                 return;
             if (menu.checkSetting('Master Sound'))
-                playSound('click', menu.sounds.effects / 100, true);
+                playSound('click', menu.values.effects / 100, true);
             (_a = document.querySelector('body')) === null || _a === void 0 ? void 0 : _a.classList.remove('grab');
             const targetElement = e.target.closest('.inv-slot');
             const dragSlot = parseSlotId(player.data.dragging); // { x, y }
@@ -947,7 +957,7 @@ function openTradingMenu(trades) {
     const tradingMenu = document.querySelector('#trading-menu');
     tradingMenu.classList.remove('display-none');
     tradingMenu.innerHTML = '';
-    playSound('UIopen', menu.sounds.effects / 100, true);
+    playSound('UIopen', menu.values.effects / 100, true);
     let i = 0;
     trades.forEach(trade => {
         const itemGiveDiv = document.createElement('div');
@@ -991,7 +1001,7 @@ function closeTradingMenu() {
     document.querySelector('#trading-menu').innerHTML = '';
     document.querySelector('#trading-menu').classList.add('display-none');
     player.data.onTradingMenu = false;
-    playSound('UIclose', menu.sounds.effects / 100, true);
+    playSound('UIclose', menu.values.effects / 100, true);
 }
 function confirmTrade(trade) {
     let itemAmount = 0;
@@ -1018,7 +1028,9 @@ function confirmTrade(trade) {
             }
         }
     }
+    renderInventory();
     updateHotbar();
+    closeTradingMenu();
 }
 function openCompanionGUI() {
     const div = document.querySelector('#companionDiv');

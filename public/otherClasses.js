@@ -50,6 +50,7 @@ class droppedItem {
     update() {
         // make them collide with blocks if blocking
         const bottomOfItem = this.pos.y + this.hitbox.offsetY + this.hitbox.height;
+        const groundLine = groundY + 160; // Eine einzige Referenzlinie
         const isBlocked = () => {
             return worlds[currentWorld].elements.some(el => {
                 if (!(el instanceof block) || !el.blocking.isBlocking)
@@ -58,15 +59,17 @@ class droppedItem {
                     return false;
                 const blockTop = el.pos.y + el.hitbox.offsetY;
                 if (bottomOfItem < blockTop)
-                    return false; // Block ist noch unterhalb
+                    return false;
                 return checkCollision({ hitbox: el.hitbox, pos: el.pos }, { hitbox: this.hitbox, pos: this.pos });
             });
         };
-        if (bottomOfItem - 120 < groundY && (!isBlocked())) {
-            this.pos.y += 5;
-        }
-        else if (bottomOfItem - 120 > groundY) {
-            this.pos.y = groundY - this.hitbox.height + 165;
+        if (!isBlocked()) {
+            if (bottomOfItem < groundLine) {
+                this.pos.y += 5;
+            }
+            else {
+                this.pos.y = groundLine - this.hitbox.offsetY - this.hitbox.height;
+            }
         }
         // check if the player picks up the item
         if (checkCollision({ hitbox: this.hitbox, pos: this.pos }, { hitbox: player.hitbox, pos: player.pos }) && !player.hasFullInventory() && !this.wasPickedUp && this.dim === currentWorld && !player.data.isDead && player.sprite.currentState !== 'death' && gameFrame - this.spawnFrame > 60) {
@@ -76,7 +79,7 @@ class droppedItem {
             this.wasPickedUp = true;
             stats.items.picked_up_items.value++;
             if (menu.checkSetting('Master Sound'))
-                playSound('pickup', menu.sounds.effects / 100, true);
+                playSound('pickup', menu.values.effects / 100, true);
         }
     }
     draw() {
@@ -170,6 +173,8 @@ class particle {
 }
 class projectile {
     constructor(entity, spriteWidth, spriteHeight, scale, pathToImage, animationStates, range, speed, damage, hitbox, name, effect, customData) {
+        this.dirX = 0;
+        this.dirY = 0;
         let x;
         if (entity.data.Xdirec === 1) {
             x = (customData === null || customData === void 0 ? void 0 : customData.x) ? customData.x + entity.pos.x + entity.sprite.hitbox.offsetX + entity.sprite.hitbox.width : entity.pos.x + entity.sprite.hitbox.offsetX + entity.sprite.hitbox.width;
@@ -177,6 +182,7 @@ class projectile {
         else {
             x = (customData === null || customData === void 0 ? void 0 : customData.x) ? customData.x + entity.pos.x + entity.sprite.hitbox.offsetX : entity.pos.x + entity.sprite.hitbox.offsetX;
         }
+        this.goal = 0;
         this.name = name;
         this.pos = {
             x: x,
@@ -205,18 +211,30 @@ class projectile {
         this.noDamage = false;
         this.alreadyHit = [];
         this.init();
+        const dx = (player.pos.x + player.hitbox.offsetX + player.hitbox.width / 2) - this.pos.x;
+        const dy = (player.pos.y + player.hitbox.offsetY + player.hitbox.height / 2) - this.pos.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        this.dirX = dx / distance;
+        this.dirY = dy / distance;
         if (this.spriteAnimations.start) {
             this.currentState = 'start';
         }
     }
     update() {
-        if (this.Xdirec === 1) {
-            this.pos.x += this.speed;
+        if (this.name === 'goblinKing') {
+            this.pos.x += this.dirX * this.speed;
+            this.pos.y += this.dirY * this.speed;
             this.traveled += this.speed;
         }
         else {
-            this.pos.x -= this.speed;
-            this.traveled -= this.speed;
+            if (this.Xdirec === 1) {
+                this.pos.x += this.speed;
+                this.traveled += this.speed;
+            }
+            else {
+                this.pos.x -= this.speed;
+                this.traveled -= this.speed;
+            }
         }
         let hitEntity;
         let hitWall;
@@ -331,7 +349,7 @@ class projectile {
                 particles.splice(i, 1);
             });
             if (this.name === 'teleport_dart') {
-                playSound('teleport', menu.sounds.effects / 100, true);
+                playSound('teleport', menu.values.effects / 100, true);
                 this.pos.x -= this.traveled;
                 teleport(this.traveled);
             }
@@ -400,6 +418,10 @@ class healthbar {
         else if (this.entity.type.name === 'passiveEntity') {
             this.y -= 160;
         }
+        if (this.entity.type.bossbar) {
+            this.x = CANVAS_WIDTH * 0.35;
+            this.y = -20;
+        }
     }
     draw() {
         var _a;
@@ -412,6 +434,9 @@ class healthbar {
         else {
             scale = 1;
         }
+        if (this.entity.type.bossbar) {
+            scale = 5;
+        }
         let drawMaxHealth;
         if ((this.entity instanceof block || this.entity instanceof teleporter) && this.entity.interactData) {
             drawMaxHealth = this.entity.interactData.cooldown;
@@ -419,16 +444,9 @@ class healthbar {
         else {
             drawMaxHealth = (_a = this.entity.data.maxHealth) !== null && _a !== void 0 ? _a : 1;
         }
+        let scaleY = scale;
+        let scaleX = scale;
         let drawHealth = this.entity.data.health;
-        if (drawMaxHealth > 100 && this.entity === player && drawHealth > 100) {
-            drawHealth = drawHealth - 100;
-            ctx.fillStyle = "rgb(184, 0, 0)";
-            ctx.fillRect(this.x + this.entity.sprite.spriteWidth, this.y + 90, 100, 20);
-            ctx.fillStyle = "rgb(222, 236, 24)";
-            ctx.fillRect(this.x + this.entity.sprite.spriteWidth, this.y + 90, ((drawHealth / 50) * 100 < 0) ? 0 : (drawHealth / 50) * 100, 20);
-            drawHealth = 100;
-            drawMaxHealth = 100;
-        }
         if (this.entity instanceof block || this.entity instanceof teleporter) {
             ctx.fillStyle = backgroundColor;
             ctx.fillRect(CANVAS_WIDTH * 0.85, 200, 200, 40);
@@ -439,10 +457,19 @@ class healthbar {
             ctx.drawImage(image, 0, 0, this.entity.sprite.spriteWidth, this.entity.sprite.spriteHeight, CANVAS_WIDTH * 0.825, 200, 40, 40);
         }
         else {
+            if (this.entity.type.bossbar) {
+                scaleY = 2;
+            }
             ctx.fillStyle = backgroundColor;
-            ctx.fillRect(this.x + this.entity.sprite.spriteWidth, this.y + 120, 100 * scale, 20 * scale);
+            ctx.fillRect(this.x + this.entity.sprite.spriteWidth, this.y + 120, 100 * scaleX, 20 * scaleY);
             ctx.fillStyle = overColor;
-            ctx.fillRect(this.x + this.entity.sprite.spriteWidth, this.y + 120, (((drawHealth / drawMaxHealth) * 100 < 0) ? 0 : (drawHealth / drawMaxHealth) * 100) * scale, 20 * scale);
+            ctx.fillRect(this.x + this.entity.sprite.spriteWidth, this.y + 120, (((drawHealth / drawMaxHealth) * 100 < 0) ? 0 : (drawHealth / drawMaxHealth) * 100) * scaleX, 20 * scaleY);
+        }
+        const font = new FontFace('main', 'url(./fonts/main.ttf)');
+        font.load().then(f => { document.fonts.add(f); });
+        if (this.entity.type.bossbar) {
+            ctx.font = "55px main";
+            ctx.fillText(this.entity.type.name, CANVAS_WIDTH * 0.44, 50);
         }
     }
     interact() {
@@ -455,12 +482,42 @@ class storyStarter {
         this.y = 0;
         this.name = name;
         this.hitbox = { offsetX: 0, offsetY: 0, width: 100, height: 700 };
+        this.type = {
+            isGround: true,
+            name: 'story',
+            allignment: 'neutral',
+            moving: true,
+            attackable: true,
+            interactable: false
+        };
+        this.data = {
+            class: 'storyStarter'
+        };
     }
+    init() { }
+    draw() { }
     update() {
         const isColliding = checkCollision({ hitbox: player.hitbox, pos: player.pos }, { hitbox: this.hitbox, pos: { x: this.x, y: this.y } });
         if (isColliding) {
             if (this.name === 'goblinKingEntry') {
-                // Do shit
+                const goblinKing = worlds[currentWorld].elements.find(el => el instanceof Entity && el.id === 60002);
+                if (goblinKing.speaking)
+                    return;
+                goblinKing.speak();
+                player.data.immune = true;
+                keys["keyD"] = false;
+                keys["keyW"] = false;
+                worlds[currentWorld].elements = worlds[currentWorld].elements.filter(el => el !== this);
+            }
+            else if (this.name === 'nateEntry') {
+                const nate = worlds[currentWorld].elements.find(el => el instanceof Entity && el.data.name === 'nate');
+                if (nate) {
+                    nate.interact();
+                    player.data.immune = true;
+                    keys["keyD"] = false;
+                    keys["keyW"] = false;
+                    worlds[currentWorld].elements = worlds[currentWorld].elements.filter(el => el !== this);
+                }
             }
         }
     }

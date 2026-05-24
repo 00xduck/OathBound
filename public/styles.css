@@ -27,6 +27,20 @@ body {
     width: 0px;
 }
 
+#deviceInfo,
+#postInfo,
+#accountInfo {
+    width: 300px;
+    height: 500px;
+    padding: 16px;
+    border-radius: 16px;
+    background: rgba(0, 0, 0, .6)
+} 
+
+.input {
+    padding: 10px;
+}
+
 .loading-screen {
     position: absolute;
     top: 0px;
@@ -177,7 +191,7 @@ body {
 
 .statsBtn:hover {
     cursor: pointer;
-    animation: btnHover2 0.75s ease-in-out forwards;
+    animation: hover 0.25s ease-in-out forwards;
 }
 
 @keyframes btnHover2 {
@@ -380,7 +394,7 @@ input[type="range"] {
 
 .companionDiv {
     width: 500px;
-    height: 360px;
+    height: 430px;
     background-image: url(img/icons/invBackground.png);
     background-repeat: no-repeat;
     background-size: cover;
@@ -401,7 +415,7 @@ input[type="range"] {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     grid-template-rows: repeat(2, 1fr);
-    gap: 16px;
+    gap: 16px ;
 }
 
 .companionSlot {
@@ -488,6 +502,39 @@ input[type="range"] {
     background-size: cover;
     border: none;
     cursor: pointer;
+}
+
+.lockerRoom-div {
+    background: url(img/background/craftingBackground.png);
+    background-repeat: no-repeat;
+    background-size: cover;
+    width: 70%;
+    height: 70%;
+    border-radius: 30px;
+    padding: 16px;
+    display: flex; 
+    justify-content: start;
+}
+
+.skin-list {
+    width: 100%;
+    height: 60%;
+    overflow-y: scroll;
+}
+
+.lockerBtn {
+    width: 200px;
+    height: 200px;
+    background: none;
+    background-image: url(img/icons/lockerBtn.png);
+    background-repeat: no-repeat;
+    background-size: cover;
+    border: none;
+    cursor: pointer;
+}
+
+.lockerBtn:hover {
+    animation: hover 0.25s ease-in-out forwards;
 }
 
 .exitBtn:hover {
@@ -940,9 +987,169 @@ input {
     background-size: cover;
 }
 
+.accountBtn {
+    width: 100px;
+    height: 100px;
+    background: none;
+    border: none;
+    background: url(img/icons/accountBtn.png);
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.codeBtn {
+    width: 100px;
+    height: 100px;
+    background: none;
+    border: none;
+    background: url(img/icons/codeBtn.png);
+    background-repeat: no-repeat;
+    background-size: cover;
+    transition: all 0.3s ease;
+}
+
+.exitBtn2 {
+    width: 100px;
+    height: 100px;
+    background: none;
+    border: none;
+    background: url(img/icons/exitBtn.png);
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.exitBtn2:hover {
+    cursor: pointer;
+    animation: hover 0.25s ease-in-out forwards; 
+}
+
+.clicked {
+    scale: 0.95 !important;
+    background: none;
+    border: none;
+    background: url(img/icons/codeBtn-clicked.png) !important;
+    background-repeat: no-repeat !important;
+    background-size: cover !important;
+}
+
+.skinItem {
+    min-height: 70px;
+    max-height: 140px;
+    width: 80%;
+    padding: 10px;
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.402);
+    display: flex;
+    justify-content: space-between;
+    transition: all 0.3s ease-in-out;
+    cursor: pointer;
+}
+
+@keyframes idleAnimation {
+    from { background-position: 0 0; }
+    to   { background-position: -1620px 0; }
+}
+
+#skinPreview {
+    background-repeat: no-repeat;
+    background-size: auto;
+    background-position: 0 0;
+    width: 162px;
+    height: 162px;
+    transform: scale(10);
+    transform-origin: center;
+    animation: idleAnimation 1s steps(10) infinite;
+    image-rendering: pixelated;
+    flex-shrink: 0;
+}
+
+.selectedSkin {
+    background: rgba(31, 31, 31, 0.647) !important;
+    transform: translateX(30px);
+}
+
+.skinItem:hover {
+    transform: translateX(30px);
+}
+
+.inputCode {
+    background-color: rgb(105, 79, 5);
+    padding: 16px;
+    color: white;
+    transition: all 0.3s ease-in;
+}
+
+.inputCode:hover {
+    transform: translateX(10px);
+}
+
+.Rare {
+    background: rgba(0, 128, 0, 0.613);
+    border: 2px solid green;
+    border-radius: 10px;
+}
+
+.Epic {
+    background: rgba(128, 0, 128, 0.62);
+    border: 2px solid purple;
+    border-radius: 10px;
+}
+
+.rarityDiv {
+    width: auto;
+    padding: 10px;
+    height: 60px;
+    color: white;
+    align-items: center;
+}
+
+.Mythic {
+    background: rgba(255, 0, 0, 0.613);
+    border: 2px solid red;
+    border-radius: 10px;
+}
+
+.Legendary {
+    background: rgba(255, 255, 0, 0.615);
+    border: 2px solid yellow;
+    border-radius: 10px;
+}
+
+.Ultimate {
+    background: rgba(41, 94, 192, 0.611);
+    border: 2px solid rgb(41, 94, 192);
+    border-radius: 10px;
+}
+
+.inputCode::selection {
+    transform: translateX(10px);
+    box-shadow: 10px 3px rgb(180, 177, 6);
+}
+
+.codeBtn:hover {
+    cursor: pointer;
+    animation: hover 0.25s ease-in-out forwards;
+}
+
+.skin-preview-div {
+    background: rgba(0, 0, 0, 0.486);
+    border-radius: 45px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 40%;
+    height: 100%;
+    overflow: hidden; /* verhindert dass der skalierte Sprite rausragt */
+}
+
+.accountBtn:hover {
+    cursor: pointer;
+    animation: hover 0.25s ease-in-out forwards;
+}
+
 .settingsBtn:hover {
     cursor: pointer;
-    animation: btnHover2 0.75s ease-in-out forwards;
+    animation: hover 0.25s ease-in-out forwards;
 }
 
 .speak {

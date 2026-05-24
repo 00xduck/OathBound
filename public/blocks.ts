@@ -10,6 +10,7 @@ class chest implements container {
     currentState: string
     isInit: boolean
     img: string
+    id: number
     inventory: Inventory
     spriteAnimations: Record<string, framesObj> // stores each animation as an object
     animationStates: AnimationState[] // stores each animation as an array
@@ -27,7 +28,7 @@ class chest implements container {
             y: y
         }
         this.data = { class: "chest" }
-
+        this.id = 0
         this.spriteWidth = 43
         this.spriteHeight = 40
         this.hitbox = { offsetX: -30, offsetY: 0, width: 175, height: 100 }
@@ -111,7 +112,7 @@ class chest implements container {
                 } */
         const image = getImage(this.img)
         if (!(this.imgReal instanceof HTMLImageElement)) return
-        ctx!.drawImage(image, frameX, frameY, this.spriteWidth, this.spriteHeight, this.pos.x, this.pos.y, 400 * this.scale, 400 * this.scale)
+        ctx!.drawImage(image, frameX, frameY, this.spriteWidth, this.spriteHeight, this.pos.x + shakeX, this.pos.y + shakeY, 400 * this.scale, 400 * this.scale)
     }
     init() {
         this.isInit = true
@@ -264,7 +265,7 @@ class block implements blocks {
                 }
                 if (!(this.img instanceof HTMLImageElement)) return */
         const image = getImage(this.sprite.img)
-        ctx!.drawImage(image, 0, 0, this.sprite.spriteWidth, this.sprite.spriteHeight, this.pos.x, this.pos.y, this.sprite.spriteWidth * this.sprite.scale, this.sprite.spriteHeight * this.sprite.scale)
+        ctx!.drawImage(image, 0, 0, this.sprite.spriteWidth, this.sprite.spriteHeight, this.pos.x + shakeX, this.pos.y + shakeY, this.sprite.spriteWidth * this.sprite.scale, this.sprite.spriteHeight * this.sprite.scale)
     }
     init() {
         this.img = new Image()
@@ -304,7 +305,18 @@ class block implements blocks {
 
             if (keys['KeyR']) {
                 if (this.data.health === 0 && menu.checkSetting("Master Sound")) {
-                    playSound("taking.wav", menu.sounds.effects / 100)
+                    playSound("taking.wav", menu.values.effects / 100)
+                }
+                if(player.data.inventory[3][player.data.selectedSlot - 1] === 'wood_pickaxe') {
+                    this.data.health++
+                }else if(player.data.inventory[3][player.data.selectedSlot - 1] === 'stone_pickaxe') {
+                    this.data.health += 2
+                }else if(player.data.inventory[3][player.data.selectedSlot - 1] === 'iron_pickaxe') {
+                    this.data.health += 3
+                }else if(player.data.inventory[3][player.data.selectedSlot - 1] === 'copper_pickaxe') {
+                    this.data.health += 4
+                }else if(player.data.inventory[3][player.data.selectedSlot - 1] === 'gold_pickaxe') {
+                    this.data.health += 5
                 }
                 this.data.health += 1
             } else {
@@ -314,7 +326,6 @@ class block implements blocks {
             if (this.data.health >= this.interactData.cooldown) {
                 this.interactData.output.forEach(element => {
                     for (let x = 0; x < element.amount; x++) {
-                        console.log(x);
                         droppedItems.push(new droppedItem(
                             {
                                 x: this.pos.x + this.hitbox.offsetX + Math.random() * this.hitbox.width,

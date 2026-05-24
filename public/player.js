@@ -1,14 +1,15 @@
 "use strict";
-// player classs
+// player class
 class Player {
     constructor(x, y) {
+        let skin = localStorage.getItem('skinPath') || 'img/skins/player.png';
         this.pos = {
             x: x,
             y: y
         };
         this.worldPosX = {};
         this.sprite = {
-            img: configs.properties.player.sprite.img,
+            img: 'img/skins/player.png',
             spriteWidth: configs.properties.player.sprite.spriteWidth,
             spriteHeight: configs.properties.player.sprite.spriteHeight,
             frames: 0,
@@ -19,6 +20,14 @@ class Player {
             scale: configs.properties.player.sprite.scale,
             hitbox: configs.properties.player.sprite.hitbox
         };
+        const image = new Image();
+        image.onload = () => {
+            this.sprite.img = skin;
+        };
+        image.onerror = () => {
+            console.warn('Skin path not found! Switching to default!');
+        };
+        image.src = skin;
         this.effectData = {
             effects: [],
             effectTicks: 0,
@@ -135,9 +144,7 @@ class Player {
             }
         }
         if (this.data.health <= 0 && this.sprite.currentState !== 'death' && !player.data.isDead) {
-            console.log('!!!');
             stats.general.deaths.value++;
-            this.changeState('death');
             for (let y = 0; y < player.data.inventory.length; y++) {
                 for (let x = 0; x < player.data.inventory[y].length; x++) {
                     const slot = player.data.inventory[y][x];
@@ -159,7 +166,7 @@ class Player {
             closeTradingMenu();
             isQuestUIupdated = false;
             if (menu.checkSetting('Master Sound'))
-                playSound('death.mp3', menu.sounds.effects / 100);
+                playSound('death.mp3', menu.values.effects / 100);
         }
         if (!this.data.onGround) {
             if (this.data.jumpOrigin && this.data.jumpOrigin - this.bottom >= this.data.jumpHeight && this.data.velocity_Y < 0) {
@@ -242,17 +249,16 @@ class Player {
         }
         let frameX = this.sprite.spriteAnimations[this.sprite.currentState].loc[this.sprite.frameLoc].x;
         let frameY = this.sprite.spriteAnimations[this.sprite.currentState].loc[this.sprite.frameLoc].y;
-        const image = new Image();
-        image.src = this.sprite.img;
+        const image = getImage(this.sprite.img);
         if (this.data.Xdirec === 2) {
             ctx.save(); // save current state of the canvas
             const drawX = -(this.pos.x + 450);
             ctx.scale(-1, 1); // invert orientatian of the entity
-            ctx.drawImage(image, frameX, frameY, this.sprite.spriteWidth, this.sprite.spriteHeight, drawX, this.pos.y, 450 * this.sprite.scale, 450 * this.sprite.scale);
+            ctx.drawImage(image, frameX, frameY, this.sprite.spriteWidth, this.sprite.spriteHeight, drawX + shakeX, this.pos.y + shakeY, 450 * this.sprite.scale, 450 * this.sprite.scale);
             ctx.restore();
         }
         else if (this.data.Xdirec === 1) {
-            ctx.drawImage(image, frameX, frameY, this.sprite.spriteWidth, this.sprite.spriteHeight, this.pos.x, this.pos.y, 450 * this.sprite.scale, 450 * this.sprite.scale);
+            ctx.drawImage(image, frameX, frameY, this.sprite.spriteWidth, this.sprite.spriteHeight, this.pos.x + shakeX, this.pos.y + shakeY, 450 * this.sprite.scale, 450 * this.sprite.scale);
         } // (image, sx, sy, sw, sh, dx, dy, dw, dh)
         // draw companion
         this.companions.forEach(companion => {
@@ -337,7 +343,7 @@ class Player {
         });
         this.data.health -= damage * (protection / 100);
         if (menu.checkSetting('Master Sound'))
-            playSound('takeDamage', (menu.sounds.effects / 100) / 2, true);
+            playSound('takeDamage', (menu.values.effects / 100) / 2, true);
         if (this.data.health < 0)
             this.data.health = 0;
         this.setCooldown(200);
@@ -381,7 +387,7 @@ class Player {
                 droppedItems.push(new droppedItem({ x: this.pos.x + this.sprite.hitbox.offsetX - 75, y: this.pos.y + this.sprite.hitbox.offsetY + this.sprite.hitbox.height + 10 }, item, currentWorld));
             }
             if (menu.checkSetting('Master Sound'))
-                playSound('drop', menu.sounds.effects / 100, true);
+                playSound('drop', menu.values.effects / 100, true);
         }
         updateHotbar();
         renderInventory();
@@ -404,7 +410,7 @@ class Player {
             if (this.data.onGround) {
                 this.changeState(`attack1`); // change to attack state
                 if (menu.checkSetting('Master Sound'))
-                    playSound('slice.mp3', menu.sounds.effects / 100);
+                    playSound('slice.mp3', menu.values.effects / 100);
                 if (player.data.inventory[3][this.data.selectedSlot - 1] !== null) {
                     this.setCooldown(items[player.data.inventory[3][this.data.selectedSlot - 1]].attackCooldown); // set a cooldown
                 }
@@ -445,7 +451,7 @@ class Player {
             else {
                 this.changeState(`attack3`); // change to attack state
                 if (menu.checkSetting('Master Sound'))
-                    playSound('slice.mp3', menu.sounds.effects / 100);
+                    playSound('slice.mp3', menu.values.effects / 100);
                 if (player.data.inventory[3][this.data.selectedSlot - 1] !== null) {
                     this.setCooldown(items[player.data.inventory[3][this.data.selectedSlot - 1]].attackCooldown); // set a cooldown
                 }
