@@ -26,6 +26,8 @@ function renderStaffGUI(staffTier) {
         tier = 6;
     if (staffTier === 'master_staff')
         tier = 9;
+    if (staffTier === 'cleansing')
+        tier = 9;
     for (let x = 9; x > tier; x--) {
         (_a = document.querySelector(`#magicSlot${x}0`)) === null || _a === void 0 ? void 0 : _a.classList.add('unusable');
     }
@@ -68,22 +70,32 @@ function renderStaffGUI(staffTier) {
                 }
             });
             itemDiv.addEventListener('click', () => {
-                document.querySelectorAll('.selectedSpell').forEach(el => {
-                    el.classList.remove('selectedSpell');
-                });
-                itemDiv.classList.add('selectedSpell');
-                player.data.selectedSpell = player.data.spells[i];
-                document.querySelector(`.selectedSpellDiv`).innerHTML = '';
-                const spellDiv = document.createElement('div');
-                if (!player.data.selectedSpell)
-                    return;
-                const spell = player.data.spells[i];
-                spellDiv.style.backgroundImage = `url(${spell.rendering.icon})`;
-                spellDiv.style.backgroundPosition = `-${spell.rendering.spriteX}px -${spell.rendering.spriteY}px`;
-                spellDiv.style.width = `${spell.rendering.scale ? spell.rendering.width * spell.rendering.scale : spell.rendering.width}px`;
-                spellDiv.style.height = `${spell.rendering.scale ? spell.rendering.height * spell.rendering.scale : spell.rendering.height}px`;
-                spellDiv.style.backgroundSize = 'auto';
-                document.querySelector(`.selectedSpellDiv`).appendChild(spellDiv);
+                if (staffTier !== 'cleansing') {
+                    document.querySelectorAll('.selectedSpell').forEach(el => {
+                        el.classList.remove('selectedSpell');
+                    });
+                    itemDiv.classList.add('selectedSpell');
+                    player.data.selectedSpell = player.data.spells[i];
+                    document.querySelector(`.selectedSpellDiv`).innerHTML = '';
+                    const spellDiv = document.createElement('div');
+                    if (!player.data.selectedSpell)
+                        return;
+                    const spell = player.data.spells[i];
+                    spellDiv.style.backgroundImage = `url(${spell.rendering.icon})`;
+                    spellDiv.style.backgroundPosition = `-${spell.rendering.spriteX}px -${spell.rendering.spriteY}px`;
+                    spellDiv.style.width = `${spell.rendering.scale ? spell.rendering.width * spell.rendering.scale : spell.rendering.width}px`;
+                    spellDiv.style.height = `${spell.rendering.scale ? spell.rendering.height * spell.rendering.scale : spell.rendering.height}px`;
+                    spellDiv.style.backgroundSize = 'auto';
+                    document.querySelector(`.selectedSpellDiv`).appendChild(spellDiv);
+                }
+                else {
+                    player.data.spells[i] = null;
+                    player.data.magicInventory[i] = null;
+                    player.data.selectedSpell = null;
+                    player.addItem('blank_scroll', 1);
+                    player.removeItems([{ item: 'cleansing_rune', amount: 1 }]);
+                    closeStaffGUI();
+                }
             });
             const spell = player.data.spells[i];
             itemDiv.style.backgroundImage = `url(${spell.rendering.icon})`;
@@ -306,7 +318,6 @@ function renderInventory() {
                 var _a, _b;
                 e.stopPropagation();
                 if (!(player.data.dragging === null)) {
-                    console.log('here');
                     (_a = itemDiv.parentElement) === null || _a === void 0 ? void 0 : _a.dispatchEvent(new Event('click'));
                     return;
                 }
@@ -496,7 +507,6 @@ function renderInventory() {
                     var _a, _b;
                     e.stopPropagation();
                     if (!(player.data.dragging === null)) {
-                        console.log('here');
                         (_a = itemDiv.parentElement) === null || _a === void 0 ? void 0 : _a.dispatchEvent(new Event('click'));
                         return;
                     }
@@ -753,10 +763,8 @@ function switchHotbarSlot(e, slot) {
             return;
         player.data.dragging = slotClass;
         (_a = document.querySelector('body')) === null || _a === void 0 ? void 0 : _a.classList.add('grab');
-        console.log(player.data.dragging);
     }
     else {
-        console.log(player.data.dragging);
         const moveSlot = parseSlotId(player.data.dragging);
         const temp = player.data.inventory[moveSlot.y][moveSlot.x];
         player.data.inventory[moveSlot.y][moveSlot.x] = player.data.inventory[3][slot];
@@ -814,7 +822,6 @@ function renderSecondaryContainer(container) {
                     var _a, _b;
                     e.stopPropagation();
                     if (!(player.data.dragging === null)) {
-                        console.log('here');
                         (_a = itemDiv.parentElement) === null || _a === void 0 ? void 0 : _a.dispatchEvent(new Event('click'));
                         return;
                     }
@@ -1012,4 +1019,49 @@ function confirmTrade(trade) {
         }
     }
     updateHotbar();
+}
+function openCompanionGUI() {
+    const div = document.querySelector('#companionDiv');
+    player.data.onCompanionGUI = true;
+    div === null || div === void 0 ? void 0 : div.classList.remove('display-none');
+    renderCompanionGUI();
+}
+function closeCompanionGUI() {
+    const div = document.querySelector('#companionDiv');
+    const divInner = document.querySelector('#companionInnerDiv');
+    divInner.innerHTML = '';
+    player.data.onCompanionGUI = false;
+    div === null || div === void 0 ? void 0 : div.classList.add('display-none');
+}
+function renderCompanionGUI() {
+    const div = document.querySelector('#companionInnerDiv');
+    for (let i = 0; i < 8; i++) {
+        const slot = document.createElement('div');
+        slot.id = `companion${i}`;
+        slot.classList.add('companionSlot');
+        div === null || div === void 0 ? void 0 : div.appendChild(slot);
+    }
+    player.companions.forEach((companion, i) => {
+        const slot = document.querySelector(`#companion${i}`);
+        const companionSlot = document.createElement('div');
+        companionSlot.style.backgroundImage = `url(${companion.portrait})`;
+        companionSlot.classList.add('companionSprite');
+        slot.appendChild(companionSlot);
+        slot.addEventListener('click', () => {
+            player.companions.forEach(com => { com.selected = false; });
+            companion.selected = true;
+        });
+    });
+}
+function showDeathScreen() {
+    var _a;
+    const div = document.querySelector('#deathScreen');
+    div.classList.remove('display-none');
+    (_a = document.querySelector('#blur')) === null || _a === void 0 ? void 0 : _a.classList.add('blur');
+}
+function closeDeathScreen() {
+    var _a;
+    const div = document.querySelector('#deathScreen');
+    div.classList.add('display-none');
+    (_a = document.querySelector('#blur')) === null || _a === void 0 ? void 0 : _a.classList.remove('blur');
 }

@@ -1,17 +1,20 @@
 {
   "name": "oathbound",
-  "version": "0.5.3",
-  "description": "pixel-art side-scroller progression-based story game",
+  "version": "0.5.5",
+  "description": "OathBound",
   "main": "main.js",
   "scripts": {
     "build": "cd public && tsc",
     "buildStart": "npm run build && npm run start",
     "start": "electron .",
-    "dist": "electron-builder"
+    "dist:windows": "electron-builder",
+    "dist:linux": "electron-builder --linux deb"
   },
   "build": {
     "appId": "oathbound",
     "productName": "OathBound",
+    "beforeBuild": null,
+    "npmRebuild": false,
     "win": {
       "target": [
         {
@@ -22,6 +25,12 @@
         }
       ],
       "icon": "logo.ico"
+    },
+    "linux": {
+      "target": [{ "target": "deb", "arch": ["x64"] }],
+      "icon": "build/icons",
+      "category": "Game",
+      "maintainer": "Dein Name <deine@email.com>"
     },
     "nsis": {
       "oneClick": false,
@@ -38,7 +47,10 @@
     }
   },
   "keywords": [],
-  "author": "",
+  "author": {
+    "name": "Duckar",
+    "email": "bojat43900@lohinja.com"
+  },
   "license": "ISC",
   "type": "commonjs",
   "devDependencies": {

@@ -22,7 +22,7 @@
                     <!-- <img class="logo1" src="img/title.jpg" alt="Couldnt load image"> -->
                     
                     <div class="logo"><button class="exitBtn" onclick="window.api.exitGame()"></button></div>
-                    <h2 style="color: rgb(96, 96, 96);margin-top: 120px; position: absolute; bottom: 32px; left: 64px;">v0.5.3</h2>
+                    <h2 style="color: rgb(96, 96, 96);margin-top: 120px; position: absolute; bottom: 32px; left: 64px;">v0.5.5</h2>
                 </div>
 
             </div>
@@ -40,9 +40,9 @@
                         <div class="flex-center shadow border-radius title">
                             <h1>Saves</h1>    
                         </div>
-                        <div class="save-div shadow margin-16 padding-16" onpointerover="displayStatsBtn(1)" onpointerleave="removeStatsBtn()" id="1"><div class="flex-space-arround"><div class="save-div-inner" id="save1"></div><div class="flex-center" id="statsBtn-div1"></div></div></div>
-                        <div class="save-div shadow margin-16 padding-16" onpointerover="displayStatsBtn(2)" onpointerleave="removeStatsBtn()" id="2"><div class="flex-space-arround"><div class="save-div-inner" id="save2"></div><div id="statsBtn-div2"></div></div></div>
-                        <div class="save-div shadow margin-16 padding-16" onpointerover="displayStatsBtn(3)" onpointerleave="removeStatsBtn()" id="3"><div class="flex-space-arround"><div class="save-div-inner" id="save3"></div><div id="statsBtn-div3"></div></div></div>
+                        <div class="save-div shadow margin-16 padding-16" onpointerover="displayStatsBtn(1)" onpointerleave="removeStatsBtn()" id="1"><div class="flex-space-arround"><div class="save-div-inner" id="save1"></div><div class="flex-center" id="statsBtn-div1"></div><div class="display-none" id="date1" style="position: absolute; bottom: 10px; right: 10px;"></div></div></div>
+                        <div class="save-div shadow margin-16 padding-16" onpointerover="displayStatsBtn(2)" onpointerleave="removeStatsBtn()" id="2"><div class="flex-space-arround"><div class="save-div-inner" id="save2"></div><div id="statsBtn-div2"></div><div class="display-none" id="date2" style="position: absolute; bottom: 10px; right: 10px;"></div></div></div>
+                        <div class="save-div shadow margin-16 padding-16" onpointerover="displayStatsBtn(3)" onpointerleave="removeStatsBtn()" id="3"><div class="flex-space-arround"><div class="save-div-inner" id="save3"></div><div id="statsBtn-div3"></div><div  class="display-none"id="date3" style="position: absolute; bottom: 10px; right: 10px;"></div></div></div>
                     </div>
                 </div>
                 <div class="flex-center">
@@ -74,21 +74,19 @@
 
         
         <div class="socials flex-between">
-            <img style="position: absolute; left: -200px;scale:1.5;" class="logo link"src="img/logo.png" alt="Couldnt load image" onclick="window.api.openLink('https://github.com/00xduck/OathBound')">
-            <div class="logo link" style="background: url(img/icons/discord.png);" onclick="window.api.openLink('https://discord.gg/n3VGru49')"></div>
+            <img style="position: absolute; left: -200px;bottom: 30px; width: 200px; height: 160px;scale: 1.5;" class="logo link"src="img/logo.png" alt="Couldnt load image" onclick="window.api.openLink('https://github.com/00xduck/OathBound')">
+            <div class="logo link" style="background: url(img/icons/discord.png);" onclick="window.api.openLink('https://discord.gg/ER63EEZY')"></div>
             <div class="logo link" style="background: url(img/icons/itch.png); left: 100px;" onclick="window.api.openLink('https://duckar.itch.io/oathbound')"></div>
         </div>
     </div>
 
-
-
     </div>
-
-            <div class="menuDiv center display-none" id="menu">
+        <div class="menuDiv center display-none" id="menu">
             <div class="flex-center">
                 <h2>Menu</h2>
             </div>
             <div class="flex-center margin-top-16"><button class="btn-small background-color-gray" onclick="menu.toggleOptionsScreen()">Options</button></div>
+            <div class="flex-center margin-top-16"><button class="btn-small background-color-gray" onclick="window.api.resetConfigs()">Reset Configs</button></div>
             <div class="flex-center margin-top-16"><button class="closeBtn" onclick="menu.toggleMenu()"></button></div>
         </div>
 
@@ -223,10 +221,18 @@
                 const saveExits = data.exists
                 
                 if(saveExits) {
-                    saveDiv.innerHTML = `<h1><span style="font-style: italic;">${data.meta.name}</span></h1><br><h2 style="font-style: italic;">${data.meta.description}</h2>`
+                    saveDiv.innerHTML = `<h1><span style="font-style: italic;" id="headline${i}">${data.meta.name}</span></h1><br><h2 style="font-style: italic;">${data.meta.description}</h2>`
+                    if(data.meta.cheats) {
+                        document.querySelector(`#headline${i}`).style.color = 'rgb(128, 0, 0)'
+                    }
+                    const dateDiv = document.querySelector(`#date${i}`);
+                    dateDiv.innerHTML = data.meta.date.replace(/\./g, "/")
                 }else {
                     saveDiv.innerHTML = `<h1>Start a new world</h1><br><h2 style="font-style: italic;">Good luck</h2>`
-                }  
+                    document.querySelector(`#date${i}`).innerHTML = ''
+                }
+
+
             }
 
             const achievementData = await window.api.fetchAchievements()
@@ -321,17 +327,26 @@
             const content = document.querySelector('#content');
 
             title.innerHTML = '<h2 class="title-big">World Creation</h2>'
-            content.innerHTML = `<div class="flex-center margin-top-32"><input type="text" id="name" class="padding-16 border-black-1" placeholder="name..."></div><div class="flex-center margin-top-16"><input type="text" id="description" class="padding-16 border-black-1" placeholder="description..."></div><div class="flex-space-arround margin-top-128"><button style="color: black;" class="rounded btn-big background-color-white" onclick="startGame(${save})">Start</button><button style="color: black;" class="closeBtn" onclick="closePopup()"></button></div>`
+            content.innerHTML = `<div class="flex-center margin-top-32"><input type="text" id="name" class="padding-16 border-black-1" placeholder="name..."></div><div class="flex-center margin-top-16"><input type="text" id="description" class="padding-16 border-black-1" placeholder="description..."></div><div class="flex-center shadow margin-top-32 align-center" style="height: 50px"><h2 class="margin-right-16">Cheats:</h2><input class="padding-16" style="height: 30px; width: 30px; cursor: pointer;" type="checkbox" id="cheats"></div><div class="flex-center shadow align-center" style="height: 50px; font-weight: 1000;"><h2>Cheats block achievements and stats!</h2></div><div class="flex-space-arround margin-top-64"><button style="color: black;" class="rounded btn-big background-color-white" onclick="startGame(${save})">Start</button><button style="color: black;" class="closeBtn" onclick="closePopup()"></button></div>`
         }
         
         function startGame(save) {
             const nameInput = document.querySelector('#name')
             const descInput = document.querySelector('#description')
+            const date = new Date().toLocaleDateString()
+            let cheats;
+            if(document.querySelector('#cheats')) {
+                cheats = document.querySelector('#cheats').checked
+            }else {
+                cheats = false
+            }
 
             if(nameInput && descInput) {
                 sessionStorage.setItem('name', nameInput.value.trim() || "World")
-                sessionStorage.setItem('description', descInput.value.trim() || "World")
+                sessionStorage.setItem('description', descInput.value.trim() || "World") 
             }
+            sessionStorage.setItem('cheats', cheats )
+            sessionStorage.setItem('date', date )
             sessionStorage.setItem('save', save)
             location.href = 'game.html'
         }
@@ -360,6 +375,8 @@
                 const data = await window.api.checkForSaves(save)
                 if(!data.exists) return
 
+
+
                 const div = document.querySelector(`#statsBtn-div${save}`);
 
                 const btn = `<button id="statsBtn" onclick="displayStats(${save})" class="statsBtn"></button>`
@@ -367,12 +384,16 @@
                 div.innerHTML = btn
                 statsBtn = true
             }
+            document.querySelector(`#date${save}`).classList.remove('display-none')
         }
 
         async function removeStatsBtn() {
             if(document.querySelector('#statsBtn')) {
                 document.querySelector('#statsBtn').remove()
             }
+            document.querySelector(`#date1`).classList.add('display-none')
+            document.querySelector(`#date2`).classList.add('display-none')
+            document.querySelector(`#date3`).classList.add('display-none')
             statsBtn = false
         }
 

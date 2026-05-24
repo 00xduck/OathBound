@@ -1,0 +1,311 @@
+{
+    "mobSpawning": {
+        "mobSpawningRateDefault": 36000
+    },
+    "worlds": {
+        "jungle": {
+            "worldSize": {
+                "left": 7000,
+                "right": 6000
+            },
+            "canSpawn": true,
+            "mobSpawns": [
+                "chicken",
+                "cow"
+            ]
+        },
+        "goblin_kingdom": {
+            "worldSize": {
+                "left": 0,
+                "right": 7000
+            },
+            "canSpawn": true,
+            "mobSpawns": [
+                "chicken",
+                "cow",
+                "goblin"
+            ]
+        }
+    },
+    "properties": {
+        "player": {
+            "data": {
+                "mana": 100,
+                "magicInventory": [
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+                ],
+                "spells": [
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+                ],
+                "speed": 7,
+                "health": 100,
+                "jumpHeight": 200,
+                "interactionRange": 125,
+                "inventory": [
+                    [
+                        null,
+                        null,
+                        null,
+                        null,
+                        null
+                    ],
+                    [
+                        null,
+                        null,
+                        null,
+                        null,
+                        null
+                    ],
+                    [
+                        null,
+                        null,
+                        null,
+                        null,
+                        null
+                    ],
+                    [
+                        null,
+                        null,
+                        null,
+                        null,
+                        null
+                    ]
+                ],
+                "armor": [
+                    null,
+                    null,
+                    null
+                ],
+                "attackRange": 150
+            },
+            "sprite": {
+                "img": "img/player.png",
+                "spriteWidth": 162,
+                "spriteHeight": 162,
+                "scale": 1,
+                "hitbox": {
+                    "offsetX": 195,
+                    "offsetY": 170,
+                    "width": 60,
+                    "height": 110
+                },
+                "animationStates": [
+                    {
+                        "name": "idle",
+                        "frames": 10
+                    },
+                    {
+                        "name": "attack1",
+                        "frames": 7
+                    },
+                    {
+                        "name": "attack2",
+                        "frames": 7
+                    },
+                    {
+                        "name": "attack3",
+                        "frames": 8
+                    },
+                    {
+                        "name": "death",
+                        "frames": 7
+                    },
+                    {
+                        "name": "fall",
+                        "frames": 3
+                    },
+                    {
+                        "name": "jump",
+                        "frames": 3
+                    },
+                    {
+                        "name": "run",
+                        "frames": 8
+                    },
+                    {
+                        "name": "take_hit",
+                        "frames": 3
+                    }
+                ]
+            }
+        },
+        "goblin": {
+            "data": {
+                "health": 50,
+                "attackDamage": 4,
+                "attackRange": 75,
+                "drops": [
+                    {
+                        "amount": 2,
+                        "drop": "leather",
+                        "chance": 35
+                    },
+                    {
+                        "amount": 1,
+                        "drop": "string",
+                        "chance": 15
+                    }
+                ],
+                "seeRange": 400
+            },
+            "sprite": {
+                "img": "img/enemies/goblin.png",
+                "spriteWidth": 150,
+                "spriteHeight": 150,
+                "scale": 1,
+                "animationStates": [
+                    {
+                        "name": "idle",
+                        "frames": 4
+                    },
+                    {
+                        "name": "attack",
+                        "frames": 8
+                    },
+                    {
+                        "name": "attack2",
+                        "frames": 8
+                    },
+                    {
+                        "name": "death",
+                        "frames": 4
+                    },
+                    {
+                        "name": "run",
+                        "frames": 8
+                    },
+                    {
+                        "name": "take_hit",
+                        "frames": 4
+                    }
+                ],
+                "hitbox": {
+                    "offsetX": 150,
+                    "offsetY": 160,
+                    "width": 80,
+                    "height": 100
+                }
+            }
+        },
+        "skeleton": {
+            "data": {
+                "health": 35,
+                "attackDamage": 5,
+                "attackRange": 100,
+                "drops": [
+                    {
+                        "amount": 1,
+                        "drop": "stone",
+                        "chance": 40
+                    }
+                ],
+                "seeRange": 400
+            },
+            "sprite": {
+                "img": "img/enemies/skeleton.png",
+                "spriteWidth": 96,
+                "spriteHeight": 64,
+                "scale": 0.5,
+                "animationStates": [
+                    {
+                        "name": "idle",
+                        "frames": 8
+                    },
+                    {
+                        "name": "attack",
+                        "frames": 10
+                    },
+                    {
+                        "name": "death",
+                        "frames": 13
+                    },
+                    {
+                        "name": "run",
+                        "frames": 10
+                    },
+                    {
+                        "name": "take_hit",
+                        "frames": 5
+                    }
+                ],
+                "hitbox": {
+                    "offsetX": 85,
+                    "offsetY": 80,
+                    "width": 50,
+                    "height": 100
+                }
+            }
+        },
+        "ogre": {
+            "data": {
+                "health": 150,
+                "attackDamage": 15,
+                "attackRange": 75,
+                "drops": [
+                    {
+                        "amount": 2,
+                        "drop": "leather",
+                        "chance": 50
+                    },
+                    {
+                        "amount": 1,
+                        "drop": "string",
+                        "chance": 25
+                    },
+                    {
+                        "amount": 1,
+                        "drop": "iron_ingot",
+                        "chance": 15
+                    }
+                ],
+                "seeRange": 400
+            },
+            "sprite": {
+                "img": "img/enemies/ogre.png",
+                "spriteWidth": 144,
+                "spriteHeight": 80,
+                "scale": 0.75,
+                "animationStates": [
+                    {
+                        "name": "run",
+                        "frames": 6
+                    },
+                    {
+                        "name": "idle",
+                        "frames": 4
+                    },
+                    {
+                        "name": "attack",
+                        "frames": 8
+                    },
+                    {
+                        "name": "death",
+                        "frames": 6
+                    }
+                ],
+                "hitbox": {
+                    "height": 200,
+                    "width": 100,
+                    "offsetX": 100,
+                    "offsetY": 60
+                }
+            }
+        }
+    }
+}

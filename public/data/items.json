@@ -407,13 +407,13 @@
         }
     },
     "heal_potion": {
-        "spriteX": 0,
-        "spriteY": 0,
-        "height": 32,
-        "width": 32,
-        "scale": 1.5,
+        "spriteX": 640,
+        "spriteY": 1024,
+        "height": 64,
+        "width": 64,
+        "scale": 0.6,
         "attackDamage": 1,
-        "src": "heal_potion.png",
+        "src": "itemsSheet.png",
         "onUse": "Heals 20 HP",
         "clearsAfterUse": true,
         "attackRange": 150,
@@ -430,13 +430,13 @@
         }
     },
     "big_heal_potion": {
-        "spriteX": 0,
-        "spriteY": 0,
-        "height": 32,
-        "width": 32,
-        "scale": 1.5,
+        "spriteX": 960,
+        "spriteY": 1024,
+        "height": 64,
+        "width": 64,
+        "scale": 0.6,
         "attackDamage": 1,
-        "src": "big_heal_potion.png",
+        "src": "itemsSheet.png",
         "onUse": "Heals 35 HP",
         "clearsAfterUse": true,
         "attackRange": 150,
@@ -453,13 +453,13 @@
         }
     },
     "coin": {
-        "spriteX": 0,
-        "spriteY": 0,
-        "height": 32,
-        "width": 32,
-        "scale": 1.5,
+        "spriteX": 128,
+        "spriteY": 512,
+        "height": 64,
+        "width": 64,
+        "scale": 0.6,
         "attackDamage": 1,
-        "src": "coin.png",
+        "src": "itemsSheet.png",
         "onUse": "",
         "clearsAfterUse": false,
         "attackRange": 150,
@@ -1825,6 +1825,246 @@
                 "x": 5,
                 "y": -10,
                 "x2": 5
+            },
+            "isMirrored": false,
+            "scale": 3
+        }
+    },
+    "cleansing_rune": {
+        "spriteX": 384,
+        "spriteY": 1280,
+        "height": 64,
+        "width": 64,
+        "scale": 1,
+        "attackDamage": 1,
+        "src": "itemsSheet.png",
+        "onUse": "",
+        "clearsAfterUse": false,
+        "attackRange": 150,
+        "attackCooldown": 2000,
+        "description": "Removes a spell",
+        "type": "item",
+        "rendering": {
+            "pos": {
+                "x": 5,
+                "y": -10,
+                "x2": 5
+            },
+            "isMirrored": false,
+            "scale": 3
+        }
+    },
+    "mana_crystal": {
+        "spriteX": 896,
+        "spriteY": 960,
+        "height": 64,
+        "width": 64,
+        "scale": 0.7,
+        "attackDamage": 1,
+        "src": "itemsSheet.png",
+        "onUse": "",
+        "clearsAfterUse": false,
+        "attackRange": 150,
+        "attackCooldown": 2000,
+        "description": "Radiates magic",
+        "type": "item",
+        "rendering": {
+            "pos": {
+                "x": 5,
+                "y": 10,
+                "x2": 5
+            },
+            "isMirrored": false,
+            "scale": 2
+        }
+    },
+    "chicken_flesh": {
+        "spriteX": 256,
+        "spriteY": 1920,
+        "height": 64,
+        "width": 64,
+        "scale": 1,
+        "attackDamage": 1,
+        "src": "itemsSheet.png",
+        "onUse": "",
+        "clearsAfterUse": true,
+        "attackRange": 150,
+        "attackCooldown": 2000,
+        "description": "I love chickens tho - Duckar",
+        "type": "item",
+        "rendering": {
+            "pos": {
+                "x": 5,
+                "y": -10,
+                "x2": 5
+            },
+            "isMirrored": false,
+            "scale": 3
+        }
+    },
+    "cow_flesh": {
+        "spriteX": 320,
+        "spriteY": 1920,
+        "height": 64,
+        "width": 64,
+        "scale": 1,
+        "attackDamage": 1,
+        "src": "itemsSheet.png",
+        "onUse": "",
+        "clearsAfterUse": true,
+        "attackRange": 150,
+        "attackCooldown": 2000,
+        "description": "",
+        "type": "item",
+        "rendering": {
+            "pos": {
+                "x": 5,
+                "y": -10,
+                "x2": 5
+            },
+            "isMirrored": false,
+            "scale": 3
+        }
+    },
+    "cat_whistle": {
+        "spriteX": 64,
+        "spriteY": 320,
+        "height": 64,
+        "width": 64,
+        "scale": 1,
+        "attackDamage": 1,
+        "src": "itemsSheet.png",
+        "onUse": "",
+        "clearsAfterUse": true,
+        "attackRange": 150,
+        "attackCooldown": 2000,
+        "description": "Summons a cat by your side",
+        "type": "item",
+        "rendering": {
+            "pos": {
+                "x": 5,
+                "y": -10,
+                "x2": 5
+            },
+            "isMirrored": false,
+            "scale": 3
+        }
+    },
+    "wood_pickaxe": {
+        "spriteX": 320,
+        "spriteY": 0,
+        "height": 16,
+        "width": 16,
+        "scale": 2,
+        "attackDamage": 3,
+        "src": "items_sheet.png",
+        "onUse": "",
+        "clearsAfterUse": false,
+        "attackRange": 150,
+        "attackCooldown": 1000,
+        "description": "Is able to break stone",
+        "type": "item",
+        "rendering": {
+            "pos": {
+                "x": 5,
+                "y": -20,
+                "x2": -5
+            },
+            "isMirrored": false,
+            "scale": 3
+        }
+    },
+    "stone_pickaxe": {
+        "spriteX": 336,
+        "spriteY": 0,
+        "height": 16,
+        "width": 16,
+        "scale": 2,
+        "attackDamage": 3,
+        "src": "items_sheet.png",
+        "onUse": "",
+        "clearsAfterUse": false,
+        "attackRange": 150,
+        "attackCooldown": 1000,
+        "description": "Is able to break iron",
+        "type": "item",
+        "rendering": {
+            "pos": {
+                "x": 5,
+                "y": -20,
+                "x2": -5
+            },
+            "isMirrored": false,
+            "scale": 3
+        }
+    },
+    "iron_pickaxe": {
+        "spriteX": 368,
+        "spriteY": 0,
+        "height": 16,
+        "width": 16,
+        "scale": 2,
+        "attackDamage": 3,
+        "src": "items_sheet.png",
+        "onUse": "",
+        "clearsAfterUse": false,
+        "attackRange": 150,
+        "attackCooldown": 1000,
+        "description": "Is able to break copper",
+        "type": "item",
+        "rendering": {
+            "pos": {
+                "x": 5,
+                "y": -20,
+                "x2": -5
+            },
+            "isMirrored": false,
+            "scale": 3
+        }
+    },
+    "copper_pickaxe": {
+        "spriteX": 352,
+        "spriteY": 0,
+        "height": 16,
+        "width": 16,
+        "scale": 2,
+        "attackDamage": 3,
+        "src": "items_sheet.png",
+        "onUse": "",
+        "clearsAfterUse": false,
+        "attackRange": 150,
+        "attackCooldown": 1000,
+        "description": "Is able to break gold",
+        "type": "item",
+        "rendering": {
+            "pos": {
+                "x": 5,
+                "y": -20,
+                "x2": -5
+            },
+            "isMirrored": false,
+            "scale": 3
+        }
+    },
+    "gold_pickaxe": {
+        "spriteX": 384,
+        "spriteY": 0,
+        "height": 16,
+        "width": 16,
+        "scale": 2,
+        "attackDamage": 3,
+        "src": "items_sheet.png",
+        "onUse": "",
+        "clearsAfterUse": false,
+        "attackRange": 150,
+        "attackCooldown": 1000,
+        "description": "Is able to break everything",
+        "type": "item",
+        "rendering": {
+            "pos": {
+                "x": 5,
+                "y": -20,
+                "x2": -5
             },
             "isMirrored": false,
             "scale": 3

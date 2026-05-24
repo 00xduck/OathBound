@@ -46,6 +46,7 @@ class droppedItem {
     baseSize: number
     dim: worldName
     wasPickedUp: boolean
+    spawnFrame: number
     constructor(pos: { x: number, y: number }, item: item, dim: worldName) {
         this.pos = pos
         this.item = item
@@ -58,6 +59,7 @@ class droppedItem {
         this.baseSize = 30
         this.dim = dim
         this.wasPickedUp = false
+        this.spawnFrame = gameFrame
     }
 
     update() {
@@ -66,6 +68,7 @@ class droppedItem {
         const isBlocked = () => {
             return worlds[currentWorld].elements.some(el => {
                 if (!(el instanceof block) || !el.blocking.isBlocking) return false
+                if (el.worldElem === 'invisWall') return false
 
                 const blockTop = el.pos.y + el.hitbox.offsetY
                 if (bottomOfItem < blockTop) return false  // Block ist noch unterhalb
@@ -76,15 +79,14 @@ class droppedItem {
                 )
             })
         }
-        // 120 is needed for some reason
         if (bottomOfItem - 120 < groundY && (!isBlocked())) {
             this.pos.y += 5
         } else if (bottomOfItem - 120 > groundY) {
-            this.pos.y = groundY - this.hitbox.height + 120
+            this.pos.y = groundY - this.hitbox.height + 165
         }
 
-        // check if the player picks up the item#
-        if (checkCollision({ hitbox: this.hitbox, pos: this.pos }, { hitbox: player.hitbox, pos: player.pos }) && !player.hasFullInventory() && !this.wasPickedUp) {
+        // check if the player picks up the item
+        if (checkCollision({ hitbox: this.hitbox, pos: this.pos }, { hitbox: player.hitbox, pos: player.pos }) && !player.hasFullInventory() && !this.wasPickedUp && this.dim === currentWorld && !player.data.isDead && player.sprite.currentState !== 'death' && gameFrame - this.spawnFrame > 60) {
             player.addItem(this.item, 1)
             updateHotbar()
             renderInventory()
@@ -487,6 +489,8 @@ class healthbar implements nonWorldElems {
             this.x += 30
         } else if (this.entity.type.name === 'ogre') {
             this.y -= 60
+        } else if (this.entity.type.name === 'passiveEntity') {
+            this.y -= 160
         }
     }
     draw() {

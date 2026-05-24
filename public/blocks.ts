@@ -55,14 +55,14 @@ class chest implements container {
         this.init()
     }
     update() {
-        if (checkCollision({ hitbox: this.hitbox, pos: this.pos }, { hitbox: player.hitbox, pos: player.pos }) && !player.data.onCooldown && player.data.onGround && menu.checkSetting('labels')) {
+        if (checkCollision({ hitbox: this.hitbox, pos: this.pos }, { hitbox: player.hitbox, pos: player.pos }) && !player.data.onCooldown && player.data.onGround) {
             if (!this.showedText) {
                 this.showedText = true
-                displayInfo('Press "R" to interact')
+                if (menu.checkSetting('labels'))
+                    displayInfo('Press "R" to interact')
             }
             player.data.interactionFocus = this
-            /*             player.data.interactionFocusEntity = null
-                        player.data.interactionFocusGrab = null */
+
         } else {
             if (player.data.interactionFocus === this) {
                 player.data.interactionFocus = null
@@ -149,7 +149,7 @@ class chest implements container {
 class block implements blocks {
     pos: { x: number, y: number }
     sprite: { img: string, pathToImage: string, spriteWidth: number, spriteHeight: number, scale: number }
-    interactData: { cooldown: number, output: { amount: number, item: item }[], isInfinite: boolean, healthBarScale: number, interactCooldown: number } | null
+    interactData: { cooldown: number, output: { amount: number, item: item }[], isInfinite: boolean, healthBarScale: number, interactCooldown: number, brockenBy?: item[] } | null
     blocking: { isBlocking: boolean, removeItem: item | null, text?: string }
     data: { class: string, showedText: boolean, spawnedHealthbar: boolean, wasCollected: boolean, healthbar: healthbar | null, health: number }
     hitbox: { offsetX: number, offsetY: number, width: number, height: number }
@@ -158,7 +158,7 @@ class block implements blocks {
     type: typeObject // information about the type of object
     worldElem: worldElementNames
     id: number
-    constructor(pos: { x: number, y: number }, sprite: { pathToImage: string, spriteWidth: number, spriteHeight: number, scale: number, hitbox: { offsetX: number, offsetY: number, width: number, height: number } }, interact: { cooldown: number, output: { amount: number, item: item }[], isInfinite: boolean, healthBarScale: number } | null, blocking: { isBlocking: boolean, removeItem: item | null, text?: string }, worldElem: worldElementNames, id: number) {
+    constructor(pos: { x: number, y: number }, sprite: { pathToImage: string, spriteWidth: number, spriteHeight: number, scale: number, hitbox: { offsetX: number, offsetY: number, width: number, height: number } }, interact: { cooldown: number, output: { amount: number, item: item }[], isInfinite: boolean, healthBarScale: number, brockenBy?: item[] } | null, blocking: { isBlocking: boolean, removeItem: item | null, text?: string }, worldElem: worldElementNames, id: number) {
         this.pos = { x: pos.x, y: pos.y }
         this.sprite = {
             img: sprite.pathToImage,
@@ -174,7 +174,8 @@ class block implements blocks {
                 output: interact.output,
                 isInfinite: interact.isInfinite,
                 healthBarScale: interact.healthBarScale,
-                interactCooldown: 300
+                interactCooldown: 300,
+                brockenBy: interact.brockenBy
             }
         } else {
             this.interactData = null
@@ -273,6 +274,16 @@ class block implements blocks {
     interact() {
         if (this.interactData && !this.onCooldown) {
             if (this.data.wasCollected && !this.interactData.isInfinite) return;
+            if (this.interactData.brockenBy) {
+                let isValid = false
+                this.interactData.brockenBy.forEach(item => {
+                    if (player.data.inventory[3][player.data.selectedSlot - 1] === item) {
+                        isValid = true
+                    }
+                })
+                if (!isValid) return;
+            }
+
 
             if (!this.data.spawnedHealthbar) {
                 let remover: number[] = []

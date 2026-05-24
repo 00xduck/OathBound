@@ -262,7 +262,7 @@ class enemyArcher extends Entity {
             if (menu.checkSetting('Master Sound'))
                 playSound('death.mp3', menu.sounds.effects / 100);
         }
-        if (this.data.health <= 0)
+        if (this.data.health <= 0 || player.data.isDead)
             return;
         if (!menu.checkSetting('No Aggro')) {
             const playerPosX = player.pos.x;
@@ -552,7 +552,7 @@ class nightBorn extends Entity {
             if (menu.checkSetting('Master Sound'))
                 playSound('death.mp3', menu.sounds.effects / 100);
         }
-        if (this.data.health <= 0)
+        if (this.data.health <= 0 || player.data.isDead)
             return;
         if (!menu.checkSetting('No Aggro')) {
             const playerPosX = player.pos.x;
@@ -709,11 +709,11 @@ class goblin extends Entity {
             y = 430;
         super({ x, y }, worldElem, id);
         this.sprite = {
-            img: 'img/enemies/goblin.png',
-            pathToImage: 'img/enemies/goblin.png',
-            spriteWidth: 150,
-            spriteHeight: 150,
-            scale: 1,
+            img: configs.properties.goblin.sprite.img,
+            pathToImage: configs.properties.goblin.sprite.img,
+            spriteWidth: configs.properties.goblin.sprite.spriteWidth,
+            spriteHeight: configs.properties.goblin.sprite.spriteHeight,
+            scale: configs.properties.goblin.sprite.scale,
             spriteAnimations: {},
             frames: 0,
             frameLoc: 0,
@@ -726,26 +726,23 @@ class goblin extends Entity {
                 { name: 'run', frames: 8 },
                 { name: 'take_hit', frames: 4 }
             ],
-            hitbox: { offsetX: 150, offsetY: 160, width: 80, height: 100 }
+            hitbox: configs.properties.goblin.sprite.hitbox
         };
         this.data = {
             isAttacking: false,
             class: 'goblin',
-            health: 50,
-            maxHealth: 50,
-            attackDamage: 4,
-            attackRange: 75,
-            drops: [
-                { amount: 2, drop: 'leather', chance: 35 },
-                { amount: 1, drop: 'string', chance: 15 }
-            ],
+            health: configs.properties.goblin.data.health,
+            maxHealth: configs.properties.goblin.data.health,
+            attackDamage: configs.properties.goblin.data.attackDamage,
+            attackRange: configs.properties.goblin.data.attackRange,
+            drops: configs.properties.goblin.data.drops,
             name: 'goblin',
             onCooldown: false,
             isDead: false,
             isMoving: false,
             showedText: false,
             Xdirec: 1,
-            seeRange: 400,
+            seeRange: configs.properties.goblin.data.seeRange,
             attackFocus: null
         };
         this.type = {
@@ -844,7 +841,7 @@ class goblin extends Entity {
             if (menu.checkSetting('Master Sound'))
                 playSound('death.mp3', menu.sounds.effects / 100);
         }
-        if (this.data.health <= 0)
+        if (this.data.health <= 0 || player.data.isDead)
             return;
         if (!menu.checkSetting('No Aggro')) {
             const playerPosX = player.pos.x;
@@ -853,14 +850,18 @@ class goblin extends Entity {
             const playerHiddenFromGoblins = player.data.armor[0] === 'goblin_mask' && this.data.name === 'goblin';
             if (distanceXToPlayer <= this.data.attackRange && !this.data.onCooldown && player.pos.y + this.data.attackRange >= this.pos.y && this.type.allignment === 'enemy' && !this.checkEffect('stun').wasFound) {
                 if (!playerHiddenFromGoblins || player.story.freedNate) {
-                    this.data.attackFocus = player;
-                    this.attack();
+                    if (Math.random() > 0.6) {
+                        this.data.attackFocus = player;
+                        this.attack();
+                    }
                 }
             }
             else if (playerDirec > 0 && distanceXToPlayer <= this.data.attackRange * 2 && !this.data.onCooldown && player.pos.y + this.data.attackRange >= this.pos.y && this.type.allignment === 'enemy' && !this.checkEffect('stun').wasFound) {
                 if (!playerHiddenFromGoblins || player.story.freedNate) {
-                    this.data.attackFocus = player;
-                    this.attack();
+                    if (Math.random() > 0.6) {
+                        this.data.attackFocus = player;
+                        this.attack();
+                    }
                 }
             }
             else if (distanceXToPlayer <= this.data.seeRange && !this.data.onCooldown && this.type.allignment === 'enemy' && !this.checkEffect('stun').wasFound) {
@@ -878,26 +879,32 @@ class goblin extends Entity {
                 });
                 if (!playerHiddenFromGoblins || player.story.freedNate) {
                     this.data.attackFocus = player;
-                    if (playerPosX > this.pos.x && direcBlocked !== 1) {
-                        if (this.checkEffect('ice')) {
-                            this.pos.x += 3;
-                        }
-                        else
-                            this.pos.x += 6;
+                    let hasEntityInFront = false;
+                    if (!hasEntityInFront) {
                         if (this.sprite.currentState !== 'run')
                             this.changeState('run');
-                    }
-                    else if (direcBlocked !== 2) {
-                        if (this.checkEffect('ice')) {
-                            this.pos.x -= 3;
+                        if (playerPosX > this.pos.x) {
+                            if (this.checkEffect('ice').wasFound) {
+                                this.pos.x += 2;
+                            }
+                            else
+                                this.pos.x += 4;
                         }
-                        else
-                            this.pos.x -= 6;
-                        if (this.sprite.currentState !== 'run')
-                            this.changeState('run');
+                        else {
+                            if (this.checkEffect('ice').wasFound) {
+                                this.pos.x -= 2;
+                            }
+                            else
+                                this.pos.x -= 4;
+                        }
+                        if (this.checkEffect('poison').wasFound) {
+                            this.data.health -= .1;
+                        }
                     }
-                    if (this.checkEffect('poison').wasFound) {
-                        this.data.health -= .1;
+                    else {
+                        if (this.sprite.currentState === 'run') {
+                            this.changeState('idle');
+                        }
                     }
                 }
                 else {
@@ -1030,11 +1037,11 @@ class ogre extends Entity {
             y = 400;
         super({ x, y }, worldElem, id);
         this.sprite = {
-            img: 'img/enemies/ogre.png',
-            pathToImage: 'img/enemies/ogre.png',
-            spriteWidth: 144,
-            spriteHeight: 80,
-            scale: 0.75,
+            img: configs.properties.ogre.sprite.img,
+            pathToImage: configs.properties.ogre.sprite.img,
+            spriteWidth: configs.properties.ogre.sprite.spriteWidth,
+            spriteHeight: configs.properties.ogre.sprite.spriteHeight,
+            scale: configs.properties.ogre.sprite.scale,
             spriteAnimations: {},
             frames: 0,
             frameLoc: 0,
@@ -1045,27 +1052,23 @@ class ogre extends Entity {
                 { name: 'attack', frames: 8 },
                 { name: 'death', frames: 6 },
             ],
-            hitbox: { offsetX: 100, offsetY: 90, width: 100, height: 200 }
+            hitbox: configs.properties.ogre.sprite.hitbox
         };
         this.data = {
             isAttacking: false,
             class: 'ogre',
-            health: 150,
-            maxHealth: 150,
-            attackDamage: 15,
-            attackRange: 75,
-            drops: [
-                { amount: 2, drop: 'leather', chance: 50 },
-                { amount: 1, drop: 'string', chance: 25 },
-                { amount: 1, drop: 'iron_ingot', chance: 15 }
-            ],
+            health: configs.properties.ogre.data.health,
+            maxHealth: configs.properties.ogre.data.health,
+            attackDamage: configs.properties.ogre.data.attackDamage,
+            attackRange: configs.properties.ogre.data.attackRange,
+            drops: configs.properties.ogre.data.drops,
             name: 'ogre',
             onCooldown: false,
             isDead: false,
             isMoving: false,
             showedText: false,
             Xdirec: 1,
-            seeRange: 400,
+            seeRange: configs.properties.ogre.data.seeRange,
             attackFocus: null
         };
         this.type = {
@@ -1164,7 +1167,7 @@ class ogre extends Entity {
             if (menu.checkSetting('Master Sound'))
                 playSound('death.mp3', menu.sounds.effects / 100);
         }
-        if (this.data.health <= 0)
+        if (this.data.health <= 0 || player.data.isDead)
             return;
         if (!menu.checkSetting('No Aggro')) {
             const playerPosX = player.pos.x;
@@ -1490,7 +1493,7 @@ class goblinKing extends Entity {
             if (menu.checkSetting('Master Sound'))
                 playSound('death.mp3', menu.sounds.effects / 100);
         }
-        if (this.data.health <= 0)
+        if (this.data.health <= 0 || player.data.isDead)
             return;
         if (!menu.checkSetting('No Aggro')) {
             const playerPosX = player.pos.x;
@@ -1675,11 +1678,11 @@ class skeleton extends Entity {
             y = 500;
         super({ x, y }, worldElem, id);
         this.sprite = {
-            img: 'img/enemies/skeleton.png',
-            pathToImage: 'img/enemies/skeleton.png',
-            spriteWidth: 96,
-            spriteHeight: 64,
-            scale: 0.5,
+            img: configs.properties.skeleton.sprite.img,
+            pathToImage: configs.properties.skeleton.sprite.img,
+            spriteWidth: configs.properties.skeleton.sprite.spriteWidth,
+            spriteHeight: configs.properties.skeleton.sprite.spriteHeight,
+            scale: configs.properties.skeleton.sprite.scale,
             spriteAnimations: {},
             frames: 0,
             frameLoc: 0,
@@ -1691,23 +1694,23 @@ class skeleton extends Entity {
                 { name: 'run', frames: 10 },
                 { name: 'take_hit', frames: 5 }
             ],
-            hitbox: { offsetX: 85, offsetY: 80, width: 50, height: 100 }
+            hitbox: configs.properties.skeleton.sprite.hitbox
         };
         this.data = {
             isAttacking: false,
             class: 'skeleton',
-            health: 35,
-            maxHealth: 35,
-            attackDamage: 5,
-            attackRange: 100,
-            drops: [{ amount: 1, drop: 'stone', chance: 40 }],
+            health: configs.properties.skeleton.data.health,
+            maxHealth: configs.properties.skeleton.data.health,
+            attackDamage: configs.properties.skeleton.data.attackDamage,
+            attackRange: configs.properties.skeleton.data.attackRange,
+            drops: configs.properties.skeleton.data.drops,
             name: 'skeleton',
             onCooldown: false,
             isDead: false,
             isMoving: false,
             showedText: false,
             Xdirec: 1,
-            seeRange: 400,
+            seeRange: configs.properties.skeleton.data.seeRange,
             attackFocus: null
         };
         this.type = {
@@ -1812,7 +1815,7 @@ class skeleton extends Entity {
             if (menu.checkSetting('Master Sound'))
                 playSound('death.mp3', menu.sounds.effects / 100);
         }
-        if (this.data.health <= 0)
+        if (this.data.health <= 0 || player.data.isDead)
             return;
         if (!menu.checkSetting('No Aggro')) {
             const playerPosX = player.pos.x;
@@ -1827,31 +1830,41 @@ class skeleton extends Entity {
             }
             else if (playerDirec > 0 && distanceXToPlayer <= this.data.attackRange * 2 && !this.data.onCooldown && player.pos.y + this.data.attackRange >= this.pos.y && this.type.allignment === 'enemy' && !this.checkEffect('stun').wasFound) {
                 if (!playerHiddenFromGoblins || player.story.freedNate) {
-                    this.data.attackFocus = player;
-                    this.attack();
+                    if (Math.random() > 0.6) {
+                        this.data.attackFocus = player;
+                        this.attack();
+                    }
                 }
             }
             else if (distanceXToPlayer <= this.data.seeRange && !this.data.onCooldown && this.type.allignment === 'enemy' && !this.checkEffect('stun').wasFound) {
                 if (!playerHiddenFromGoblins || player.story.freedNate) {
                     this.data.attackFocus = player;
-                    if (this.sprite.currentState !== 'run')
-                        this.changeState('run');
-                    if (playerPosX > this.pos.x) {
-                        if (this.checkEffect('ice')) {
-                            this.pos.x += 3;
+                    let hasEntityInFront = false;
+                    if (!hasEntityInFront) {
+                        if (this.sprite.currentState !== 'run')
+                            this.changeState('run');
+                        if (playerPosX > this.pos.x) {
+                            if (this.checkEffect('ice').wasFound) {
+                                this.pos.x += 2;
+                            }
+                            else
+                                this.pos.x += 4;
                         }
-                        else
-                            this.pos.x += 7;
+                        else {
+                            if (this.checkEffect('ice')) {
+                                this.pos.x -= 2;
+                            }
+                            else
+                                this.pos.x -= 4;
+                        }
+                        if (this.checkEffect('poison').wasFound) {
+                            this.data.health -= .1;
+                        }
                     }
                     else {
-                        if (this.checkEffect('ice')) {
-                            this.pos.x -= 3;
+                        if (this.sprite.currentState === 'run') {
+                            this.changeState('idle');
                         }
-                        else
-                            this.pos.x -= 7;
-                    }
-                    if (this.checkEffect('poison').wasFound) {
-                        this.data.health -= .1;
                     }
                 }
                 else {

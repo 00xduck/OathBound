@@ -37,14 +37,13 @@ class chest {
         this.init();
     }
     update() {
-        if (checkCollision({ hitbox: this.hitbox, pos: this.pos }, { hitbox: player.hitbox, pos: player.pos }) && !player.data.onCooldown && player.data.onGround && menu.checkSetting('labels')) {
+        if (checkCollision({ hitbox: this.hitbox, pos: this.pos }, { hitbox: player.hitbox, pos: player.pos }) && !player.data.onCooldown && player.data.onGround) {
             if (!this.showedText) {
                 this.showedText = true;
-                displayInfo('Press "R" to interact');
+                if (menu.checkSetting('labels'))
+                    displayInfo('Press "R" to interact');
             }
             player.data.interactionFocus = this;
-            /*             player.data.interactionFocusEntity = null
-                        player.data.interactionFocusGrab = null */
         }
         else {
             if (player.data.interactionFocus === this) {
@@ -132,7 +131,8 @@ class block {
                 output: interact.output,
                 isInfinite: interact.isInfinite,
                 healthBarScale: interact.healthBarScale,
-                interactCooldown: 300
+                interactCooldown: 300,
+                brockenBy: interact.brockenBy
             };
         }
         else {
@@ -224,6 +224,16 @@ class block {
         if (this.interactData && !this.onCooldown) {
             if (this.data.wasCollected && !this.interactData.isInfinite)
                 return;
+            if (this.interactData.brockenBy) {
+                let isValid = false;
+                this.interactData.brockenBy.forEach(item => {
+                    if (player.data.inventory[3][player.data.selectedSlot - 1] === item) {
+                        isValid = true;
+                    }
+                });
+                if (!isValid)
+                    return;
+            }
             if (!this.data.spawnedHealthbar) {
                 let remover = [];
                 nonWorldElems.forEach((elem, i) => {

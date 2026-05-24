@@ -4,7 +4,7 @@ if (!canvas) throw new Error('Canvas element not found')
 const ctx = canvas.getContext('2d')
 if (!ctx) throw new Error('2D context not supported')
 // set dimensions
-const CANVAS_WIDTH = canvas.width = /* 2000 */ window.innerWidth
+let CANVAS_WIDTH = canvas.width = /* 2000 */ window.innerWidth
 const CANVAS_HEIGHT = canvas.height = 700
 // some configs
 ctx.imageSmoothingEnabled = false;
@@ -15,9 +15,12 @@ let gameFrame = 0 // counter for the frames
 const MAX_FALL_SPEED = 8 // 
 const staggerFrames = 7 // amount of ticks between each frame of animation
 const globalGravity = 8 // gravity affecting the player
-const groundY = 580 // is the y-coordinate of the ground
+const groundY = 535 // is the y-coordinate of the ground
 let isLoading = true
 let bgPosition = 0
+
+let cheats = false
+let date = sessionStorage.getItem('date')
 
 let AFKCounter = 0
 
@@ -52,6 +55,8 @@ let stats = {
         casted_spells: { value: 0, name: "Spells casted", icon: "img/icons/fire_icon.png", desc: "How many spells you casted" },
     }
 }
+
+const defaultStats = stats
 
 let achievements = {
     oathbound: { granted: false, desc: "- the start...", name: "OathBound", icon: "img/icons/healthboost_icon.png" },
@@ -139,7 +144,7 @@ function playSound(sound: string, volume: number, isInRegistry?: boolean) {
 }
 
 // interfaces && types
-type item = 'blood_gem' | 'blood_scroll' | "iron_staff" | 'ice_scroll' | 'earth_scroll' | 'void_scroll' | 'fire_scroll' | 'lightning_scroll' | 'goblin_mask' | 'coffee' | 'key' | 'fruit' | 'horn' | 'cloth' | 'silver_ingot' | 'stone' | 'string' | 'leather' | 'hardened_boots' | 'copper_ingot' | 'gold_ingot' | 'iron_ingot' | 'stick' | 'mushroom' | 'lightning_potion' | 'healthboost_potion' | 'icing_rapier' | 'big_regeneration_potion' | 'regeneration_potion' | 'peasants_robe' | 'steel_robe' | 'null' | 'supernova' | 'poisoned_staff' | 'holy_longsword' | 'flaming_saber' | 'knights_helm' | 'berserker_helmet' | 'leather_boots' | 'leather_hood' | 'gold_crown' | 'iron_boots' | 'iron_chestplate_tier_3' | 'iron_chestplate_tier_2' | 'iron_chestplate_tier_1' | 'iron_helmet' | 'pappbanditem' | 'wood_sword' | 'brocken_sword' | 'stone_sword' | 'beer' | 'coin' | 'iron_sword' | 'gold_sword' | 'copper_sword' | 'heal_potion' | 'big_heal_potion' | 'wood_rapier' | 'stone_rapier' | 'iron_rapier' | 'gold_rapier' | 'copper_rapier' | 'wood_sickle' | 'stone_sickle' | 'iron_sickle' | 'gold_sickle' | 'copper_sickle'
+type item = 'cow_flesh' | 'chicken_flesh' | 'cleansing_rune' | 'blank_scroll' | 'blood_gem' | 'blood_scroll' | "iron_staff" | 'ice_scroll' | 'earth_scroll' | 'void_scroll' | 'fire_scroll' | 'lightning_scroll' | 'goblin_mask' | 'coffee' | 'key' | 'fruit' | 'horn' | 'cloth' | 'silver_ingot' | 'stone' | 'string' | 'leather' | 'hardened_boots' | 'copper_ingot' | 'gold_ingot' | 'iron_ingot' | 'stick' | 'mushroom' | 'lightning_potion' | 'healthboost_potion' | 'icing_rapier' | 'big_regeneration_potion' | 'regeneration_potion' | 'peasants_robe' | 'steel_robe' | 'null' | 'supernova' | 'poisoned_staff' | 'holy_longsword' | 'flaming_saber' | 'knights_helm' | 'berserker_helmet' | 'leather_boots' | 'leather_hood' | 'gold_crown' | 'iron_boots' | 'iron_chestplate_tier_3' | 'iron_chestplate_tier_2' | 'iron_chestplate_tier_1' | 'iron_helmet' | 'pappbanditem' | 'wood_sword' | 'brocken_sword' | 'stone_sword' | 'beer' | 'coin' | 'iron_sword' | 'gold_sword' | 'copper_sword' | 'heal_potion' | 'big_heal_potion' | 'wood_rapier' | 'stone_rapier' | 'iron_rapier' | 'gold_rapier' | 'copper_rapier' | 'wood_sickle' | 'stone_sickle' | 'iron_sickle' | 'gold_sickle' | 'copper_sickle'
 type effect = 'speed' | 'stun' | 'burning' | 'regeneration' | 'ice' | 'strength' | 'electrocute' | 'healthboost' | 'deaths_curse' | 'poison'
 
 type ItemData = {
@@ -204,6 +209,7 @@ let effects: Record<effect, effectTypeBase>;
 let items: Record<item, ItemData>
 let recipes: recipe[];
 let worlds: Record<string, {
+    mobCap: number
     background: {
         imgs: string[]
         spriteWidth: number
@@ -212,6 +218,7 @@ let worlds: Record<string, {
     }
     elements: WorldElement[]
 }> = {}
+let configs;
 
 type EffectFunction = {
     onTick?: (entity: entity) => void
@@ -291,10 +298,19 @@ const itemFunctions = {
             return
         },
     },
+    chicken_flesh: {
+        use: () => {
+            player.heal(10)
+        },
+    },
+    cow_flesh: {
+        use: () => {
+            player.heal(10)
+        },
+    },
     heal_potion: {
         use: () => {
             player.heal(35)
-            console.log('?');
             grantAchievement('heal')
             if (menu.checkSetting('Master Sound')) playSound('drink.wav', menu.sounds.effects / 100)
             return
@@ -447,6 +463,21 @@ const itemFunctions = {
                 displayInfo('You don\'t know how to use this!')
             }
 
+        }
+    },
+    cleansing_rune: {
+        use: () => {
+            if (player.data.isMoving) return
+            if (player.story.learntMagic) {
+                openStaffGUI('cleansing')
+            } else {
+                displayInfo('You don\'t know how to use this!')
+            }
+        }
+    },
+    cat_whistle: {
+        use: () => {
+            player.companions.push(new catCompanion())
         }
     }
 }
@@ -614,6 +645,11 @@ interface framesObj {
 
 setInterval(() => {
     if (!player) return
+    const newWidth = window.innerWidth
+    if (canvas.width !== newWidth) {
+        CANVAS_WIDTH = canvas.width = newWidth
+        ctx.imageSmoothingEnabled = false
+    }
     if (player.data.spellCooldown > 0) {
         player.data.spellCooldown--
         const div = document.querySelector('.cooldownDiv') as HTMLElement;
@@ -654,12 +690,16 @@ addEventListener('keyup', event => {
     }
 })
 addEventListener('keydown', event => {
+    if (player.data.isDead) return;
+
     if (event.code === 'Escape') {
         if (player.data.onInventory || player.data.onSecondaryInventory) {
             closeInventory()
             closeStaffGUI()
         } else if (player.data.onTradingMenu) {
             closeTradingMenu()
+        } else if (player.data.onCompanionGUI) {
+            closeCompanionGUI()
         } else {
             menu.toggleMenu()
         }
@@ -674,7 +714,7 @@ addEventListener('keydown', event => {
     }
 
     if (event.code === 'KeyE' && !player.data.isMoving) {
-        if (player.data.onInventory && !player.data.onTradingMenu) {
+        if (player.data.onInventory && !player.data.onTradingMenu && !player.data.onCompanionGUI) {
             document.querySelector('body')?.classList.remove('grab')
             player.data.dragging = null
             closeInventory()
@@ -682,6 +722,8 @@ addEventListener('keydown', event => {
         } else {
             if (player.data.onTradingMenu) {
                 closeTradingMenu()
+            } else if (player.data.onCompanionGUI) {
+                closeCompanionGUI()
             } else {
                 openInventory()
             }
@@ -696,6 +738,13 @@ addEventListener('keydown', event => {
 
     if (event.code === 'KeyQ') {
         player.drop()
+    }
+
+    if (event.code === 'KeyC' && !player.data.isMoving && !player.data.onInventory) {
+        if (player.data.onCompanionGUI) {
+            closeCompanionGUI()
+        } else
+            openCompanionGUI()
     }
 
     if (!player.data.onInventory && event.code.slice(0, 5) === 'Digit' && (parseInt(event.code.slice(5, 6)) < 6)) {
@@ -797,7 +846,7 @@ class menuClass {
             give: (arg: item) => { if (items[arg]) { player.addItem(arg, 1) } else { displayInfo('Unknown Item') } },
             damage: (arg: string) => { player.takeHit(Number(arg)) },
             summon: (arg: string) => {
-                if (!elemRegistry[arg] || (arg !== 'skeleton' && arg !== 'goblin')) {
+                if (!elemRegistry[arg] || (arg !== 'skeleton' && arg !== 'goblin' && arg !== 'ogre')) {
                     displayInfo(`Unknown or Unsummonable entity`)
                     return
                 }
@@ -807,15 +856,19 @@ class menuClass {
                 worlds[currentWorld].elements.push(entity)
             },
             world: (arg: string) => {
-                try {
+                if(worlds[arg])
                     changeWorld(arg)
-                }
-                catch (err) {
-                    displayInfo('Unkown world!')
+                else {
+                    displayInfo('Unknown World')
                 }
             },
             story: (arg: string) => {
-                (player.story as any)[arg.trim()] = true
+                if(!(player.story as any)[arg.trim()]) {
+                    displayInfo('Unknown Story Flag')
+                    return
+                }else {
+                    (player.story as any)[arg.trim()] = true 
+                }
             }
         }
     }
@@ -852,7 +905,10 @@ class menuClass {
             div!.innerHTML += `<div class="flex-center"><h2>Options</h2></div><hr>`
 
             settingsArr.forEach(setting => {
-                div!.innerHTML += `<div class="flex-center margin-top-16"><button class="btn-small background-color-gray" onclick="menu.toggleSettingsScreen('${setting.name}')">${setting.name.toUpperCase()}</button></div>`
+                if (setting.name === 'dev' && !cheats) {
+
+                } else
+                    div!.innerHTML += `<div class="flex-center margin-top-16"><button class="btn-small background-color-gray" onclick="menu.toggleSettingsScreen('${setting.name}')">${setting.name.toUpperCase()}</button></div>`
             });
 
             div!.innerHTML += `<div class="flex-between margin-top-32"><button onclick="menu.toggleMenu()" class="btn-small background-color-gray">Close</button><button onclick="menu.toggleOptionsScreen()" class="btn-small background-color-gray">Back</button></div>`
@@ -867,24 +923,27 @@ class menuClass {
         const save = sessionStorage.getItem("save")
         const name = sessionStorage.getItem('name')
         const description = sessionStorage.getItem('description')
-        if (!save || !name || !description) { menu.quit(); return }
+        if (!save) { menu.quit(); return }
         const temp = await window.api.checkForSaves(save)
         const alreadySavedMeta = temp.meta
         const settings = this.settings
-        console.log(settings);
         let meta = {
             name: "World",
             description: "World",
             world: currentWorld,
-            quest: activeQuests
+            quest: activeQuests,
+            cheats: cheats,
+            date: date
         }
 
         if (alreadySavedMeta) {
             meta.name = alreadySavedMeta.name,
                 meta.description = alreadySavedMeta.description
+            meta.date = alreadySavedMeta.date
         } else {
-            meta.name = name,
-                meta.description = description
+            meta.name = name ?? "World"
+            meta.description = description ?? "World"
+            meta.date = date
         }
 
         window.api.saveGame(worlds, player, save, meta, stats, settings, droppedItems)
@@ -919,6 +978,8 @@ class menuClass {
                 div!.innerHTML += `<div class="flex-center margin-top-16"><input id="command" placeholder="command..." type="text"><button class="gradientBtn btn-small margin-left-16" onclick="menu.runCommand()">Send</button></div>`
             } else if (setting === 'audio') {
                 div!.innerHTML += `<div class="flex-center margin-top-16"><h3>Music: </h3><input id="musicRange" value="menu.sounds.music" type="range" max="100" min="0" onchange="music.volume = Number(document.querySelector('#musicRange').value)/100; menu.sounds.music = Number(document.querySelector('#musicRange').value)"></div><div class="flex-center margin-top-16"><h3>Effects: </h3><input id="effectsRange" value="menu.sounds.effects" type="range" max="100" min="0" onchange="menu.sounds.effects = Number(document.querySelector('#effectsRange').value)"></div>`
+            } else if (setting === 'video') {
+                div!.innerHTML += `<div class="flex-center margin-top-16"><h3>Brightness: </h3><input id="brightnessRange" value="menu.sounds.music" type="range" max="100" min="10" onchange="document.querySelector('body').style.filter = 'brightness(' + document.querySelector('#brightnessRange').value + '%)'"></div>`
             }
             div!.innerHTML += `<div class="flex-between margin-top-32"><button onclick="menu.toggleMenu()" class="btn-small background-color-gray">Close</button><button onclick="menu.toggleSettingsScreen()" class="btn-small background-color-gray">Back</button></div>`
         }
@@ -953,6 +1014,9 @@ class menuClass {
 
         for (const group of allGroups) {
             for (const set of group.settings) {
+                if (group.name === 'dev' && !cheats) {
+                    return false
+                };
                 if (set.name === setting && set.state) {
                     return true
                 }
@@ -986,12 +1050,16 @@ class quest {
     text: string
     gift: { item: item, amount: number }[]
     completed: boolean
+    giveCompleted: boolean
+    itemsDeleted: boolean
     items?: { item: item, amount: number }[]
     constructor(event: event, entities: number[], text: string, gift: { item: item, amount: number }[], items?: { item: item, amount: number }[]) {
         this.event = event
         this.text = text
         this.gift = gift
         this.completed = false
+        this.giveCompleted = false
+        this.itemsDeleted = false
         this.entities = []
         entities.forEach(entity => {
             this.entities.push({ entity: entity, completed: false })
@@ -1013,6 +1081,7 @@ class quest {
                     if (event.extra) {
                         if (this.items === event.extra) {
                             this.completed = true
+                            this.giveCompleted = true
                             giveEventCompleted = true
                         }
                     }
@@ -1021,8 +1090,14 @@ class quest {
         })
 
         if (giveEventCompleted) {
-            if (this.items)
+            if (this.items && !this.itemsDeleted) {
                 player.removeItems(this.items)
+                this.itemsDeleted = true
+            }
+            return true
+        }
+
+        if (this.event === 'give' && this.giveCompleted) {
             return true
         }
 
@@ -1065,7 +1140,510 @@ class quest {
     }
 }
 
+class passiveEntity extends Entity {
+    sprite: {
+        img: string
+        pathToImage: string,
+        spriteWidth: number,
+        spriteHeight: number,
+        scale: number,
+        frames: number,
+        frameLoc: number,
+        currentState: string,
+        spriteAnimations: Record<string, framesObj>
+        animationStates: AnimationState[],
+        hitbox: {
+            offsetX: number,
+            offsetY: number,
+            width: number,
+            height: number
+        },
+        invertOrientation?: boolean
+    }
+    data: {
+        isAttacking: boolean,
+        class: string,
+        health: number,
+        maxHealth: number,
+        attackDamage: number,
+        attackRange: number,
+        drops: { drop: item, amount: number, chance: number }[],
+        name: string,
+        onCooldown: boolean,
+        isDead: boolean,
+        isMoving: boolean,
+        showedText: boolean,
+        Xdirec: number,
+        seeRange: number,
+        attackFocus: null | typeof player
+    }
+    type: {
+        allignment: string,
+        attackable: boolean,
+        interactable: boolean,
+        isGround: boolean,
+        moving: boolean,
+        name: string,
+        attackType?: {
+            type: "rangedCombat" | "melee",
+            projectile: {
+                spriteWidth: number,
+                scale: number,
+                damage: number,
+                range: number,
+                speed: number,
+                spriteHeight: number,
+                pathToImage: string,
+                animationStates: AnimationState[],
+                hitbox: {
+                    offsetX: number,
+                    offsetY: number,
+                    width: number,
+                    height: number
+                }
+            }
+        },
+        isNotTurning?: boolean
+    }
+    worldElem: worldElementNames
+    currentGoal: number | null
+    speed: number
+    constructor(pos: { x: number, y: number }, sprite: { pathToImage: string, spriteWidth: number, spriteHeight: number, animationStates: AnimationState[], scale: number, hitbox: { offsetX: number, offsetY: number, width: number, height: number }, invertOrientation?: boolean, portrait?: string }, data: { health: number }, drops: { drop: item, amount: number, chance: number }[], worldElem: worldElementNames, id: number, dim: worldName) {
 
+        let invertOrientation = sprite.invertOrientation
+        if (pos.y === StaticPositions.OnGround) {
+            pos.y = groundY - 400 * sprite.scale
+        }
+
+        super({ x: pos.x, y: pos.y },
+            worldElem,
+            id
+        )
+
+        this.sprite = {
+            img: sprite.pathToImage,
+            pathToImage: sprite.pathToImage,
+            spriteWidth: sprite.spriteWidth,
+            spriteHeight: sprite.spriteHeight,
+            scale: sprite.scale,
+            animationStates: sprite.animationStates,
+            hitbox: sprite.hitbox,
+            invertOrientation: invertOrientation,
+            frames: 0,
+            frameLoc: 0,
+            spriteAnimations: {},
+            currentState: 'idle',
+        }
+
+        this.data = {
+            health: data.health,
+            maxHealth: data.health,
+            attackRange: 1,
+            attackDamage: 1,
+            drops: drops,
+            class: 'passiveEntity',
+            name: 'passiveEntity',
+            isAttacking: false,
+            attackFocus: null,
+            isDead: false,
+            isMoving: false,
+            onCooldown: false,
+            seeRange: 0,
+            showedText: false,
+            Xdirec: 1
+        }
+
+        this.type = {
+            isGround: true /* is it a ground/flying troop */, name: 'passiveEntity' /* name of the enemy */, allignment: 'passive' /* does it attack the player */, moving: true /* does it need to move while the player moves */, attackable: true, interactable: false
+        }
+        this.worldElem = worldElem
+        this.data.class = "passiveEntity"
+        this.currentGoal = null
+        this.speed = 2
+        this.init()
+    }
+
+    interact(): void {
+
+    }
+    get center() {
+        return {
+            x: this.pos.x + this.sprite.hitbox.offsetX + this.sprite.hitbox.width / 2,
+            y: this.pos.y + this.sprite.hitbox.offsetY + this.sprite.hitbox.height / 2
+        }
+    }
+    async update(): Promise<void> {
+        if (this.data.isDead) return
+        // check for effect ticks
+        this.effectData.effects.forEach(effect => {
+            effect.duration--
+
+            if (effect.duration <= 0) {
+                if (effect.effect.end) {
+                    effect.effect.end(this)
+                }
+                this.removeEffect(effect.index)
+            }
+            if (this.effectData.effectTicks % effect.effect.ticks === 0) {
+                if (effect.effect.onTick) {
+                    effect.effect.onTick(this)
+                }
+            }
+
+            if (document.querySelector(`#${effect.effect.name} `)) {
+                const div = document.querySelector(`#${effect.effect.name} `);
+                if (div!.querySelector('#duration')) {
+                    div!.querySelector('#duration')!.innerHTML = `${effect.duration} `
+                }
+            }
+
+        })
+
+        if (!this.currentGoal && Math.random() < .009) {
+            if (Math.random() > .5) {
+                this.currentGoal = Math.random() * 400
+            } else {
+                this.currentGoal = -(Math.random() * 400)
+            }
+        }
+
+
+
+        if (this.currentGoal && !this.data.isDead) {
+            if (this.currentGoal > 0) {
+                this.pos.x += 2
+                this.currentGoal -= 2
+                this.data.Xdirec = 2
+                if (this.currentGoal <= 0) {
+                    this.currentGoal = null
+                    this.speed = 2
+                }
+            } else {
+                this.pos.x -= 2
+                this.currentGoal += 2
+                this.data.Xdirec = 1
+                if (this.currentGoal >= 0) {
+                    this.currentGoal = null
+                    this.speed = 2
+                }
+            }
+            if (this.sprite.currentState !== 'run' && this.sprite.currentState !== 'death') this.changeState('run')
+        } else {
+            if (this.sprite.currentState !== 'idle' && this.sprite.currentState !== 'death') this.changeState('idle')
+        }
+
+        this.sprite.frames++
+        if (this.sprite.frames >= staggerFrames) {
+            this.sprite.frames = 0
+            this.sprite.frameLoc++
+            const frameAmount = this.sprite.spriteAnimations[this.sprite.currentState].loc.length
+
+            if (this.sprite.frameLoc >= frameAmount) {
+                this.sprite.frameLoc = 0
+                this.endOfAnimation(frameAmount)
+            }
+        }
+
+        if (this.data.health <= 0 && this.sprite.currentState !== 'death') {
+            if (player.data.inventory[3][player.data.selectedSlot - 1] === null) {
+                grantAchievement('beast')
+            }
+
+            if (player.data.health / player.data.maxHealth <= 0.05) {
+                grantAchievement('close_call')
+            }
+
+            stats.entities.kills.value++
+            if (this.data.name === 'goblin') {
+                grantAchievement('goblin_kill')
+
+                const globalStats = await window.api.fetchGlobalStats()
+                if (globalStats.entities.killed_goblin.value >= 75) {
+                    grantAchievement('goblin_demolisher')
+                }
+            }
+            if (this.data.name === 'goblin') {
+                stats.entities.killed_goblin.value++
+            } else if (this.data.name === 'skeleton') {
+                stats.entities.killed_skeleton.value++
+            }
+            this.data.drops.forEach(drop => {
+                if (Math.floor(Math.random() * 100) <= drop.chance) {
+                    droppedItems.push(new droppedItem({ x: this.pos.x + this.sprite.hitbox.offsetX + Math.round(Math.random() * 80) - 40, y: this.pos.y + this.sprite.hitbox.offsetY }, drop.drop, currentWorld))
+                }
+            })
+            this.changeState('death')
+            this.data.onCooldown = true
+            currentEvents.push({ event: 'kill', entity: this })
+            isQuestUIupdated = false
+            if (menu.checkSetting('Master Sound')) playSound('death.mp3', menu.sounds.effects / 100)
+        }
+
+        if (this.data.health <= 0) return
+    }
+
+    draw() {
+        if (menu.checkSetting('Hitboxes')) {
+            ctx!.save()
+            ctx!.strokeStyle = this.type.allignment === 'enemy' ? 'red' : (this.type.allignment === 'passive' ? 'yellow' : 'green')
+            ctx!.lineWidth = 2
+            ctx!.strokeRect(
+                this.pos.x + this.sprite.hitbox.offsetX,
+                this.pos.y + this.sprite.hitbox.offsetY,
+                this.sprite.hitbox.width,
+                this.sprite.hitbox.height
+            )
+            ctx!.strokeStyle = "black"
+            ctx!.strokeRect(this.pos.x + this.sprite.hitbox.offsetX, this.pos.y + this.sprite.hitbox.offsetY, 5, 5)
+            ctx!.restore()
+        }
+
+        let frameX = this.sprite.spriteAnimations[this.sprite.currentState].loc[this.sprite.frameLoc].x // get current locations of the animation
+        let frameY = this.sprite.spriteAnimations[this.sprite.currentState].loc[this.sprite.frameLoc].y
+
+        let orientation = this.data.Xdirec === 2
+
+        if (this.sprite.invertOrientation) {
+            orientation = !orientation
+        }
+
+        const image = getImage(this.sprite.img)
+        if (orientation) {
+            ctx!.save() // save current state of the canvas
+            const drawX = -(this.pos.x + 400 * this.sprite.scale)
+            ctx!.scale(-1, 1) // invert orientatian of the entity
+            ctx!.drawImage(image, frameX, frameY, this.sprite.spriteWidth, this.sprite.spriteHeight, drawX, this.pos.y, 400 * this.sprite.scale, 400 * this.sprite.scale)
+            ctx!.restore()
+        } else {
+            ctx!.drawImage(image, frameX, frameY, this.sprite.spriteWidth, this.sprite.spriteHeight, this.pos.x, this.pos.y, 400 * this.sprite.scale, 400 * this.sprite.scale)
+        }
+
+    }
+
+    takeHit(damage: number): void {
+        if (this.data.health <= 0) return;
+        if (Math.random() * 100 < 80)
+            this.setCooldown(1000)
+        this.changeState('take_hit')
+        if (player.pos.x > this.pos.x) {
+            this.currentGoal = -400
+            this.speed = 4
+        } else {
+            this.currentGoal = 400
+            this.speed = 4
+        }
+        this.data.health -= damage
+        this.showHealthbar()
+    }
+
+    endOfAnimation(frameAmount: number): void {
+        if (this.sprite.currentState === 'death') {
+            let deadParticles: number[] = []
+            particles.forEach((particle, i) => {
+                if (particle.entity === this) {
+                    deadParticles.push(i)
+                }
+            })
+            deadParticles.forEach(deadParticle => {
+                particles.splice(deadParticle, 1)
+            })
+            this.data.drops.forEach(drop => {
+                if (Math.floor(Math.random() * 100) <= drop.chance) {
+                    droppedItems.push(new droppedItem({ x: this.pos.x + this.sprite.hitbox.offsetX + Math.round(Math.random() * 80) - 40, y: this.pos.y + this.sprite.hitbox.offsetY }, drop.drop, currentWorld))
+                }
+            })
+            if (this.data.isDead) return;
+            this.data.isDead = true
+            this.sprite.frameLoc = frameAmount - 1
+            deadObjects.push(this)
+            return
+        } else {
+            if (this.sprite.currentState === 'take_hit') {
+                this.changeState('idle')
+            } else if (this.sprite.currentState === 'attack') {
+                if (this.type.attackType?.type === 'rangedCombat') {
+                    particles.push(new projectile(this, this.type.attackType.projectile.spriteWidth, this.type.attackType.projectile.spriteHeight, this.type.attackType.projectile.scale, this.type.attackType.projectile.pathToImage, this.type.attackType.projectile.animationStates, this.type.attackType.projectile.range, this.type.attackType.projectile.speed, this.type.attackType.projectile.damage, this.type.attackType.projectile.hitbox, 'arrow'))
+                }
+                this.changeState('idle')
+                this.data.isAttacking = false
+            }
+        }
+        if (this.type.name === 'trader' && this.sprite.currentState === 'open') {
+            this.changeState('dialogue')
+        }
+    }
+
+    attack(): void {
+        if (!this.data.isAttacking && !this.data.onCooldown) {
+            this.changeState('attack')
+            this.data.isAttacking = true
+            setTimeout(() => {
+                if (this.data.isDead) return
+                if (this.data.onCooldown) return
+                if (this.type.attackType?.type !== 'rangedCombat') {
+                    const playerPosX = player.pos.x
+                    const playerDirec = this.pos.x - player.pos.x
+                    const distanceXToPlayer = Math.abs((playerPosX + (player.sprite.spriteWidth / 2) * player.sprite.scale) - (this.pos.x + (this.sprite.spriteWidth / 2) * this.sprite.scale))
+                    if (playerDirec <= 0 && distanceXToPlayer <= this.data.attackRange && player.pos.y + this.data.attackRange >= this.pos.y) {
+                        player.takeHit(this.data.attackDamage)
+                    } else if (playerDirec > 0 && distanceXToPlayer <= this.data.attackRange * 2 && player.pos.y + this.data.attackRange >= this.pos.y) {
+                        player.takeHit(this.data.attackDamage)
+                    }
+                }
+            }, 550)
+        }
+    }
+}
+
+type companionType = catCompanion
+class catCompanion {
+    sprite: {
+        img: string
+        pathToImage: string,
+        spriteWidth: number,
+        spriteHeight: number,
+        scale: number,
+        frames: number,
+        frameLoc: number,
+        currentState: string,
+        spriteAnimations: Record<string, framesObj>
+        animationStates: AnimationState[],
+        hitbox: {
+            offsetX: number,
+            offsetY: number,
+            width: number,
+            height: number
+        },
+        invertOrientation?: boolean
+    }
+    lootPool: item[]
+    relativePosition: { x: number, y: number }
+    selected: boolean
+    pos: { x: number, y: number }
+    img: HTMLImageElement | null
+    Xdirec: number
+    cooldown: number
+    portrait: string
+    constructor() {
+        this.lootPool = ["string", "leather", "chicken_flesh"]
+        this.relativePosition = { x: 100, y: StaticPositions.OnGround }
+        this.selected = false
+        this.cooldown = 18000
+        this.sprite = {
+            img: 'img/passiveEntities/cat.png',
+            pathToImage: 'img/passiveEntities/cat.png',
+            spriteWidth: 80,
+            spriteHeight: 64,
+            scale: 0.5,
+            spriteAnimations: {},
+            frames: 0,
+            frameLoc: 0,
+            currentState: 'idle',
+            animationStates: [
+                { name: 'idle', frames: 8 },
+                { name: 'run', frames: 12 },
+                { name: 'take_hit', frames: 4 },
+                { name: 'attack', frames: 8 }
+            ],
+            hitbox: {
+                offsetX: 50,
+                offsetY: 40,
+                width: 100,
+                height: 90
+            }
+        }
+        this.Xdirec = 1
+        this.pos = { x: 0, y: 0 }
+        this.img = null
+        this.portrait = 'img/portraits/cat.png'
+
+        this.init()
+    }
+    init() {
+        // initialise spriteAnimation object
+        this.sprite.animationStates.forEach((state, index) => { // iterate through all animations
+            let frames: framesObj = { // create a frames object to store the location of the current animation
+                loc: []
+            }
+            for (let j = 0; j < state.frames; j++) { // iterate for each frame
+                let positionX = j * this.sprite.spriteWidth // calculate the corresponding position of said frame
+                let positionY = index * this.sprite.spriteHeight
+
+                frames.loc.push({ x: positionX, y: positionY }) // push these positions onto the frames object
+            }
+
+            this.sprite.spriteAnimations[state.name] = frames // create a key on the spriteAnimations object to store this data
+        })
+
+        this.img = new Image()
+        if (this.img instanceof HTMLImageElement)
+            this.img.src = this.sprite.img
+    }
+    changeState(state: string) {
+        this.sprite.currentState = state
+        this.sprite.frameLoc = 0 // reset animation
+        this.sprite.frames = 0
+    }
+    update() {
+        this.pos.x = player.center.x - 300
+        this.pos.y = 550
+        this.Xdirec = player.data.Xdirec
+
+        if (gameFrame % this.cooldown === 0) {
+            const drop = this.lootPool[Math.floor(Math.random() * this.lootPool.length)]
+
+            droppedItems.push(new droppedItem({ x: this.pos.x + this.sprite.hitbox.offsetX + this.sprite.hitbox.width * Math.random(), y: this.pos.y - 30 }, drop, currentWorld))
+        }
+
+        if (player.data.isMoving) {
+            if (this.sprite.currentState !== 'run') this.changeState('run')
+        } else {
+            if (this.sprite.currentState !== 'idle') this.changeState('idle')
+        }
+
+        this.sprite.frames++
+        if (this.sprite.frames >= staggerFrames) {
+            this.sprite.frames = 0
+            this.sprite.frameLoc++
+            const frameAmount = this.sprite.spriteAnimations[this.sprite.currentState].loc.length
+
+            if (this.sprite.frameLoc >= frameAmount) {
+                this.sprite.frameLoc = 0
+            }
+        }
+    }
+
+    draw() {
+        if (menu.checkSetting('Hitboxes')) {
+            ctx!.save()
+            ctx!.strokeStyle = 'green'
+            ctx!.lineWidth = 2
+            ctx!.strokeRect(
+                this.pos.x + this.sprite.hitbox.offsetX,
+                this.pos.y + this.sprite.hitbox.offsetY,
+                this.sprite.hitbox.width,
+                this.sprite.hitbox.height
+            )
+            ctx!.strokeStyle = "black"
+            ctx!.strokeRect(this.pos.x + this.sprite.hitbox.offsetX, this.pos.y + this.sprite.hitbox.offsetY, 5, 5)
+            ctx!.restore()
+        }
+
+        let frameX = this.sprite.spriteAnimations[this.sprite.currentState].loc[this.sprite.frameLoc].x // get current locations of the animation
+        let frameY = this.sprite.spriteAnimations[this.sprite.currentState].loc[this.sprite.frameLoc].y
+
+        const image = getImage(this.sprite.img)
+        if (this.Xdirec === 1) {
+            ctx!.save() // save current state of the canvas
+            const drawX = -(this.pos.x + 400 * this.sprite.scale)
+            ctx!.scale(-1, 1) // invert orientatian of the entity
+            ctx!.drawImage(image, frameX, frameY, this.sprite.spriteWidth, this.sprite.spriteHeight, drawX, this.pos.y, 400 * this.sprite.scale, 400 * this.sprite.scale)
+            ctx!.restore()
+        } else {
+            ctx!.drawImage(image, frameX, frameY, this.sprite.spriteWidth, this.sprite.spriteHeight, this.pos.x, this.pos.y, 400 * this.sprite.scale, 400 * this.sprite.scale)
+        }
+    }
+}
 
 class trader extends Entity implements entity {
     sprite: {
@@ -1145,6 +1723,13 @@ class trader extends Entity implements entity {
             id
         )
 
+        let hitbox;
+        if (sprite.img === 'img/passiveEntities/shop.png') {
+            hitbox = { offsetX: 10, offsetY: 0, width: 350, height: 700 }
+        } else {
+            hitbox = { offsetX: 0, offsetY: 0, width: 200, height: 200 }
+        }
+
         this.sprite = {
             img: sprite.img,
             pathToImage: sprite.img,
@@ -1162,7 +1747,7 @@ class trader extends Entity implements entity {
                     frames: sprite.frameAmount
                 }
             ],
-            hitbox: { offsetX: 0, offsetY: 0, width: 200, height: 200 }
+            hitbox: hitbox
         }
 
         this.data = {
@@ -1603,7 +2188,6 @@ class NPC extends Entity implements entity {
                     let elemsArray: container[] | entity[] | block[] = []
 
                     elem.extra.forEach((element: any) => {
-                        console.log(element.class);
                         elemsArray.push(new elemRegistry[element.class](...element.args))
                     });
 
@@ -1910,8 +2494,6 @@ class NPC extends Entity implements entity {
         }
     }
 }
-
-
 //
 function removeWorldElements(properties: any[], elementValue: string[], dim: worldName): boolean {
     let removeList: number[] = [];
@@ -1964,6 +2546,11 @@ function teleport(distance: number) {
     worlds[currentWorld].elements.forEach(el => {
         el.pos.x -= distance
     })
+
+    droppedItems.forEach(item => {
+        item.pos.x -= distance
+    })
+    player.worldPosX[currentWorld] += distance
 }
 
 function sleep(ms: number) {
@@ -2018,6 +2605,7 @@ type AchievementKey = keyof typeof achievements;
 async function grantAchievement(achievement: AchievementKey) {
     const achievementData = await window.api.fetchAchievements()
     if (achievementData[achievement].granted) return;
+    if (cheats && achievement !== 'cheater') { return }
 
     const AchievementsWrapper = document.querySelector('.AchievementsWrapper') as HTMLElement;
     const data = achievements[achievement];
@@ -2060,7 +2648,8 @@ const elemRegistry: Record<string, new (...args: any[]) => any> = {
     trader: trader,
     teleporter: teleporter,
     enemyArcher: enemyArcher,
-    ogre: ogre
+    ogre: ogre,
+    passiveEntity: passiveEntity
 };
 
 async function initialise() {
@@ -2093,8 +2682,13 @@ async function initialise() {
         .then(data => {
             items = data
         });
+    loadingBar!.value += 5
+    console.info('Fetching configs...');
+    loadingInfo!.innerHTML = 'Fetching configs...'
+    const configsRes = await window.api.getConfigs()
+    configs = configsRes.data
 
-    loadingBar!.value += 10
+    loadingBar!.value += 5
 
     const settings = await window.api.fetchSettings()
 
@@ -2114,6 +2708,7 @@ async function initialise() {
     if (!isOldSave) {
         interface WorldData {
             name: string
+            mobCap: number
             background: { imgs: string[], spriteWidth: number, spriteHeight: number, ground: string }
             elements: WorldElement[];
         }
@@ -2131,7 +2726,7 @@ async function initialise() {
         loadingInfo!.innerHTML = 'Formatting worlds...'
         Object.values(intermediatWorld).forEach((world: WorldData) => {
             if (!worlds[world.name]) {
-                worlds[world.name] = { background: { imgs: [], spriteWidth: 0, spriteHeight: 0, ground: "" }, elements: [] };
+                worlds[world.name] = { background: { imgs: [], spriteWidth: 0, spriteHeight: 0, ground: "" }, elements: [], mobCap: 0 };
             }
             worlds[world.name as any].background = {
                 imgs: world.background.imgs,
@@ -2139,6 +2734,7 @@ async function initialise() {
                 spriteHeight: world.background.spriteHeight,
                 ground: world.background.ground
             }
+            worlds[world.name as any].mobCap = world.mobCap
             world.elements.forEach((element: WorldElement) => {
                 const ElemClass = elemRegistry[element.class];
 
@@ -2157,8 +2753,10 @@ async function initialise() {
 
             });
         })
-        loadingBar!.value += 40
 
+        player = new Player(CANVAS_WIDTH * 0.4, 420)
+        loadingBar!.value += 40
+        cheats = JSON.parse(sessionStorage.getItem('cheats') ?? 'false')
         await changeWorld('jungle', true)
         loadingBar!.value += 10
     } else {
@@ -2166,11 +2764,11 @@ async function initialise() {
 
         Object.entries(intermediatWorld).forEach(([worldName, world]: [string, any]) => {
             if (!worlds[worldName]) {
-                worlds[worldName] = { background: { imgs: [], spriteWidth: 0, spriteHeight: 0, ground: "" }, elements: [] }
+                worlds[worldName] = { background: { imgs: [], spriteWidth: 0, spriteHeight: 0, ground: "" }, elements: [], mobCap: 0 }
             }
 
             worlds[worldName].background = world.background
-
+            worlds[worldName].mobCap = world.mobCap
             world.elements.forEach((elem: any) => {
                 const ElemClass = elemRegistry[elem.data.class]
 
@@ -2204,8 +2802,11 @@ async function initialise() {
             })
         })
 
+        player = new Player(CANVAS_WIDTH * 0.4, 420)
+
         loadingBar!.value += 20
         player.data = playerData.data
+        player.story = playerData.story
 
         player.data.spells.forEach(spell => {
             if (spell) {
@@ -2219,15 +2820,14 @@ async function initialise() {
         player.data.isAttacking = false
         player.data.canMove = true
 
+        cheats = metaData.cheats
+
         let intermediatQuests = metaData.quest
         intermediatQuests.forEach((interquest: quest) => {
             Object.setPrototypeOf(interquest, quest.prototype)
         })
         activeQuests = intermediatQuests
         changeWorld(metaData.world, true)
-
-        /*         const newstats = await window.api.getStats(save);
-                stats = newstats; */
 
         const savedAchievements = await window.api.fetchAchievements();
         achievements = savedAchievements;
@@ -2241,51 +2841,17 @@ async function initialise() {
         loadingBar!.value += 20
     }
 
+    if (configsRes.isAltered) {
+        cheats = true
+    }
+
+
     console.info('Finished initialisation');
     loadingInfo!.innerHTML = 'Finished initialisation'
 }
 
-function update(timestamp: number = 0) {
-    const now = performance.now();
-    // display fps
-    const fpsDiv = document.querySelector('.fps-div');
-    frameCount++;
-    if (now - lastTime >= 1000) {
-        fps = frameCount;
-        lastTime = now;
-        frameCount = 0;
-        if (menu.checkSetting('FPS')) {
-            fpsDiv!.classList.remove('display-none')
-            fpsDiv!.innerHTML = `<h1>${fps} FPS</h1>`;
-        } else {
-            fpsDiv!.classList.add('display-none')
-        }
-    }
-    const elapsed = timestamp - lastFrameTime;
-    if (elapsed < FRAME_TIME) {
-        requestAnimationFrame(update);
-        return;
-    }
-    lastFrameTime = timestamp - (elapsed % FRAME_TIME);
-
-    ctx!.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-
-    if (!currentWorld || !worlds[currentWorld]) {
-        requestAnimationFrame(update)
-        return
-    }
-
-    if (!menu.checkSetting('Master Sound')) {
-        music.pause()
-    } else if (music.paused) {
-        music.play()
-    }
-
-    // player logic
-    player.data.isMoving = false;
+function handleMovement(): boolean {
     let isBlocked = false;
-    player.update();
-
     // check for keydown/up inputs
     if ((keys['KeyD'] || keys['KeyW']) && !player.data.onInventory && !player.data.onTradingMenu && !player.data.onSecondaryInventory && !player.data.isAttacking && player.data.canMove && !player.data.onCooldown && !player.data.castingSpell) {
         AFKCounter = 0
@@ -2314,11 +2880,21 @@ function update(timestamp: number = 0) {
                 gameSpeed = 100
                 levelPos += 100;
                 bgPosition -= 100
+                if (!player.worldPosX[currentWorld]) {
+                    player.worldPosX[currentWorld] = 100
+                } else {
+                    player.worldPosX[currentWorld] += 100
+                }
             } else {
                 gameSpeed = player.data.speed
                 levelPos += player.data.speed;
                 bgPosition -= player.data.speed
                 stats.general.distance.value += player.data.speed
+                if (!player.worldPosX[currentWorld]) {
+                    player.worldPosX[currentWorld] = player.data.speed
+                } else {
+                    player.worldPosX[currentWorld] += player.data.speed
+                }
             };
             (document.querySelector('.bar')! as HTMLElement).style.backgroundPosition = `${bgPosition}px 0`
             player.data.Xdirec = 1;
@@ -2353,10 +2929,20 @@ function update(timestamp: number = 0) {
                 gameSpeed = -100
                 levelPos -= 100;
                 bgPosition += 100
+                if (!player.worldPosX[currentWorld]) {
+                    player.worldPosX[currentWorld] = -100
+                } else {
+                    player.worldPosX[currentWorld] -= 100
+                }
             } else {
                 gameSpeed = -player.data.speed
                 levelPos -= player.data.speed;
                 bgPosition += player.data.speed
+                if (!player.worldPosX[currentWorld]) {
+                    player.worldPosX[currentWorld] = -player.data.speed
+                } else {
+                    player.worldPosX[currentWorld] -= player.data.speed
+                }
 
                 stats.general.distance.value += player.data.speed
             }
@@ -2374,7 +2960,76 @@ function update(timestamp: number = 0) {
         }
     }
     if (isBlocked) gameSpeed = 0;
-    deadObjects.forEach(obj => { // delete all objects that have been marked as dead
+
+    return isBlocked
+}
+
+function mobSpawning() {
+    if (!(configs!.worlds[currentWorld])) return;
+    if (!(configs!.worlds[currentWorld].canSpawn)) return;
+    const spawnRate = configs!.mobSpawning!.mobSpawningRateDefault
+    if (gameFrame % spawnRate === 0) {
+        let tally = 0
+        worlds[currentWorld].elements.forEach(el => {
+            if (el instanceof passiveEntity) tally++
+        })
+        if (tally > worlds[currentWorld].mobCap) {
+            return
+        };
+        const ranMob = configs!.worlds[currentWorld].mobSpawns[Math.floor(Math.random() * configs!.worlds[currentWorld].mobSpawns.length)]
+        let x;
+        if (Math.random() > 0.5) {
+            x = -(Math.round(Math.random() * configs!.worlds[currentWorld].worldSize.left))
+        } else {
+            x = Math.round(Math.random() * configs!.worlds[currentWorld].worldSize.right)
+        }
+        if (ranMob === 'chicken') {
+            const positions = { x: x, y: 645 }
+            worlds[currentWorld].elements.push(new passiveEntity(positions, { pathToImage: 'img/passiveEntities/chicken.png', animationStates: [{ frames: 4, name: 'run' }, { frames: 4, name: 'idle' }, { frames: 4, name: 'take_hit' }, { frames: 4, name: 'death' }], hitbox: { offsetX: 0, offsetY: 0, height: 35, width: 35 }, scale: 0.15, spriteHeight: 32, spriteWidth: 32, invertOrientation: false }, { health: 13 }, [{ drop: 'chicken_flesh', amount: 1, chance: 75 }], "NPC", -1, currentWorld))
+        } else if (ranMob === 'cow') {
+            const positions = { x: x, y: 575 }
+            worlds[currentWorld].elements.push(new passiveEntity(positions, { pathToImage: 'img/passiveEntities/cow.png', animationStates: [{ frames: 1, name: 'take_hit' }, { frames: 4, name: 's' }, { frames: 6, name: 'run' }, { frames: 9, name: 'idle' }, { frames: 5, name: 'death' }], hitbox: { offsetX: 10, offsetY: 20, height: 95, width: 115 }, scale: 0.35, spriteHeight: 32, spriteWidth: 48, invertOrientation: true }, { health: 25 }, [{ drop: 'cow_flesh', amount: 1, chance: 50 }, { drop: 'leather', amount: 1, chance: 50 }], "NPC", -1, currentWorld))
+        } else if (ranMob === 'goblin') {
+            worlds[currentWorld].elements.push(new goblin(x, StaticPositions.OnGround, 'goblin', -1))
+        }
+    }
+}
+
+function checkMusic() {
+    if (!menu.checkSetting('Master Sound')) {
+        music.pause()
+    } else if (music.paused) {
+        music.play()
+    }
+}
+
+function checkDisplayFPS(timestamp: number) {
+    const now = performance.now();
+    // display fps
+    const fpsDiv = document.querySelector('.fps-div');
+    frameCount++;
+    if (now - lastTime >= 1000) {
+        fps = frameCount;
+        lastTime = now;
+        frameCount = 0;
+        if (menu.checkSetting('FPS')) {
+            fpsDiv!.classList.remove('display-none')
+            fpsDiv!.innerHTML = `<h1>${fps} FPS</h1>`;
+        } else {
+            fpsDiv!.classList.add('display-none')
+        }
+    }
+    const elapsed = timestamp - lastFrameTime;
+    if (elapsed < FRAME_TIME) {
+        return true;
+    }
+    lastFrameTime = timestamp - (elapsed % FRAME_TIME);
+    return false
+}
+
+function handleWorldElements(isBlocked: boolean) {
+    // delete all objects that have been marked as dead
+    deadObjects.forEach(obj => {
         let indexHealthbar = -1;
         for (let i = 0; i < nonWorldElems.length; i++) {
             if (nonWorldElems[i].type.name === 'healthbar' && (nonWorldElems[i] as healthbar).entity === obj) {
@@ -2399,9 +3054,9 @@ function update(timestamp: number = 0) {
         const VIEW_LEFT = -600;
         const VIEW_RIGHT = CANVAS_WIDTH + 600;
 
-        if ((keys['KeyD'] || keys['KeyW']) && element.type.moving === true && !isBlocked) {
+        if ((keys['KeyD'] || keys['KeyW']) && element.type.moving === true && !isBlocked && !player.data.isDead) {
             element.pos.x -= gameSpeed;
-        } else if ((keys['KeyA'] || keys['KeyS']) && element.type.moving === true && !isBlocked) {
+        } else if ((keys['KeyA'] || keys['KeyS']) && element.type.moving === true && !isBlocked && !player.data.isDead) {
             element.pos.x -= gameSpeed;
         }
 
@@ -2424,9 +3079,9 @@ function update(timestamp: number = 0) {
         }
 
 
-        if ((keys['KeyD'] || keys['KeyW']) && !isBlocked) {
+        if ((keys['KeyD'] || keys['KeyW']) && !isBlocked && !player.data.isDead) {
             item.pos.x -= gameSpeed;
-        } else if ((keys['KeyA'] || keys['KeyS']) && !isBlocked) {
+        } else if ((keys['KeyA'] || keys['KeyS']) && !isBlocked && !player.data.isDead) {
             item.pos.x -= gameSpeed;
         }
         item.update()
@@ -2441,15 +3096,17 @@ function update(timestamp: number = 0) {
     player.draw();
 
     particles.forEach(particle => {
-        // Bewegung der Partikel zeitbasiert machen
-        if ((keys['KeyD'] || keys['KeyW']) && particle.type.moving === true && !isBlocked) {
+        if ((keys['KeyD'] || keys['KeyW']) && !isBlocked && !player.data.isDead) {
             particle.pos.x -= gameSpeed;
-        } else if ((keys['KeyA'] || keys['KeyS']) && particle.type.moving === true && !isBlocked) {
+        } else if ((keys['KeyA'] || keys['KeyS']) && !isBlocked && !player.data.isDead) {
             particle.pos.x -= gameSpeed;
-        }
+        }   
         particle.update();
         particle.draw();
     });
+}
+
+function handleQuests() {
     const questDiv = document.querySelector('#questDiv');
     if (activeQuests.length > 0) {
         questDiv?.classList.remove('display-none');
@@ -2481,7 +3138,6 @@ function update(timestamp: number = 0) {
                 btn.classList.add('confirm-btn');
                 btn.id = 'questBtn';
                 btn.addEventListener('click', () => {
-                    console.log('click');
                     quest.finish();
                 });
                 questDiv!.appendChild(btn);
@@ -2490,6 +3146,40 @@ function update(timestamp: number = 0) {
 
         isQuestUIupdated = true;
     }
+}
+
+function update(timestamp: number = 0) {
+    const frameNotReady = checkDisplayFPS(timestamp)
+    if (frameNotReady) {
+        requestAnimationFrame(update)
+        return
+    }
+    // clear the canvas
+    ctx!.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+    // check if world was loaded
+    if (!currentWorld || !worlds[currentWorld]) {
+        requestAnimationFrame(update)
+        return
+    }
+
+    // checks for the music being paused/played
+    checkMusic()
+
+    // spawn logic
+    mobSpawning()
+
+    // player logic
+    player.data.isMoving = false;
+
+
+    const isBlocked = handleMovement()
+    player.update();
+
+    handleWorldElements(isBlocked)
+
+    handleQuests()
+
     currentEvents = [];
     gameFrame++;
     requestAnimationFrame(update);
@@ -2598,7 +3288,7 @@ async function changeWorld(world: worldName, fromInit?: boolean) {
 }
 
 // declare player
-let player = new Player(CANVAS_WIDTH * 0.4, 420)
+let player: Player;
 const menu = new menuClass()
 
 let music = new Audio()
@@ -2609,7 +3299,7 @@ async function start() {
     const loadingScreen = document.querySelector('#loadingScreen');
     loadingScreen?.classList.remove('display-none')
     const loadingBar = document.querySelector('#loadingBar') as HTMLProgressElement
-    await updateHotbar()
+
 
     window.api.changeDCState('playing', currentWorld)
 
@@ -2620,6 +3310,7 @@ async function start() {
 
 
 
+    await updateHotbar()
     loadingInfo!.innerHTML = 'Starting!'
     await sleep(120)
     loadingScreen?.classList.add('display-none')

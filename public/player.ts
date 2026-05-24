@@ -18,12 +18,14 @@ class Player implements entity {
         learntMagic: boolean
     }
 
+    worldPosX: any
+
     effectData: { effects: effectType[]; effectTicks: number; effectCounter: number; };
-    data: { immune: boolean, onSpellCooldown: boolean, mana: number, castingSpell: boolean, currentCooldown: number, spellCooldown: number, selectedSpell: spellType | null, spells: (spellType | null)[], magicInventory: InventorySlot[], isAttacking: boolean, class: string, jumpHeight: number, jumpOrigin: number | null, onBlock: { isOnBlock: boolean, block: block | null }, craftingInventory: InventorySlot[][], armor: InventorySlot[], inventory: InventorySlot[][], Ydirec: number, interactionFocus: block | container | entity | null, showingText: boolean, selectedSlot: number, dragging: string | null, interactionRange: number, velocity_Y: number, canMove: boolean, onSecondaryInventory: boolean, speed: number, onGround: boolean, onInventory: boolean, onTradingMenu: boolean, health: number; maxHealth: number; attackRange: number; attackDamage: number; drops: { amount: number; drop: item; chance: number; }[]; name: string; onCooldown: boolean; isDead: boolean; isMoving: boolean; showedText: boolean; Xdirec: number; seeRange: number; };
+    data: { onCompanionGUI: boolean, immune: boolean, onSpellCooldown: boolean, mana: number, castingSpell: boolean, currentCooldown: number, spellCooldown: number, selectedSpell: spellType | null, spells: (spellType | null)[], magicInventory: InventorySlot[], isAttacking: boolean, class: string, jumpHeight: number, jumpOrigin: number | null, onBlock: { isOnBlock: boolean, block: block | null }, craftingInventory: InventorySlot[][], armor: InventorySlot[], inventory: InventorySlot[][], Ydirec: number, interactionFocus: block | container | entity | null, showingText: boolean, selectedSlot: number, dragging: string | null, interactionRange: number, velocity_Y: number, canMove: boolean, onSecondaryInventory: boolean, speed: number, onGround: boolean, onInventory: boolean, onTradingMenu: boolean, health: number; maxHealth: number; attackRange: number; attackDamage: number; drops: { amount: number; drop: item; chance: number; }[]; name: string; onCooldown: boolean; isDead: boolean; isMoving: boolean; showedText: boolean; Xdirec: number; seeRange: number; };
 
 
     lootDrop: { amount: number, drop: item, chance: number }[]
-
+    companions: companionType[]
     hitbox: { offsetX: number, offsetY: number, width: number, height: number }
     worldElem: worldElementNames
     isInit: boolean // have the animations been initialised
@@ -36,54 +38,19 @@ class Player implements entity {
             y: y
         }
 
+        this.worldPosX = {}
+
         this.sprite = {
-            img: 'img/player.png',
-            spriteWidth: 162,
-            spriteHeight: 162,
+            img: configs!.properties.player.sprite.img,
+            spriteWidth: configs!.properties.player.sprite.spriteWidth,
+            spriteHeight: configs!.properties.player.sprite.spriteHeight,
             frames: 0,
             frameLoc: 0,
-            animationStates: [
-                {
-                    name: 'idle',
-                    frames: 10
-                },
-                {
-                    name: 'attack1',
-                    frames: 7
-                },
-                {
-                    name: 'attack2',
-                    frames: 7
-                },
-                {
-                    name: 'attack3',
-                    frames: 8
-                },
-                {
-                    name: 'death',
-                    frames: 7
-                },
-                {
-                    name: 'fall',
-                    frames: 3
-                },
-                {
-                    name: 'jump',
-                    frames: 3
-                },
-                {
-                    name: 'run',
-                    frames: 8
-                },
-                {
-                    name: 'take_hit',
-                    frames: 3
-                }
-            ],
+            animationStates: configs!.properties.player.sprite.animationStates,
             spriteAnimations: {},
             currentState: 'idle',
-            scale: 1,
-            hitbox: { offsetX: 195, offsetY: 170, width: 60, height: 110 }
+            scale: configs!.properties.player.sprite.scale,
+            hitbox: configs!.properties.player.sprite.hitbox
         }
 
         this.effectData = {
@@ -93,15 +60,16 @@ class Player implements entity {
         }
 
         this.data = {
+            onCompanionGUI: false,
             immune: false,
             onSpellCooldown: false,
-            mana: 100,
+            mana: configs!.properties.player.data.mana,
             castingSpell: false,
             spellCooldown: 0,
             currentCooldown: 0,
             selectedSpell: null,
-            magicInventory: [null, null, null, null, null, null, null, null, null],
-            spells: [null, null, null, null, null, null, null, null, null],
+            magicInventory: configs!.properties.player.data.magicInventory,
+            spells: configs!.properties.player.data.spells,
             isAttacking: false,
             class: "player",
             jumpOrigin: null,
@@ -110,15 +78,15 @@ class Player implements entity {
             onInventory: false,
             onTradingMenu: false,
             showedText: false,
-            speed: 7,
+            speed: configs!.properties.player.data.speed,
             onSecondaryInventory: false,
             canMove: true,
             isMoving: false,
             velocity_Y: 0,
-            health: 100,
-            maxHealth: 100,
-            jumpHeight: 200,
-            interactionRange: 125,
+            health: configs!.properties.player.data.health,
+            maxHealth: configs!.properties.player.data.health,
+            jumpHeight: configs!.properties.player.data.jumpHeight,
+            interactionRange: configs!.properties.player.data.interactionRange,
             dragging: null,
             selectedSlot: 1,
             showingText: false,
@@ -126,15 +94,10 @@ class Player implements entity {
             Ydirec: 0,
             Xdirec: 1,
             onCooldown: false,
-            inventory: [
-                [null, null, null, null, null],
-                [null, null, null, null, null],
-                [null, null, null, null, null],
-                [null, null, null, null, null],
-            ],
-            armor: [null, null, null],
+            inventory: configs!.properties.player.data.inventory,
+            armor: configs!.properties.player.data.armor,
             craftingInventory: [[null, null, null], [null, null, null], [null, null, null]],
-            attackRange: 150,
+            attackRange: configs!.properties.player.data.attackRange,
             attackDamage: 5,
             drops: [],
             name: "player",
@@ -143,10 +106,11 @@ class Player implements entity {
         }
         this.story = {
             freedNate: false,
-            learntMagic: true
+            learntMagic: false
         }
+        this.companions = []
 
-        this.hitbox = { offsetX: 195, offsetY: 170, width: 60, height: 110 }
+        this.hitbox = configs!.properties.player.sprite.hitbox
         this.type = { isGround: true, name: 'player', allignment: 'friendly', moving: false, attackable: false, interactable: false }
         this.isInit = false
         this.lootDrop = []
@@ -197,8 +161,15 @@ class Player implements entity {
             const playerBottom = this.pos.y + this.sprite.hitbox.offsetY + this.sprite.hitbox.height
             const blockTop = el.pos.y + el.hitbox.offsetY
 
-            return playerBottom <= blockTop + 20
-        }) as block | undefined
+            const playerLeft = this.pos.x + this.sprite.hitbox.offsetX
+            const playerRight = playerLeft + this.sprite.hitbox.width
+            const blockLeft = el.pos.x + el.hitbox.offsetX
+            const blockRight = blockLeft + el.hitbox.width
+
+            const xOverlap = playerRight > blockLeft && playerLeft < blockRight
+
+            return xOverlap && playerBottom <= blockTop + 20
+        }) as block | undefined 
 
         const onOtherBlock = {
             onBlock: !!foundBlock,
@@ -207,9 +178,48 @@ class Player implements entity {
 
         this.data.onBlock = { isOnBlock: onOtherBlock.onBlock, block: onOtherBlock.block }
 
-        if (this.data.onGround && !onOtherBlock.onBlock && this.bottom - 118 < groundY) {
-            this.data.onGround = false
+        if (this.data.onGround && !onOtherBlock.onBlock) {
+            if (!checkCollision(
+                { hitbox: player.hitbox, pos: player.pos },
+                { hitbox: { width: CANVAS_WIDTH, height: 40, offsetX: 0, offsetY: 0 }, pos: { x: 0, y: CANVAS_HEIGHT } }
+            )) {
+                this.data.onGround = false
+                this.data.velocity_Y = 0.1
+            }
         }
+
+        if (this.data.health <= 0 && this.sprite.currentState !== 'death' && !player.data.isDead) {
+            console.log('!!!');
+            stats.general.deaths.value++
+            this.changeState('death')
+
+            for (let y = 0; y < player.data.inventory.length; y++) {
+                for (let x = 0; x < player.data.inventory[y].length; x++) {
+                    const slot = player.data.inventory[y][x];
+                    if (slot !== null) {
+                        droppedItems.push(new droppedItem({ x: player.pos.x + player.hitbox.offsetX + player.hitbox.width * Math.random(), y: player.pos.y + player.hitbox.height / 2 }, slot, currentWorld));
+                    }
+                }
+            }
+
+
+            player.data.inventory = [
+                [null, null, null, null, null],
+                [null, null, null, null, null],
+                [null, null, null, null, null],
+                [null, null, null, null, null],
+            ]
+
+            updateHotbar()
+            renderInventory()
+            closeCompanionGUI()
+            closeInventory()
+            closeTradingMenu()
+
+            isQuestUIupdated = false
+            if (menu.checkSetting('Master Sound')) playSound('death.mp3', menu.sounds.effects / 100)
+        }
+
 
         if (!this.data.onGround) {
             if (this.data.jumpOrigin && this.data.jumpOrigin - this.bottom >= this.data.jumpHeight && this.data.velocity_Y < 0) {
@@ -219,27 +229,35 @@ class Player implements entity {
             if (this.data.velocity_Y < 0) {
                 this.pos.y += this.data.velocity_Y * globalGravity
                 this.data.velocity_Y += 0.1
+                if ((this.sprite.spriteAnimations as any).jump) {
+                    if (!(this.sprite.currentState === "attack3") && !(this.sprite.currentState === "jump")) this.changeState("jump")
+                } else {
+                    if (!(this.sprite.currentState === "attack3") && !(this.sprite.currentState === "idle")) this.changeState("idle")
+                }
 
-                if (!(this.sprite.currentState === "attack3") && !(this.sprite.currentState === "jump")) this.changeState("jump")
             } else {
                 this.pos.y += this.data.velocity_Y * globalGravity
                 this.data.velocity_Y += 0.1
+                if ((this.sprite.spriteAnimations as any).fall) {
+                    if (!(this.sprite.currentState === "attack3") && !(this.sprite.currentState === "fall")) this.changeState("fall")
+                } else {
+                    if (!(this.sprite.currentState === "attack3") && !(this.sprite.currentState === "idle")) this.changeState("idle")
+                }
 
-                if (!(this.sprite.currentState === "attack3") && !(this.sprite.currentState === "fall")) this.changeState("fall")
             }
-            if (this.bottom - 118 >= groundY && this.data.velocity_Y > 0) { // check if player is on the ground
-                this.pos.y = groundY - this.sprite.spriteHeight
+            if (checkCollision({ hitbox: player.hitbox, pos: player.pos }, { hitbox: { width: CANVAS_WIDTH, height: 40, offsetX: 0, offsetY: 0 }, pos: { x: 0, y: CANVAS_HEIGHT } }) && this.data.velocity_Y > 0) { // check if player is on the ground
+                this.pos.y = groundY - player.hitbox.height
                 player.data.onBlock = { isOnBlock: false, block: null }
                 this.data.onGround = true // reset values
                 this.data.velocity_Y = 0
                 this.data.jumpOrigin = null
-                if (this.sprite.currentState !== 'attack3') this.changeState('idle')
+                if (this.sprite.currentState !== 'attack3' && this.sprite.currentState !== 'idle') this.changeState('idle')
             } else if (onOtherBlock.onBlock && this.data.velocity_Y > 0) {
                 this.pos.y = ((onOtherBlock.block!.pos.y + onOtherBlock.block!.hitbox.offsetY) - (player.hitbox.offsetY + player.hitbox.height)) + 1;
                 this.data.onGround = true // reset values
                 this.data.velocity_Y = 0
                 this.data.jumpOrigin = null
-                if (this.sprite.currentState !== 'attack3') this.changeState('idle')
+                if (this.sprite.currentState !== 'attack3' && this.sprite.currentState !== 'idle') this.changeState('idle')
             } else {
                 this.data.onGround = false
             }
@@ -255,10 +273,19 @@ class Player implements entity {
                 this.endOfAnimation() // check if any state should be changed at the end of its execution (one time animation)
             }
         }
+        // update companion
+        this.companions.forEach(companion => {
+            if (companion.selected) {
+                companion.update()
+            }
+        })
+
         this.effectData.effectTicks++
     }
 
     draw() {
+        if (this.data.isDead) return;
+
         if (menu.checkSetting('Hitboxes')) {
             ctx!.save()
             ctx!.strokeStyle = this.type.allignment === 'enemy' ? 'red' : (this.type.allignment === 'passive' ? 'yellow' : 'green')
@@ -282,11 +309,18 @@ class Player implements entity {
             ctx!.save() // save current state of the canvas
             const drawX = -(this.pos.x + 450)
             ctx!.scale(-1, 1) // invert orientatian of the entity
-            ctx!.drawImage(image, frameX, frameY, this.sprite.spriteWidth, this.sprite.spriteHeight, drawX, this.pos.y, 450, 450)
+            ctx!.drawImage(image, frameX, frameY, this.sprite.spriteWidth, this.sprite.spriteHeight, drawX, this.pos.y, 450 * this.sprite.scale, 450 * this.sprite.scale)
             ctx!.restore()
         } else if (this.data.Xdirec === 1) {
-            ctx!.drawImage(image, frameX, frameY, this.sprite.spriteWidth, this.sprite.spriteHeight, this.pos.x, this.pos.y, 450, 450)
+            ctx!.drawImage(image, frameX, frameY, this.sprite.spriteWidth, this.sprite.spriteHeight, this.pos.x, this.pos.y, 450* this.sprite.scale, 450* this.sprite.scale)
         }// (image, sx, sy, sw, sh, dx, dy, dw, dh)
+
+        // draw companion
+        this.companions.forEach(companion => {
+            if (companion.selected) {
+                companion.draw()
+            }
+        })
 
         // draw selectedItem
         const selectedItem = this.data.inventory[3][this.data.selectedSlot - 1]
@@ -343,6 +377,11 @@ class Player implements entity {
         })
     }
     changeState(state: string) {
+        if (this.sprite.currentState === 'death') return;
+        if (this.sprite.currentState === state) return
+        if (!this.sprite.spriteAnimations[state]) {
+            state = 'idle'
+        }
         this.sprite.currentState = state
         this.sprite.frameLoc = 0 // reset animation
         this.sprite.frames = 0
@@ -513,8 +552,28 @@ class Player implements entity {
         if (this.sprite.currentState === 'attack1' || this.sprite.currentState === 'take_hit' || this.sprite.currentState === 'attack3') { // reset animation
             this.changeState('idle')
             this.data.isAttacking = false
+        } else if (this.sprite.currentState === 'death') {
+            this.data.isDead = true
+            console.log('death');
+            this.sprite.currentState = 'idle'
+            this.sprite.frameLoc = 0
+            this.sprite.frames = 0
+            showDeathScreen()
         }
     }
+
+    respawn() {
+        player.data.health = player.data.maxHealth
+        player.data.isDead = false
+        this.sprite.currentState = 'idle'
+        this.sprite.frameLoc = 0
+        this.sprite.frames = 0
+
+
+        closeDeathScreen()
+        teleport(-player.worldPosX[currentWorld])
+    }
+
 
     useItem(): void {
         const currentItem = player.data.inventory[3][this.data.selectedSlot - 1]
@@ -590,10 +649,13 @@ class Player implements entity {
             let counter = 0
             for (let y = 0; y < player.data.inventory.length; y++) {
                 for (let x = 0; x < player.data.inventory[y].length; x++) {
-                    if (player.data.inventory[y][x] === item.item) {
-                        counter++
-                        player.data.inventory[y][x] = null
+                    if (counter < item.amount) {
+                        if (player.data.inventory[y][x] === item.item) {
+                            counter++
+                            player.data.inventory[y][x] = null
+                        }
                     }
+
                 }
             }
 
@@ -601,7 +663,7 @@ class Player implements entity {
                 success = false
             }
         })
-
+        renderInventory()
         updateHotbar()
         return success
     }

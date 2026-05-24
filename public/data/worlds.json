@@ -1,6 +1,7 @@
 {
     "jungle": {
         "name": "jungle",
+        "mobCap": 10,
         "background": {
             "imgs": [
                 "plx-1-jungle.png",
@@ -251,8 +252,8 @@
                     -1,
                     [
                         [
-                            "iron_staff",
-                            "lightning_scroll",
+                            null,
+                            null,
                             "leather",
                             null,
                             null
@@ -1396,6 +1397,44 @@
                 "class": "block",
                 "args": [
                     {
+                        "x": -4700,
+                        "y": 370
+                    },
+                    {
+                        "pathToImage": "img/blocks/tree_1.png",
+                        "spriteWidth": 65,
+                        "spriteHeight": 60,
+                        "scale": 6,
+                        "hitbox": {
+                            "offsetX": 0,
+                            "offsetY": 0,
+                            "width": 300,
+                            "height": 400
+                        }
+                    },
+                    {
+                        "cooldown": 100,
+                        "output": [
+                            {
+                                "amount": 1,
+                                "item": "stick"
+                            }
+                        ],
+                        "isInfinite": true,
+                        "healthBarScale": 2.5
+                    },
+                    {
+                        "isBlocking": false,
+                        "removeItem": null
+                    },
+                    "tree_1",
+                    0
+                ]
+            },
+            {
+                "class": "block",
+                "args": [
+                    {
                         "x": 7300,
                         "y": 0
                     },
@@ -1852,44 +1891,6 @@
                 "class": "block",
                 "args": [
                     {
-                        "x": -4700,
-                        "y": 370
-                    },
-                    {
-                        "pathToImage": "img/blocks/tree_1.png",
-                        "spriteWidth": 65,
-                        "spriteHeight": 60,
-                        "scale": 6,
-                        "hitbox": {
-                            "offsetX": 0,
-                            "offsetY": 0,
-                            "width": 300,
-                            "height": 400
-                        }
-                    },
-                    {
-                        "cooldown": 100,
-                        "output": [
-                            {
-                                "amount": 1,
-                                "item": "stick"
-                            }
-                        ],
-                        "isInfinite": true,
-                        "healthBarScale": 2.5
-                    },
-                    {
-                        "isBlocking": false,
-                        "removeItem": null
-                    },
-                    "tree_1",
-                    0
-                ]
-            },
-            {
-                "class": "block",
-                "args": [
-                    {
                         "x": -4300,
                         "y": 560
                     },
@@ -1960,11 +1961,247 @@
                     "door_1",
                     0
                 ]
+            },
+            {
+                "class": "NPC",
+                "args": [
+                    {
+                        "x": -9100,
+                        "y": 550
+                    },
+                    {
+                        "pathToImage": "img/passiveEntities/cat.png",
+                        "spriteWidth": 80,
+                        "spriteHeight": 64,
+                        "frameAmount": 8,
+                        "scale": 0.5,
+                        "hitbox": {
+                            "offsetX": 50,
+                            "offsetY": 40,
+                            "width": 100,
+                            "height": 90
+                        }
+                    },
+                    "NPC",
+                    {
+                        "first": [
+                            "Meow Meow!"
+                        ],
+                        "completed": [
+                            "Meow!"
+                        ]
+                    },
+                    "elder",
+                    [],
+                    -2,
+                    [
+                        "give",
+                        [],
+                        "The cat seems like he wants some chicken!",
+                        [
+                            {
+                                "item": "cat_whistle",
+                                "amount": 1
+                            }
+                        ],
+                        [
+                            {
+                                "item": "chicken_flesh",
+                                "amount": 2
+                            }
+                        ]
+                    ],
+                    null
+                ]
+            },
+            {
+                "class": "block",
+                "args": [
+                    {
+                        "x": -8700,
+                        "y": 665
+                    },
+                    {
+                        "pathToImage": "img/blocks/rock_3.png",
+                        "spriteWidth": 45,
+                        "spriteHeight": 18,
+                        "scale": 2,
+                        "hitbox": {
+                            "offsetX": 0,
+                            "offsetY": 0,
+                            "width": 200,
+                            "height": 1000
+                        }
+                    },
+                    {
+                        "cooldown": 100,
+                        "output": [
+                            {
+                                "amount": 1,
+                                "item": "stone"
+                            }
+                        ],
+                        "isInfinite": false,
+                        "healthBarScale": 2.5,
+                        "brockenBy": [
+                            "wood_pickaxe",
+                            "stone_pickaxe",
+                            "iron_pickaxe",
+                            "copper_pickaxe",
+                            "gold_pickaxe"
+                        ]
+                    },
+                    {
+                        "isBlocking": false,
+                        "removeItem": null,
+                        "text": ""
+                    },
+                    "rock",
+                    0
+                ]
+            },
+            {
+                "class": "block",
+                "args": [
+                    {
+                        "x": 1700,
+                        "y": 665
+                    },
+                    {
+                        "pathToImage": "img/blocks/rock_3.png",
+                        "spriteWidth": 45,
+                        "spriteHeight": 18,
+                        "scale": 2,
+                        "hitbox": {
+                            "offsetX": 0,
+                            "offsetY": 0,
+                            "width": 200,
+                            "height": 1000
+                        }
+                    },
+                    {
+                        "cooldown": 100,
+                        "output": [
+                            {
+                                "amount": 1,
+                                "item": "stone"
+                            }
+                        ],
+                        "isInfinite": false,
+                        "healthBarScale": 2.5,
+                        "brockenBy": [
+                            "wood_pickaxe",
+                            "stone_pickaxe",
+                            "iron_pickaxe",
+                            "copper_pickaxe",
+                            "gold_pickaxe"
+                        ]
+                    },
+                    {
+                        "isBlocking": false,
+                        "removeItem": null,
+                        "text": ""
+                    },
+                    "rock",
+                    0
+                ]
+            },
+            {
+                "class": "block",
+                "args": [
+                    {
+                        "x": -3300,
+                        "y": 665
+                    },
+                    {
+                        "pathToImage": "img/blocks/rock_3.png",
+                        "spriteWidth": 45,
+                        "spriteHeight": 18,
+                        "scale": 2,
+                        "hitbox": {
+                            "offsetX": 0,
+                            "offsetY": 0,
+                            "width": 200,
+                            "height": 1000
+                        }
+                    },
+                    {
+                        "cooldown": 100,
+                        "output": [
+                            {
+                                "amount": 1,
+                                "item": "stone"
+                            }
+                        ],
+                        "isInfinite": false,
+                        "healthBarScale": 2.5,
+                        "brockenBy": [
+                            "wood_pickaxe",
+                            "stone_pickaxe",
+                            "iron_pickaxe",
+                            "copper_pickaxe",
+                            "gold_pickaxe"
+                        ]
+                    },
+                    {
+                        "isBlocking": false,
+                        "removeItem": null,
+                        "text": ""
+                    },
+                    "rock",
+                    0
+                ]
+            },
+            {
+                "class": "block",
+                "args": [
+                    {
+                        "x": -8000,
+                        "y": 640
+                    },
+                    {
+                        "pathToImage": "img/blocks/iron_ore.png",
+                        "spriteWidth": 27,
+                        "spriteHeight": 28,
+                        "scale": 3,
+                        "hitbox": {
+                            "offsetX": 0,
+                            "offsetY": 0,
+                            "width": 200,
+                            "height": 1000
+                        }
+                    },
+                    {
+                        "cooldown": 100,
+                        "output": [
+                            {
+                                "amount": 1,
+                                "item": "iron_ingot"
+                            }
+                        ],
+                        "isInfinite": false,
+                        "healthBarScale": 2.5,
+                        "brockenBy": [
+                            "stone_pickaxe",
+                            "iron_pickaxe",
+                            "copper_pickaxe",
+                            "gold_pickaxe"
+                        ]
+                    },
+                    {
+                        "isBlocking": false,
+                        "removeItem": null,
+                        "text": ""
+                    },
+                    "rock",
+                    0
+                ]
             }
         ]
     },
     "mountain": {
         "name": "mountain",
+        "mobCap": 5,
         "background": {
             "imgs": [
                 "plx-6-mountain.png",
@@ -2048,6 +2285,7 @@
     },
     "house_1": {
         "name": "house_1",
+        "mobCap": 0,
         "background": {
             "imgs": [
                 "plx-1-house_1.png"
@@ -2376,6 +2614,7 @@
     },
     "house_2": {
         "name": "house_2",
+        "mobCap": 0,
         "background": {
             "imgs": [
                 "plx-1-house_1.png"
@@ -2868,6 +3107,7 @@
     },
     "house_3": {
         "name": "house_3",
+        "mobCap": 0,
         "background": {
             "imgs": [
                 "plx-1-house_1.png"
@@ -3197,6 +3437,7 @@
     },
     "goblin_kingdom": {
         "name": "goblin_kingdom",
+        "mobCap": 10,
         "background": {
             "imgs": [
                 "plx-1-goblin.png",
@@ -3449,6 +3690,24 @@
                             "width": 200,
                             "height": 1000
                         }
+                    },
+                    {
+                        "cooldown": 100,
+                        "output": [
+                            {
+                                "amount": 1,
+                                "item": "stone"
+                            }
+                        ],
+                        "isInfinite": false,
+                        "healthBarScale": 2.5,
+                        "brockenBy": [
+                            "wood_pickaxe",
+                            "stone_pickaxe",
+                            "iron_pickaxe",
+                            "copper_pickaxe",
+                            "gold_pickaxe"
+                        ]
                     },
                     {
                         "isBlocking": false,
@@ -4238,6 +4497,7 @@
     },
     "house_4": {
         "name": "house_4",
+        "mobCap": 0,
         "background": {
             "imgs": [
                 "plx-5-goblin_1.png",
@@ -4245,7 +4505,7 @@
             ],
             "spriteWidth": 1500,
             "spriteHeight": 1000,
-            "ground": "wood.png"
+            "ground": "plx-5-goblin_1.png"
         },
         "elements": [
             {
@@ -4542,6 +4802,7 @@
     },
     "house_5": {
         "name": "house_5",
+        "mobCap": 0,
         "background": {
             "imgs": [
                 "plx-5-goblin_1.png",
@@ -4549,7 +4810,7 @@
             ],
             "spriteWidth": 1500,
             "spriteHeight": 1000,
-            "ground": "wood.png"
+            "ground": "plx-5-goblin_1.png"
         },
         "elements": [
             {
@@ -4731,6 +4992,7 @@
     },
     "goblin_king_house": {
         "name": "goblin_king_house",
+        "mobCap": 0,
         "background": {
             "imgs": [
                 "plx-5-goblin_1.png",
@@ -4738,7 +5000,7 @@
             ],
             "spriteWidth": 1500,
             "spriteHeight": 1000,
-            "ground": "wood.png"
+            "ground": "plx-5-goblin_1.png"
         },
         "elements": [
             {
@@ -4800,6 +5062,7 @@
     },
     "wizard_tower": {
         "name": "wizard_tower",
+        "mobCap": 0,
         "background": {
             "imgs": [
                 "plx-5-goblin_1.png",
@@ -4807,7 +5070,7 @@
             ],
             "spriteWidth": 1500,
             "spriteHeight": 1000,
-            "ground": "wood.png"
+            "ground": "plx-5-goblin_1.png"
         },
         "elements": [
             {
@@ -4833,7 +5096,7 @@
                     {
                         "isBlocking": true,
                         "removeItem": null,
-                        "text": "This path is dangerous!"
+                        "text": ""
                     },
                     "invisWall",
                     20
@@ -4997,7 +5260,7 @@
                     {
                         "isBlocking": true,
                         "removeItem": null,
-                        "text": "This path is dangerous!"
+                        "text": ""
                     },
                     "invisWall",
                     20
@@ -5008,14 +5271,14 @@
                 "args": [
                     {
                         "x": 2200,
-                        "y": 470
+                        "y": 540
                     },
                     {
                         "img": "img/passiveEntities/wizard_1.png",
                         "spriteWidth": 32,
                         "spriteHeight": 32,
                         "frameAmount": 4,
-                        "scale": 0.6
+                        "scale": 0.4
                     },
                     [
                         [
@@ -5046,6 +5309,16 @@
                             {
                                 "amount": 1,
                                 "item": "earth_gem"
+                            }
+                        ],
+                        [
+                            {
+                                "amount": 1,
+                                "item": "coin"
+                            },
+                            {
+                                "amount": 2,
+                                "item": "mana_crystal"
                             }
                         ]
                     ],

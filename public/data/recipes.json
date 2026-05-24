@@ -260,44 +260,107 @@
     },
     {
         "recipe": [
-            "  A",
+            "  C",
             " B ",
             "A  "
         ],
         "output": "iron_staff",
         "A": "iron_ingot",
-        "B": "stick"
+        "B": "stick",
+        "C": "mana_crystal"
     },
     {
         "recipe": [
-            "  A",
+            "  C",
             " B ",
             "A  "
         ],
         "output": "gold_staff",
         "A": "gold_ingot",
-        "B": "stick"
+        "B": "stick",
+        "C": "mana_crystal"
     },
     {
         "recipe": [
-            " CA",
+            " CD",
             " BC",
             "A  "
         ],
         "output": "advanced_staff",
         "A": "gold_ingot",
         "B": "stick",
-        "C": "copper_ingot"
+        "C": "copper_ingot",
+        "D": "mana_crystal"
     },
     {
         "recipe": [
-            " AA",
+            " AD",
             "CBA",
             "AC "
         ],
         "output": "master_staff",
         "A": "gold_ingot",
         "B": "stick",
-        "C": "copper_ingot"
+        "C": "copper_ingot",
+        "D": "mana_crystal"
+    },
+    {
+        "recipe": [
+            "   ",
+            "BAB",
+            "   "
+        ],
+        "output": "cleansing_rune",
+        "A": "mana_crystal",
+        "B": "stone"
+    },
+    {
+        "recipe": [
+            "AAA",
+            " A ",
+            " A "
+        ],
+        "output": "wood_pickaxe",
+        "A": "stick"
+    },
+    {
+        "recipe": [
+            "BBB",
+            " A ",
+            " A "
+        ],
+        "output": "stone_pickaxe",
+        "A": "stick",
+        "B": "stone"
+    },
+    {
+        "recipe": [
+            "BBB",
+            " A ",
+            " A "
+        ],
+        "output": "iron_pickaxe",
+        "A": "stick",
+        "B": "iron_ingot"
+    },
+    {
+        "recipe": [
+            "BBB",
+            " A ",
+            " A "
+        ],
+        "output": "copper_pickaxe",
+        "A": "stick",
+        "B": "copper_ingot"
+    },
+    {
+        "recipe": [
+            "BBB",
+            " A ",
+            " A "
+        ],
+        "output": "gold_pickaxe",
+        "A": "stick",
+        "B": "gold_ingot"
     }
 ]

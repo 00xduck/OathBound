@@ -17,5 +17,7 @@ contextBridge.exposeInMainWorld('api', {
     fetchSettings: () => ipcRenderer.invoke('fetchSettings'),
     fetchGlobalStats: () => ipcRenderer.invoke('fetchGlobalStats'),
     fetchAchievements: () => ipcRenderer.invoke('fetchAchievements'),
-    grantAchievement: (achievement) => ipcRenderer.send('grantAchievement', achievement)
+    getConfigs: () => ipcRenderer.invoke('getConfigs'),
+    grantAchievement: (achievement) => ipcRenderer.send('grantAchievement', achievement),
+    resetConfigs: () => ipcRenderer.send('resetConfigs'),
 });

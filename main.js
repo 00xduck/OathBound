@@ -1,8 +1,10 @@
-const { app, BrowserWindow, ipcMain, screen, shell } = require("electron");
+const { app, BrowserWindow, ipcMain, screen, shell, globalShortcut } = require("electron");
 const Store = require("electron-store")
 const path = require("path");
+const fs = require('fs')
 const { spawn } = require('child_process')
 const discord = require("./discord");
+const crypto = require("crypto")
 
 const save1 = new Store({
     name: 'save1'
@@ -52,6 +54,37 @@ const achievementsDefault = {
 
 const saves = { 1: save1, 2: save2, 3: save3 }
 
+function getAppDataPath() {
+    switch (process.platform) {
+        case 'win32':
+            return path.join(process.env.APPDATA, 'oathbound')
+        case 'darwin':
+            return path.join(process.env.HOME, 'Library', 'Application Support', 'oathbound')
+        default:
+            return path.join(process.env.HOME, '.config', 'oathbound')
+    }
+}
+
+function openAppFolder() {
+    const folderPath = getAppDataPath()
+
+    if (!fs.existsSync(folderPath)) {
+        fs.mkdirSync(folderPath, { recursive: true })
+    }
+
+    switch (process.platform) {
+        case 'win32':
+            spawn('explorer', [folderPath])
+            break
+        case 'darwin':
+            spawn('open', [folderPath])
+            break
+        default: // linux
+            spawn('xdg-open', [folderPath])
+            break
+    }
+}
+
 let mainWindow;
 
 function createWindow() {
@@ -60,24 +93,67 @@ function createWindow() {
     mainWindow = new BrowserWindow({
         width: display.workArea.width,
         height: display.workArea.height,
-        icon: path.join(__dirname, "logo.ico"),
+        minWidth: 800,
+        minHeight: 600,
+        icon: path.join(__dirname, process.platform === 'win32' ? 'logo.ico' : 'logo.png'),
         webPreferences: {
             preload: path.join(__dirname, "preload.js"),
             contextIsolation: true,
             nodeIntegration: false
         }
     });
-    if (refreshRate > 60) {
+    if (false) {
         mainWindow.loadFile("public/error.html")
     } else {
         mainWindow.loadFile("public/index.html");
     }
 
     mainWindow.webContents.on('did-finish-load', () => {
-        if (refreshRate > 60) {
+        if (false) {
             mainWindow.webContents.send('data', { error: { text: "Refreshrate is too high!", type: "refreshRate", addInfo: "Refreshrate needs to be 60Hz" }, severity: "medium" });
         }
     });
+}
+
+let configs;
+let configsReady = false;
+(async () => {
+    try {
+        const configPath = path.join(__dirname, 'public', 'data', 'configs.json')
+        const raw = fs.readFileSync(configPath, 'utf-8')
+        configs = JSON.parse(raw)
+        if (!config.get('data')) {
+            config.set('data', configs)
+        }
+
+        configsReady = true
+    } catch (err) {
+        console.error('Load Error on configs:', err)
+    }
+})()
+
+function checkHashCompConfig() {
+    if (!configs || !config.get('data')) return false
+
+    try {
+        const hashConfig = crypto
+            .createHash('sha256')
+            .update(JSON.stringify(configs))
+            .digest('hex')
+
+        const storedData = config.get('data')
+        const storedHashConfig = crypto
+            .createHash('sha256')
+            .update(JSON.stringify(storedData))
+            .digest('hex')
+
+        console.log(`Default Config Hash: ${hashConfig}`);
+        console.log(`Stored Config Hash: ${storedHashConfig}`);
+
+        return hashConfig !== storedHashConfig
+    } catch (err) {
+        return false
+    }
 }
 
 app.whenReady().then(() => {
@@ -87,6 +163,15 @@ app.whenReady().then(() => {
 
 ipcMain.on('openLink', (event, url) => {
     shell.openExternal(url)
+})
+
+ipcMain.on('resetConfigs', () => {
+    config.set('data', configs)
+})
+
+ipcMain.handle('getConfigs', () => {
+    if (!configsReady) return { data: null, isAltered: false }
+    return { data: config.get('data'), isAltered: checkHashCompConfig() }
 })
 
 ipcMain.on('saveGame', (event, worlds, playerData, save, meta, stats, settings, droppedItems) => {
@@ -118,8 +203,9 @@ ipcMain.on('saveGame', (event, worlds, playerData, save, meta, stats, settings, 
 
         saves[Number(save)].set("stats", oldStats)
     }
-
+    if (meta.cheats) return
     const globalStatsLocal = globalStats.get('stats')
+
     if (!globalStatsLocal) {
         globalStats.set('stats', stats)
     } else {
@@ -153,8 +239,6 @@ ipcMain.on('grantAchievement', (event, achievement) => {
     }
 })
 
-
-
 ipcMain.on('saveSettings', (event, settings) => {
     config.set("settings", settings)
 })
@@ -165,9 +249,7 @@ ipcMain.on('saveNameAndDesc', (event, name, description, save) => {
 })
 
 ipcMain.on('openFolder', () => {
-    const path = process.env.APPDATA
-
-    spawn('explorer', [`${path}\\oathbound`])
+    openAppFolder()
 })
 
 ipcMain.on('exitGame', () => {
@@ -180,9 +262,7 @@ ipcMain.on('changeDCState', (event, state, message) => {
 
 ipcMain.on('deleteSave', (event, save) => {
     // delete stuff
-    saves[Number(save)].delete("worlds")
-    saves[Number(save)].delete("player")
-    saves[Number(save)].delete("meta")
+    saves[Number(save)].clear()
 })
 
 ipcMain.on('logToMain', (event, text) => {

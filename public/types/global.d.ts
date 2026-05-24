@@ -14,7 +14,8 @@ declare global {
             saveSettings: (settings: any) => undefined,
             fetchAchievements: () => any,
             grantAchievement: (achievement: string) => undefined,
-            fetchGlobalStats: () => any
+            fetchGlobalStats: () => any,
+            getConfigs: () => any
         };
     }
 }
