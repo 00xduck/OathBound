@@ -1,6 +1,7 @@
 0.6.-
   0.6.0
-
+    -> The Goblin King
+    -> Skins and a wardrobe
 0.5.-
   0.5.6
     -> leaderboard system
