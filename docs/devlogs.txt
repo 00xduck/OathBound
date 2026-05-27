@@ -1,5 +1,11 @@
+0.6.-
+  0.6.0
 
 0.5.-
+  0.5.6
+    -> leaderboard system
+    -> accounts
+    -> OB Device connectivity
   0.5.5
     -> the user is now able to directly change some properties by going into AppData and opening configs.json, in which you can change many           values! Just play around for a bit and you'll be able to create your own difficulties! (cheats are automaticly enabled if configs are           changed)
     -> Pickaxes and Ores
