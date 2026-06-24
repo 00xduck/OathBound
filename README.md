@@ -72,7 +72,9 @@ is not prohibited eventhough a merge is unlikely.
 - **[ansimuz](https://ansimuz.itch.io/)**
 
 **_If I forgot you please reach out to me_**
-
+## Connections
+- [Discord](https://discord.gg/4uaTUR4GJ)
+- [Itch](https://duckar.itch.io/oathbound)
 
 ---
 **Created by [**_LUMA STUDIOS*_**](https://github.com/Schevell/LUMA-Studios)**
